@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>150</x>
+      <y>580</y>
+      <w>940</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>IPFS P2P Network
+fg=gray
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>210</x>
+      <y>220</y>
+      <w>70</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=[^]-[statistic]
+group=1</panel_attributes>
+    <additional_attributes>30.0;10.0;30.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>390</x>
+      <y>220</y>
+      <w>70</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=[v]-[config]
+group=1</panel_attributes>
+    <additional_attributes>30.0;10.0;30.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>560</x>
+      <y>220</y>
+      <w>70</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=[v]-[control]
+group=1</panel_attributes>
+    <additional_attributes>30.0;10.0;30.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>170</x>
+      <y>120</y>
+      <w>510</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+W3 Dashboard
+
+nodes/map, performance statistics, parameters config/control
+protocol show, verification of correctness, robustness, reliability
+
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>190</x>
+      <y>330</y>
+      <w>460</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+W3 Cluster
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>210</x>
+      <y>380</y>
+      <w>120</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+W3 Node
+impl.
+W3 Protocol
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>510</x>
+      <y>380</y>
+      <w>120</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+W3 Node
+impl.
+W3 Protocol
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>320</x>
+      <y>410</y>
+      <w>210</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=[&lt;].[&gt;]
+msg broadcast
+via mock
+
+group=1</panel_attributes>
+    <additional_attributes>10.0;20.0;190.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>860</x>
+      <y>90</y>
+      <w>210</w>
+      <h>420</h>
+    </coordinates>
+    <panel_attributes>browser 
+fg=light_gray
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>900</x>
+      <y>340</y>
+      <w>130</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+
+
+W3 Cluster
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>640</x>
+      <y>410</y>
+      <w>280</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=[&lt;].[&gt;]
+msg broadcast
+via libp2p
+
+fg=blue
+group=1</panel_attributes>
+    <additional_attributes>10.0;20.0;260.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>170</x>
+      <y>290</y>
+      <w>510</w>
+      <h>200</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+W3 Network
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>880</x>
+      <y>300</y>
+      <w>170</w>
+      <h>190</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+W3 Network
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>890</x>
+      <y>130</y>
+      <w>150</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+
+
+W3 Dashboard
+
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>920</x>
+      <y>230</y>
+      <w>110</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=[v]-[sta. conf. ctrl.]
+
+group=1</panel_attributes>
+    <additional_attributes>50.0;10.0;50.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>350</x>
+      <y>500</y>
+      <w>160</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>lt=[^]-[web3.storage]
+load bundle
+(.js,.htm,.css)
+fg=blue
+group=1</panel_attributes>
+    <additional_attributes>50.0;10.0;50.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>910</x>
+      <y>500</y>
+      <w>160</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>lt=[^]-[web3.storage]
+load bundle
+(.js,.htm,.css)
+fg=blue
+group=1</panel_attributes>
+    <additional_attributes>50.0;10.0;50.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>350</x>
+      <y>450</y>
+      <w>150</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lower latency &lt; 20ms
+fg=light_gray
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>720</x>
+      <y>450</y>
+      <w>150</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>higher latency 
+20ms ~ 100ms
+fg=light_gray
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>150</x>
+      <y>90</y>
+      <w>560</w>
+      <h>420</h>
+    </coordinates>
+    <panel_attributes>browser 
+fg=light_gray
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>570</x>
+      <y>40</y>
+      <w>330</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>* W3 POC for ETHOnline Hackathon *
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
