@@ -1,0 +1,13 @@
+node_modules
+.idea
+*.iml
+.DS_Store
+package-lock.json
+data
+.nyc_output
+bin/example/*
+test_result
+public/*
+
+# temp
+~*

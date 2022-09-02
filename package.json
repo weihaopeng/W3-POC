@@ -1,0 +1,42 @@
+{
+  "name": "w3-poc",
+  "keywords": [
+    "Web3", "blockchain", "consensus", "consensusless"
+  ],
+  "version": "0.1.0",
+  "description": "A large-scale P2P application protocol testbed based on IPFS and Libp2p for testing W3 which is a consensusless blockchain.",
+  "bin": "bin/index.js",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "cross-env DEBUG=w3* node test/integration/dev.server.js",
+    "start": "cross-env DEBUG=w3* node --max-old-space-size=1532 bin/index.js",
+    "test": "cross-env DEBUG=w3* mocha --exit --ui bdd \"./test/**/*.test.js\"",
+    "deps": "depcruise --include-only \"^src\" --output-type dot src | dot -T svg > architecture.svg",
+    "version": "auto-changelog -p && git add CHANGELOG.md",
+    "size": "t=\"$(npm pack .)\"; wc -c \"${t}\"; tar tvf \"${t}\"; rm \"${t}\";",
+    "stage": "git add . && git commit -m \"$npm_package_version\" && git tag $npm_package_version && git push && git push --tags"
+  },
+  "author": "wangqing@mq-ai.cn",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "cross-env": "^7.0.3",
+    "debug": "^4.3.3",
+    "dotenv": "^16.0.1",
+    "gauss": "^0.2.12",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "auto-changelog": "^2.3.0",
+    "chai": "^4.3.4",
+    "chai-exclude": "^2.1.0",
+    "dependency-cruiser": "^11.7.1",
+    "ethereum-cryptography": "^1.1.2",
+    "ethereumjs-wallet": "^1.0.2",
+    "inquirer": "^8.2.4",
+    "mocha": "^8.3.2",
+    "nyc": "^15.1.0"
+  },
+  "engines": {
+    "node": ">= 16.0.0"
+  }
+}
