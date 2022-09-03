@@ -9,6 +9,10 @@ class Network {
 
   async queryPeers (query, depth = 1) { // 默认只在peers中间查询
   }
+
+  listen (tx, param) {
+
+  }
 }
 
 export { Network }

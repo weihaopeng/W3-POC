@@ -1,4 +1,4 @@
-import { Transaction } from './transaction.js'
+import { Transaction } from  './transaction.js'
 
 class TransactionsPool {
   constructor (txCount) {
@@ -9,7 +9,7 @@ class TransactionsPool {
 
   addAndPickTxs (tx) {
     this.txs.push(tx)
-    if (this.txs.length === this.config.txCount) {
+    if (this.txs.length === this.txCount) {
       return this.txs.splice(0, this.txCount).sort(Transaction.sort)
     }
   }
