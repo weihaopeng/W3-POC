@@ -8,7 +8,7 @@ import Debug from 'debug'
 const debug = Debug('w3:test')
 
 describe('theory test  @issue#2', () => {
-  const nodeAmounts = 100
+  const nodeAmounts = 5
   TheoryNode.TX_COUNT = 5
   TheoryNode.setNodeAmount(nodeAmounts)
   let w3 = new W3Network(1)
@@ -25,7 +25,15 @@ describe('theory test  @issue#2', () => {
     await w3.sendFakeTxs(100, 100)
     w3.showCollectorsStatistic()
     w3.showWitnessesStatistic()
-    w3.nodes.should.have.length(100)
+    w3.nodes.should.have.length(5)
+  }).timeout(0)
+
+  it('single node (network) mode', async () => {
+    TheoryNode.isSingleNodeMode = true
+    await w3.sendFakeTxs(100, 100)
+    w3.showCollectorsStatistic()
+    w3.showWitnessesStatistic()
+    w3.nodes.should.have.length(5)
   }).timeout(0)
 
 })

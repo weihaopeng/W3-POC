@@ -35,6 +35,15 @@ class TheoryNode extends Node {
 
   static initPreBlockValue = Math.floor(Math.random() * this.NODES_AMOUNT)
 
+  /**
+   * true means in single node network mode, when only the node (i === 0) solely collect, witness and mint
+   * by set Node in singleNodeMode, we can easly write and debug the fundamental block building logics without
+   * disturbing from collaboration logics
+   */
+  static isSingleNodeMode = false
+
+  static count = 0
+
   constructor (network) {
     const account = getEthereumAccount()
     super({
@@ -43,9 +52,14 @@ class TheoryNode extends Node {
       initChainInterval: TheoryNode.INIT_CHAIN_INTERVAL,
       witnessRounds: TheoryNode.WITNESS_ROUNDS_AMOUNT
     })
+    this.i = this.constructor.count++
   }
 
   isCollector () {
+    return this.constructor.isSingleNodeMode ? this.isSingleNode() : this._isCollector()
+  }
+
+  _isCollector () {
     const preBlock = this.chain.tailHash || this.constructor.initPreBlockValue
     const distance = this.constructor.distanceFn(preBlock.toString(), this.account.publicKey)
     // debug('is collector,distance:', distance)
@@ -53,7 +67,21 @@ class TheoryNode extends Node {
   }
 
   isWitness (blockProposal) {
+    return this.constructor.isSingleNodeMode ? this.isSingleNode() : this._isWitness(blockProposal)
+  }
+
+  _isWitness (blockProposal) {
     return this.constructor.distanceFn(blockProposal.toString(), this.account.publicKey) < this.constructor.WITNESSES_AMOUNT
+  }
+
+  isSingleNode() {
+    return this.constructor.isSingleNodeMode && this.i === 0
+  }
+
+
+  async askForWitnessAndMint(txs) {
+    // singleNodeMode, directly witnessAndMint
+    return this.constructor.isSingleNodeMode ? this.witnessAndMint(this.createBlockProposal(txs)) : super.askForWitnessAndMint(txs)
   }
 }
 
@@ -136,15 +164,5 @@ class W3Network extends EventEmitter {
     debug('--- %d bps witnessed with avg. %d witnesses/tx', sta.length, sta.reduce((p, s) => p + s.length, 0) / sta.length)
   }
 }
-//
-// const network = new W3Network()
-// const n1 = new TheoryNode(network)
-//
-// const n2 = new TheoryNode(network)
-//
-// const d = util.NHashDistance(200000)
-// debug(d('afa', 'dsfdsf'))
-// debug(d('afa', 'dsfdsf'))
-// debug(d('afa', 'dsfb12123213f'))
 
 export { TheoryNode, W3Network }

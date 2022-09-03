@@ -65,12 +65,12 @@ class Node {
   startTwoStagesBlockGeneration () {
     this.network.listen('tx', async (tx) => {
       await this.updateLocalFact({ tx })
-      this.isCollector() && await this.collect(tx)
+      await this.handleTx(tx)
     }, this) // this is the target used in theory test to aviod of react on its own message
 
     this.network.listen('block-proposal', async (bp) => {
       await this.updateLocalFact({ bp })
-      this.isWitness(bp) && await this.witnessAndMint(bp)
+      await this.handleWitness(bp)
     }, this)
 
     this.network.listen('new-block', async (block) => {
@@ -83,6 +83,14 @@ class Node {
       await this.handleForkWins(fork)
     }, this)
 
+  }
+
+  async handleWitness (bp) {
+    this.isWitness(bp) && await this.witnessAndMint(bp)
+  }
+
+  async handleTx (tx) {
+    this.isCollector() && await this.collect(tx)
   }
 
   isCollector () {
@@ -100,7 +108,7 @@ class Node {
     const isValid = await this.verifyTx(tx)
     if (!isValid) return debug('tx is invalid, skip it', tx)
     const txs = this.txPool.addAndPickTxs(tx)
-    txs && await this.askForWitneesAndMint(txs)
+    txs && await this.askForWitnessAndMint(txs)
   }
 
   async witnessAndMint (bp) {
@@ -123,12 +131,17 @@ class Node {
     // TODO: 按其中的消息，检查chain
   }
 
-  async askForWitneesAndMint (txs) {
+  async askForWitnessAndMint (txs) {
+    const bp = this.createBlockProposal(txs)
+    bp.askForWitness(this.account)
+    this.network.broadcast('block-proposal', bp, this) //this used in theory test to aviod of react on its own message
+  }
+
+  createBlockProposal (txs) {
     const bp = new BlockProposal({
       height: this.chain.height + 1, tailHash: this.chain.tailHash, txs, collector: this.account.publicKeyString
     })
-    bp.askForWitness(this.account)
-    this.network.broadcast('block-proposal', bp, this) //this used in theory test to aviod of react on its own message
+    return bp
   }
 
   async verifyTx (tx) {
