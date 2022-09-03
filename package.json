@@ -7,9 +7,9 @@
     "consensusless"
   ],
   "version": "0.1.0",
+  "type": "module",
   "description": "A large-scale P2P application protocol testbed based on IPFS and Libp2p for testing W3 which is a consensusless blockchain.",
   "scripts": {
-    "dev": "cross-env DEBUG=w3* node test/integration/dev.server.js",
     "start": "cross-env DEBUG=w3* vite",
     "test": "cross-env DEBUG=w3* mocha --exit --ui bdd \"./test/**/*.test.js\"",
     "deps": "depcruise --include-only \"^src\" --output-type dot src | dot -T svg > architecture.svg",
@@ -42,7 +42,6 @@
     "inquirer": "^8.2.4",
     "mocha": "^8.3.2",
     "nyc": "^15.1.0",
-    "playwright": "^1.7.1",
     "vite": "^2.8.6"
   },
   "engines": {

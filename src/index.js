@@ -5,6 +5,7 @@ import { Noise } from '@chainsafe/libp2p-noise'
 import { Mplex } from '@libp2p/mplex'
 import { Bootstrap } from '@libp2p/bootstrap'
 
+let foundPeers = 0, connectedPeers = 0
 document.addEventListener('DOMContentLoaded', async () => {
   const webRtcStar = new WebRTCStar()
 
@@ -41,36 +42,34 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // UI elements
   const status = document.getElementById('status')
-  const output = document.getElementById('output')
-
-  output.textContent = ''
-
-  function log (txt) {
-    console.info(txt)
-    output.textContent += `${txt.trim()}\n`
-  }
+  const foundPeersTd = document.querySelector('#output .found-peers')
+  const connectedPeersTd = document.querySelector('#output .connected-peers')
 
   // Listen for new peers
   libp2p.addEventListener('peer:discovery', (evt) => {
+    foundPeersTd.textContent = '' + ++foundPeers
     const peer = evt.detail
-    log(`Found peer ${peer.id.toString()}`)
+    console.info(`Found peer ${peer.id.toString()}`)
   })
 
   // Listen for new connections to peers
   libp2p.connectionManager.addEventListener('peer:connect', (evt) => {
+    connectedPeersTd.textContent = '' + ++connectedPeers
     const connection = evt.detail
-    log(`Connected to ${connection.remotePeer.toString()}`)
+    console.info(`Connected to ${connection.remotePeer.toString()}`)
   })
 
   // Listen for peers disconnecting
   libp2p.connectionManager.addEventListener('peer:disconnect', (evt) => {
+    connectedPeersTd.textContent = '' + --connectedPeers
     const connection = evt.detail
-    log(`Disconnected from ${connection.remotePeer.toString()}`)
+    console.info(`Disconnected from ${connection.remotePeer.toString()}`)
   })
 
   await libp2p.start()
-  status.innerText = 'libp2p started!'
-  log(`libp2p id is ${libp2p.peerId.toString()}`)
+  const peerIdStr = libp2p.peerId.toString()
+  status.innerText = `libp2p started! peerId: ${peerIdStr}`
+  console.info(`libp2p id is ${peerIdStr}`)
 
   // Export libp2p to the window so you can play with the API
   window.libp2p = libp2p
