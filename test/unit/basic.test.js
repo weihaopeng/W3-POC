@@ -1,6 +1,6 @@
 import  chai  from 'chai'
 chai.should()
-import { Node } from '../../src/w3/node.js'
+import { Node } from '../../src/w3/basic/node.js'
 
 import Debug from 'debug'
 const debug = Debug('w3:test')
