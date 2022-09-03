@@ -76,7 +76,7 @@ group=1</panel_attributes>
       <h>150</h>
     </coordinates>
     <panel_attributes>symbol=component
-W3 Cluster
+W3 Local Swarm
 group=1</panel_attributes>
     <additional_attributes/>
   </element>
@@ -149,7 +149,7 @@ group=1</panel_attributes>
     <panel_attributes>symbol=component
 
 
-W3 Cluster
+W3 Local Swarm
 group=1</panel_attributes>
     <additional_attributes/>
   </element>
