@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>290</x>
+      <y>90</y>
+      <w>770</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>TX Collect
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>290</x>
+      <y>230</y>
+      <w>170</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>Block Witness and Mint
+witnessing
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>890</x>
+      <y>230</y>
+      <w>170</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>Block Witness and Mint
+minting
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>360</x>
+      <y>120</y>
+      <w>230</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+bp.length &gt; TX_COUNT
+
+ASK_FOR_WITNESS_AND_MINT
+group=1</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;110.0</additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>180</x>
+      <y>100</y>
+      <w>80</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>* Node A *
+style=wordwrap
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>20</x>
+      <y>240</y>
+      <w>240</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>* Random Collaborator Node B*
+style=wordwrap
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>450</x>
+      <y>230</y>
+      <w>460</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+witnessRecords.len == WITNESS_ROUND_COUNT
+group=1</panel_attributes>
+    <additional_attributes>10.0;20.0;440.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>970</x>
+      <y>120</y>
+      <w>180</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+announce a new block
+group=1</panel_attributes>
+    <additional_attributes>10.0;110.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>360</x>
+      <y>260</y>
+      <w>350</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+witnessRecords.len &lt; WITNESS_ROUND_COUNT
+
+ASK_FOR_WITNESS_AND_MINT
+group=1</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;130.0</additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>350</x>
+      <y>410</y>
+      <w>70</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>……
+style=wordwrap
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>20</x>
+      <y>410</y>
+      <w>240</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>* Random Collaborator Node C*
+style=wordwrap
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>530</x>
+      <y>20</y>
+      <w>230</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>* Two stages of Block Mint *
+style=wordwrap
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
