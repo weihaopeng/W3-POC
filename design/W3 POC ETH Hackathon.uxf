@@ -133,7 +133,7 @@ group=1</panel_attributes>
       <w>210</w>
       <h>420</h>
     </coordinates>
-    <panel_attributes>browser 
+    <panel_attributes>w3.poc.html 
 fg=light_gray
 group=1</panel_attributes>
     <additional_attributes/>
@@ -289,7 +289,7 @@ group=1</panel_attributes>
       <w>560</w>
       <h>420</h>
     </coordinates>
-    <panel_attributes>browser 
+    <panel_attributes>w3.poc.html
 fg=light_gray
 group=1</panel_attributes>
     <additional_attributes/>

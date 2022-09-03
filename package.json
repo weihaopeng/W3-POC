@@ -1,15 +1,16 @@
 {
   "name": "w3-poc",
   "keywords": [
-    "Web3", "blockchain", "consensus", "consensusless"
+    "Web3",
+    "blockchain",
+    "consensus",
+    "consensusless"
   ],
   "version": "0.1.0",
   "description": "A large-scale P2P application protocol testbed based on IPFS and Libp2p for testing W3 which is a consensusless blockchain.",
-  "bin": "bin/index.js",
-  "main": "src/index.js",
   "scripts": {
     "dev": "cross-env DEBUG=w3* node test/integration/dev.server.js",
-    "start": "cross-env DEBUG=w3* node --max-old-space-size=1532 bin/index.js",
+    "start": "cross-env DEBUG=w3* vite",
     "test": "cross-env DEBUG=w3* mocha --exit --ui bdd \"./test/**/*.test.js\"",
     "deps": "depcruise --include-only \"^src\" --output-type dot src | dot -T svg > architecture.svg",
     "version": "auto-changelog -p && git add CHANGELOG.md",
@@ -19,10 +20,16 @@
   "author": "wangqing@mq-ai.cn",
   "license": "MIT",
   "dependencies": {
+    "@chainsafe/libp2p-noise": "^8.0.0",
+    "@libp2p/bootstrap": "^2.0.0",
+    "@libp2p/mplex": "^5.0.0",
+    "@libp2p/webrtc-star": "^3.0.0",
+    "@libp2p/websockets": "^3.0.0",
     "cross-env": "^7.0.3",
     "debug": "^4.3.3",
     "dotenv": "^16.0.1",
     "gauss": "^0.2.12",
+    "libp2p": "^0.38.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
@@ -34,7 +41,9 @@
     "ethereumjs-wallet": "^1.0.2",
     "inquirer": "^8.2.4",
     "mocha": "^8.3.2",
-    "nyc": "^15.1.0"
+    "nyc": "^15.1.0",
+    "playwright": "^1.7.1",
+    "vite": "^2.8.6"
   },
   "engines": {
     "node": ">= 16.0.0"
