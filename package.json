@@ -28,6 +28,7 @@
     "cross-env": "^7.0.3",
     "debug": "^4.3.3",
     "dotenv": "^16.0.1",
+    "echarts": "^5.3.3",
     "eventemitter2": "^6.4.7",
     "gauss": "^0.2.12",
     "javascript-state-machine": "^3.1.0",

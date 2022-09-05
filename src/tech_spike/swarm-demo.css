@@ -1,0 +1,77 @@
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: #eee;
+  overflow: hidden;
+}
+
+#main {
+  width: calc(100% - 64px);
+  height: calc(100% - 64px);
+  display: flex;
+  margin: 32px;
+  background: #fff;
+}
+
+.chain, .block, .bp {
+  width: 300px;
+  overflow-y: auto;
+  display: flex;
+  margin: 0 16px;
+}
+
+.swarm {
+  flex-grow: 1;
+  margin: 0 16px;
+}
+
+.chain, .block, .bp, .swarm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#chain-container, #block-container, #bp-container {
+  overflow-y: auto;
+}
+
+#swarm-container {
+  flex-grow: 1;
+  background: #dcdcdc;
+  width: 100%;
+}
+
+/* chain */
+
+/* block */
+
+/* swarm */
+
+/* bp */
+.bp-container {
+  border: solid 1px #dcdcdc;
+  border-radius: 4px;
+  margin: 16px;
+  padding: 16px;
+  animation: yellow-fade 2s linear 1
+}
+
+.bp-type {
+  margin-right: 8px;
+  color: #666;
+  width: 4em;
+  display: inline-block;
+}
+
+@keyframes yellow-fade {
+  0% {
+    background: #fff;
+  }
+  50% {
+    background: #fff1b8;
+  }
+  100% {
+    background: #fff;
+  }
+}
