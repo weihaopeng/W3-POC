@@ -3,9 +3,10 @@ chai.should()
 
 import { PocNetwork, PocNode } from '../../src/w3/poc/index.js'
 
-
 import Debug from 'debug'
 const debug = Debug('w3:test')
+
+const wait = ms => new Promise(r => setTimeout(r, ms ))
 
 describe('Poc test  @issue#2', () => {
   const nodeAmounts = 5
@@ -30,7 +31,8 @@ describe('Poc test  @issue#2', () => {
 
   it('single node (network) mode', async () => {
     PocNode.isSingleNodeMode = true
-    await w3.sendFakeTxs(10, 100) // only two block to driven the signle node mode dev.
+    await w3.sendFakeTxs(10, 100) // only two block to drive the single node mode dev.
+    await wait(1000)
     w3.showCollectorsStatistic()
     w3.showWitnessesStatistic()
     w3.nodes.should.have.length(5)
@@ -52,7 +54,7 @@ describe('w3.events  @issue#8', () => {
   after(() => w3.destroy())
 
 
-  it('single node (network) mode', async () => {
+  it('`network.msg` messages are collected and sent', async () => {
     PocNode.isSingleNodeMode = false
     await w3.sendFakeTxs(10, 100) // only two block to driven the signle node mode dev.
     w3.events.on('network.msg', data => debug('--- network.msg: %o', data))

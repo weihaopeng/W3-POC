@@ -1,10 +1,12 @@
 import { EventEmitter } from 'node:events'
 import _ from 'lodash'
 import { util } from '../util.js'
-import { PocNode} from './poc-node.js'
+import { PocNode } from './poc-node.js'
 
 import Debug from 'debug'
 import EventEmitter2 from 'eventemitter2'
+import { Transaction } from '../basic/transaction.js'
+
 const debug = Debug('w3:poc:network')
 
 class PocNetwork extends EventEmitter2 {
@@ -12,17 +14,17 @@ class PocNetwork extends EventEmitter2 {
 
   static MSG_ARRIVAL_RATIO = 1 // the ratio is always 1 in a P2P network using TCP as transportation protocol
   static LATENCY_LOWER_BOUND = 0
-  static LATENCY_UPPER_BOUND = 10 // 100 milliseconds
+  static LATENCY_UPPER_BOUND = 100 // 100 milliseconds
 
-  constructor (w3EventsOn=false) {
+  constructor (w3EventsOn = false) {
     super()
     this.setMaxListeners(0) // to supass MaxListenersExceededWarning https://nodejs.org/docs/latest/api/events.html#events_emitter_setmaxlisteners_n
-    this.sta = { collectors: [], witnesses: []}
+    this.sta = { collectors: [], witnesses: [] }
     this.w3EventsOn = w3EventsOn
     w3EventsOn && (this.events = new EventEmitter2())
   }
 
-  async init (nodesAmount=PocNode.NODES_AMOUNT) {
+  async init (nodesAmount = PocNode.NODES_AMOUNT) {
     this.nodes = [...new Array(nodesAmount)].map(i => new PocNode(this))
     await Promise.all(this.nodes.map(node => node.start()))
   }
@@ -34,13 +36,28 @@ class PocNetwork extends EventEmitter2 {
 
   listen (event, cb, target) {
     this.on(event, ({ origin, data, time }) => {
-      if (Math.random() < this.constructor.MSG_ARRIVAL_RATIO && target !== origin) { // simulate of msg propagation, may lose in the way
-        setTimeout(() => { // simulate the network jitter
+      if (this.nodes?.[0].constructor.isSingleNodeMode)
+        return this._listenCb(cb, data, origin, target, event, time)
+
+      // simulate of msg propagation, may lose in the way
+      const arrivalRatio = this.constructor.MSG_ARRIVAL_RATIO
+      // simulate the network jitter, latency may randomly as Gauss distribution
+      const latency = util.gaussRandom(this.constructor.LATENCY_LOWER_BOUND, this.constructor.LATENCY_UPPER_BOUND)
+      // debug('***** arrivalRatio: %s, latency: %s', arrivalRatio, latency)
+
+
+      if (Math.random() < arrivalRatio && target !== origin) {
+        setTimeout(() => {
           cb(data)
           this.w3EventsOn && this.emitNetworkMsgW3Event({origin, target, event, data, time})
-        }, util.gaussRandom(this.constructor.LATENCY_LOWER_BOUND, this.constructor.LATENCY_UPPER_BOUND))
+        }, latency)
       }
     })
+  }
+
+  _listenCb (cb, data, origin, target, event, time) {
+    cb(data)
+    this.w3EventsOn && this.emitNetworkMsgW3Event({ origin, target, event, data, time })
   }
 
   broadcast (event, data, origin) {
@@ -65,32 +82,32 @@ class PocNetwork extends EventEmitter2 {
   createFakeTx (i) {
     const from = _.sample(this.nodes).account
     const to = _.sample(this.nodes).account
-    return {i, from, to, value: 10000 * Math.random() }
+    return new Transaction({ i, from, to, value: 10000 * Math.random() })
   }
 
-  recordCollector(tx, node) {
-    this.sta.collectors.push({tx, node})
+  recordCollector (tx, node) {
+    this.sta.collectors.push({ tx, node })
   }
 
-  showCollectorsStatistic() {
-    let sta = _.groupBy(this.sta.collectors, ({tx, node}) => tx.i)
+  showCollectorsStatistic () {
+    let sta = _.groupBy(this.sta.collectors, ({ tx, node }) => tx.i)
     sta = Object.values(sta)
     sta.map(s => debug('tx %s has %d collectors', s[0].tx.i, s.length))
     debug('--- send %d txs, and %d collected, with avg. %d collectors/tx', this.fakeTxs, sta.length, sta.reduce((p, s) => p + s.length, 0) / sta.length)
   }
 
-  recordWitness(bp, node) {
-    this.sta.witnesses.push({bp, node})
+  recordWitness (bp, node) {
+    this.sta.witnesses.push({ bp, node })
   }
 
-  showWitnessesStatistic() {
-    let sta = _.groupBy(this.sta.witnesses, ({bp, node}) => bp.brief)
+  showWitnessesStatistic () {
+    let sta = _.groupBy(this.sta.witnesses, ({ bp, node }) => bp.brief)
     sta = Object.values(sta)
     sta.map(s => debug('bp %s has %d witnesses', s[0].bp.brief, s.length))
     debug('--- %d bps witnessed with avg. %d witnesses/tx', sta.length, sta.reduce((p, s) => p + s.length, 0) / sta.length)
   }
 
-  emitNetworkMsgW3Event ({origin, target, event, data, time}) {
+  emitNetworkMsgW3Event ({ origin, target, event, data, time }) {
     this.events.emit('network.msg', {
       from: origin.account.addressString,
       to: target.account.addressString,

@@ -10,6 +10,10 @@ class Block {
     this.hash = preHash ? preHash + '-h' : 'h' // make debug easy in theory test
     this.i = this.constructor.index++ // TODO: currently only used for theory test
   }
+
+  get brief() {
+    return `Block ${this.i} (preHash: ${this.preHash}, bp: ${this.bp.brief})`
+  }
 }
 
 export { Block }

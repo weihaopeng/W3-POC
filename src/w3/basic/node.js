@@ -5,12 +5,13 @@ import { Block } from './block.js'
 import { BlockProposal } from './block-proposal.js'
 
 import Debug from 'debug'
-
 const debug = Debug('w3:node')
 
 class Account {
+  static index = 0 // TODO: currently only used for theory test
   constructor ({ address, publicKey, privateKey, addressString, publicKeyString, privateKeyString }) {
     Object.assign(this, { address, publicKey, privateKey, addressString, publicKeyString, privateKeyString })
+    this.i = this.constructor.index++ // TODO: currently only used for theory test
   }
 
   compareTo (other) {
@@ -46,11 +47,11 @@ class Node {
   }
 
   async start () {
-    debug('--- starting: %s', this.account.addressString)
+    debug('--- starting: %s', this.account.i)
     await this.init()
     this.startAnswerQuery()
     this.startTwoStagesBlockGeneration()
-    debug('--- started: %s', this.account.addressString)
+    debug('--- started: %s', this.account.i)
   }
 
   startAnswerQuery () { // answers only by adjacent peers
@@ -102,7 +103,7 @@ class Node {
   }
 
   async collect (tx) {
-    debug('---node %s collect tx %o ', this.account.addressString, tx)
+    debug('---node %s collect tx %s ', this.account.i, tx)
     this.network.recordCollector(tx, this)
     tx = new Transaction(tx)
     const isValid = await this.verifyTx(tx)
@@ -115,7 +116,7 @@ class Node {
     bp = new BlockProposal(bp)
     const isValid = await this.verifyBp(bp)
     if (!isValid) return debug('bp is invalid, skip it', bp)
-    debug('---node %s witness bp %o ', this.account.addressString, bp)
+    debug('---node %s witness bp %s ', this.account.i, bp.brief)
     this.network.recordWitness(bp, this)
     await bp.witness(this.account)
     this.isNeedMoreRoundOfWitness(bp) ? await this.continueWitnessAndMint(bp) :
@@ -124,7 +125,7 @@ class Node {
 
   async handleNewBlock (block) {
     // TODO: 按 design/handle-new-block.png 算法处理
-    this.chain.addBlock(block)
+    this.chain.addBlock(block, this)
   }
 
   async handleForkWins (forkBlocks) { // { forkPoint, blocksAfter }
@@ -133,7 +134,6 @@ class Node {
 
   async askForWitnessAndMint (txs) {
     const bp = this.createBlockProposal(txs)
-    bp.askForWitness(this.account)
     this.network.broadcast('block-proposal', bp, this) //this used in theory test to aviod of react on its own message
   }
 
@@ -141,6 +141,7 @@ class Node {
     const bp = new BlockProposal({
       height: this.chain.height + 1, tailHash: this.chain.tailHash, txs, collector: this.account.publicKeyString
     })
+    bp.askForWitness(this.account)
     return bp
   }
 
@@ -165,6 +166,7 @@ class Node {
 
   async mintBlock (bp) {
     const block = Block.mint(bp, this.chain)
+    this.chain.addBlock(block, this) // add to local chain before broadcast
     this.network.broadcast('new-block', block, this) //this used in theory test to aviod of react on its own message
   }
 

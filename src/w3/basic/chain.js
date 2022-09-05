@@ -1,3 +1,6 @@
+import Debug from 'debug'
+const debug = Debug('w3:chain')
+
 class Chain {
 
   static async create (data) {
@@ -7,6 +10,11 @@ class Chain {
 
   constructor () {
     this.blocks = []
+  }
+
+  addBlock(block, node) {
+    debug('--- node: %s add block to its chain: ', node.i, block.brief)
+    this.blocks.push(block)
   }
 
   get height() {
