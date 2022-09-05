@@ -36,8 +36,8 @@ class PocNetwork extends EventEmitter2 {
 
   listen (event, cb, target) {
     this.on(event, ({ origin, data }) => {
-      if (this.nodes?.[0].constructor.isSingleNodeMode)
-        return this._listenCb(cb, data, origin, target, event)
+      if (this.nodes?.[0].constructor.isSingleNodeMode )
+        return target !== origin && this._listenCb(cb, data, origin, target, event)
 
       // simulate of msg propagation, may lose in the way
       const arrivalRatio = this.constructor.MSG_ARRIVAL_RATIO
@@ -74,8 +74,12 @@ class PocNetwork extends EventEmitter2 {
 
   sendFakeTx (i) {
     const tx = this.createFakeTx(i)
+    const origin = _.sample(this.nodes) // simulating where the tx from
+    origin.handleTx(tx)
+    debug('---node %s broadcast tx %s (already collected into its tx pool) ', origin.i, tx)
     // debug('---send tx:', tx)
-    this.broadcast('tx', tx,  _.sample(this.nodes))
+
+    this.broadcast('tx', tx,  origin)
   }
 
   createFakeTx (i) {

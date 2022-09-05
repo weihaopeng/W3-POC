@@ -64,34 +64,35 @@ class Node {
   }
 
   startTwoStagesBlockGeneration () {
-    this.network.listen('tx', async (tx) => {
-      await this.updateLocalFact({ tx })
-      await this.handleTx(tx)
-    }, this) // this is the target used in theory test to aviod of react on its own message
+    this.network.listen('tx', (tx) => this.handleTx(tx), this) // this is the target used in theory test to aviod of react on its own message
 
-    this.network.listen('block-proposal', async (bp) => {
-      await this.updateLocalFact({ bp })
-      await this.handleWitness(bp)
-    }, this)
+    this.network.listen('block-proposal', (bp) => this.handleWitness(bp), this)
 
-    this.network.listen('new-block', async (block) => {
-      await this.updateLocalFact({ block })
-      await this.handleNewBlock(block)
-    }, this)
+    this.network.listen('new-block',  (block) => this.handleNewBlock(block), this)
 
-    this.network.listen('fork-wins', async (fork) => {
-      await this.updateLocalFact({ block })
-      await this.handleForkWins(fork)
-    }, this)
+    this.network.listen('fork-wins',  (fork) => this.handleForkWins(fork), this)
 
   }
 
   async handleWitness (bp) {
+    await this.updateLocalFact({ bp })
     this.isWitness(bp) && await this.witnessAndMint(bp)
   }
 
   async handleTx (tx) {
+    await this.updateLocalFact({ tx })
     this.isCollector() && await this.collect(tx)
+  }
+
+  async handleNewBlock (block) {
+    // TODO: 按 design/handle-new-block.png 算法处理
+    await this.updateLocalFact({ block })
+    this.chain.addBlock(block, this)
+  }
+
+  async handleForkWins (forkBlocks) { // { forkPoint, blocksAfter }
+    await this.updateLocalFact({ block })
+    // TODO: 按其中的消息，检查chain
   }
 
   isCollector () {
@@ -121,15 +122,6 @@ class Node {
     await bp.witness(this.account)
     this.isNeedMoreRoundOfWitness(bp) ? await this.continueWitnessAndMint(bp) :
       await this.mintBlock(bp)
-  }
-
-  async handleNewBlock (block) {
-    // TODO: 按 design/handle-new-block.png 算法处理
-    this.chain.addBlock(block, this)
-  }
-
-  async handleForkWins (forkBlocks) { // { forkPoint, blocksAfter }
-    // TODO: 按其中的消息，检查chain
   }
 
   async askForWitnessAndMint (txs) {
