@@ -30,6 +30,7 @@
     "dotenv": "^16.0.1",
     "eventemitter2": "^6.4.7",
     "gauss": "^0.2.12",
+    "javascript-state-machine": "^3.1.0",
     "libp2p": "^0.38.0",
     "lodash": "^4.17.21"
   },
