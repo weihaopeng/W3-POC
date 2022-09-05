@@ -1,8 +1,8 @@
 class BlockProposal {
-  static count = 0 // TODO: currently only used for theory test
+  static index = 0 // TODO: currently only used for theory test
   constructor ({height, tailHash, txs, collector, witnessRecords=[]}) {
     Object.assign(this, {height, tailHash, txs, witnessRecords})
-    this.i = this.constructor.count++  // TODO: currently only used for theory test
+    this.i = this.constructor.index++  // TODO: currently only used for theory test
   }
 
   askForWitness({ publicKey, privateKey }) {

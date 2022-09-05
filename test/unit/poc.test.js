@@ -1,7 +1,7 @@
 import chai from 'chai'
 chai.should()
 
-import { W3Network, TheoryNode } from '../../src/w3/theory/two-stages-mint.theory.js'
+import { PocNetwork, PocNode } from '../../src/w3/poc/index.js'
 
 
 import Debug from 'debug'
@@ -9,9 +9,9 @@ const debug = Debug('w3:test')
 
 describe('theory test  @issue#2', () => {
   const nodeAmounts = 5
-  TheoryNode.TX_COUNT = 5
-  TheoryNode.setNodeAmount(nodeAmounts)
-  let w3 = new W3Network(1)
+  PocNode.TX_COUNT = 5
+  PocNode.setNodeAmount(nodeAmounts)
+  let w3 = new PocNetwork(1)
 
   before(async function (){
     this.timeout(0)
@@ -29,8 +29,8 @@ describe('theory test  @issue#2', () => {
   }).timeout(0)
 
   it('single node (network) mode', async () => {
-    TheoryNode.isSingleNodeMode = true
-    await w3.sendFakeTxs(100, 100)
+    PocNode.isSingleNodeMode = true
+    await w3.sendFakeTxs(10, 100) // only two block to driven the signle node mode dev.
     w3.showCollectorsStatistic()
     w3.showWitnessesStatistic()
     w3.nodes.should.have.length(5)
