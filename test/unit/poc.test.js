@@ -7,11 +7,11 @@ import { PocNetwork, PocNode } from '../../src/w3/poc/index.js'
 import Debug from 'debug'
 const debug = Debug('w3:test')
 
-describe('theory test  @issue#2', () => {
+describe('Poc test  @issue#2', () => {
   const nodeAmounts = 5
   PocNode.TX_COUNT = 5
   PocNode.setNodeAmount(nodeAmounts)
-  let w3 = new PocNetwork(1)
+  let w3 = new PocNetwork()
 
   before(async function (){
     this.timeout(0)
@@ -31,6 +31,31 @@ describe('theory test  @issue#2', () => {
   it('single node (network) mode', async () => {
     PocNode.isSingleNodeMode = true
     await w3.sendFakeTxs(10, 100) // only two block to driven the signle node mode dev.
+    w3.showCollectorsStatistic()
+    w3.showWitnessesStatistic()
+    w3.nodes.should.have.length(5)
+  }).timeout(0)
+
+})
+
+describe('w3.events  @issue#8', () => {
+  const nodeAmounts = 5
+  PocNode.TX_COUNT = 5
+  PocNode.setNodeAmount(nodeAmounts)
+  let w3 = new PocNetwork(true)
+
+  before(async function (){
+    this.timeout(0)
+    await w3.init()
+  })
+
+  after(() => w3.destroy())
+
+
+  it('single node (network) mode', async () => {
+    PocNode.isSingleNodeMode = false
+    await w3.sendFakeTxs(10, 100) // only two block to driven the signle node mode dev.
+    w3.events.on('network.msg', data => debug('--- network.msg: %o', data))
     w3.showCollectorsStatistic()
     w3.showWitnessesStatistic()
     w3.nodes.should.have.length(5)
