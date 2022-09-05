@@ -55,6 +55,10 @@ class PocNode extends Node {
     this.i = this.constructor.index++
   }
 
+  get briefObj() {
+    return {i: this.i, address: this.account.addressString}
+  }
+
   isCollector () {
     return this.constructor.isSingleNodeMode ? this.isSingleNode() : this._isCollector()
   }

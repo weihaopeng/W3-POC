@@ -21,7 +21,7 @@ class PocNetwork extends EventEmitter2 {
     this.setMaxListeners(0) // to supass MaxListenersExceededWarning https://nodejs.org/docs/latest/api/events.html#events_emitter_setmaxlisteners_n
     this.sta = { collectors: [], witnesses: [] }
     this.w3EventsOn = w3EventsOn
-    w3EventsOn && (this.events = new EventEmitter2())
+    w3EventsOn && (this.events = new EventEmitter2({ wildcard: true }))
   }
 
   async init (nodesAmount = PocNode.NODES_AMOUNT) {
@@ -35,9 +35,9 @@ class PocNetwork extends EventEmitter2 {
   }
 
   listen (event, cb, target) {
-    this.on(event, ({ origin, data, time }) => {
+    this.on(event, ({ origin, data }) => {
       if (this.nodes?.[0].constructor.isSingleNodeMode)
-        return this._listenCb(cb, data, origin, target, event, time)
+        return this._listenCb(cb, data, origin, target, event)
 
       // simulate of msg propagation, may lose in the way
       const arrivalRatio = this.constructor.MSG_ARRIVAL_RATIO
@@ -45,38 +45,37 @@ class PocNetwork extends EventEmitter2 {
       const latency = util.gaussRandom(this.constructor.LATENCY_LOWER_BOUND, this.constructor.LATENCY_UPPER_BOUND)
       // debug('***** arrivalRatio: %s, latency: %s', arrivalRatio, latency)
 
-
       if (Math.random() < arrivalRatio && target !== origin) {
-        setTimeout(() => {
-          cb(data)
-          this.w3EventsOn && this.emitNetworkMsgW3Event({origin, target, event, data, time})
-        }, latency)
+        setTimeout(() => this._listenCb(cb, data, origin, target, event), latency)
       }
     })
   }
 
-  _listenCb (cb, data, origin, target, event, time) {
+  _listenCb (cb, data, origin, target, event) {
     cb(data)
-    this.w3EventsOn && this.emitNetworkMsgW3Event({ origin, target, event, data, time })
+    this.w3EventsOn && this.emitW3EventMsgArrival({ origin, target, event, data })
   }
 
   broadcast (event, data, origin) {
-    this.emit(event, { origin, data, time: new Date() }) // use the origin to prevent origin's listen
+    this.emit(event, { origin, data}) // use the origin to prevent origin's listen
+    this.w3EventsOn && this.emitW3EventMsgDeparture({ origin, target: null, event, data })
   }
 
-  async sendFakeTxs (n, interval) {
-    const lamda = 1000 / interval // average msg per second, is the lamda of the Poisson Distribution
+  async sendFakeTxs (n, tps = 1) { // transaction per second, is the lamda of the Poisson Distribution
     this.fakeTxs = n
     for (let i = 0; i < n; i++) {
-      await new Promise((r, j) => setTimeout(() => r('ok'), util.exponentialRandom(lamda)))
+      const latency = util.exponentialRandom(tps / 1000)
+      debug('--- sendFakeTx latency: %s ms', latency)
+      await util.wait(latency)
       this.sendFakeTx(i)
     }
+    await util.wait(2 * this.constructor.LATENCY_UPPER_BOUND) // wait for all txs to be collected
   }
 
   sendFakeTx (i) {
     const tx = this.createFakeTx(i)
     // debug('---send tx:', tx)
-    this.emit('tx', { data: tx, origin: _.sample(this.nodes), time: new Date() })
+    this.broadcast('tx', tx,  _.sample(this.nodes))
   }
 
   createFakeTx (i) {
@@ -107,13 +106,22 @@ class PocNetwork extends EventEmitter2 {
     debug('--- %d bps witnessed with avg. %d witnesses/tx', sta.length, sta.reduce((p, s) => p + s.length, 0) / sta.length)
   }
 
-  emitNetworkMsgW3Event ({ origin, target, event, data, time }) {
-    this.events.emit('network.msg', {
-      from: origin.account.addressString,
-      to: target.account.addressString,
-      type: event, data, departureTime: time, arrivalTime: new Date()
+  emitW3EventMsgDeparture ({ origin, target, event, data }) {
+    this.events.emit('network.msg.departure', {
+      from: origin.briefObj,
+      to: target?.briefObj, // target null for broadcast
+      type: event, data, departureTime: new Date()
     })
   }
+
+  emitW3EventMsgArrival ({ origin, target, event, data }) {
+    this.events.emit('network.msg.arrival', {
+      from: origin.briefObj,
+      to: target.briefObj,
+      type: event, data, arrivalTime: new Date()
+    })
+  }
+
 }
 
 export { PocNetwork }

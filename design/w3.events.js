@@ -8,12 +8,19 @@ const w3Events = {
    * w3 poc的设计，考虑了网络抖动（时延）变化，因此，虽然tx、bp、block、fork等消息都是broadcast的，
    * 但其传播时间不同，必须在可视化中考虑。
    */
-  'network.msg': { // message delivery in a w3 network
+  'network.msg.departure': { // message delivery in a w3 network
+    type: 'tx',  // tx | bp | block | fork
+    data: {}, // corresponding data of the type
+    form: { address: 'node.account.addressString', i: '序号便于在开发调试中识认' },
+    to: { address: 'node.account.addressString', i: '序号便于在开发调试中识认' }, // to is null if broadcast
+    departureTime: new Date(),
+  },
+
+  'network.msg.arrival': { // message delivery in a w3 network
     type: 'tx',  // tx | bp | block | fork
     data: {}, // corresponding data of the type
     form: { address: 'node.account.addressString', i: '序号便于在开发调试中识认' },
     to: { address: 'node.account.addressString', i: '序号便于在开发调试中识认' },
-    departureTime: new Date(),
     arrivalTime: new Date(),
   },
 
@@ -23,7 +30,7 @@ const w3Events = {
     ]
   },
 
-  'chain.blockAdded': {
+  'chain.block.added': {
     node: { address: 'node.account.addressString', i: '序号便于在开发调试中识认' },
     block: { height: 23, hash: 'hash-value', i: '序号便于在开发调试中识认' }
   },

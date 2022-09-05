@@ -54,7 +54,12 @@ const util = {
 
   exponentialRandom(lamda) {
     return -Math.log(1 - Math.random()) / lamda
+  },
+
+  wait(ms){
+    return new Promise(r => setTimeout(r, ms ))
   }
+
 }
 
 export { util }
