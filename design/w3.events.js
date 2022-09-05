@@ -8,29 +8,35 @@ const w3Events = {
    * w3 poc的设计，考虑了网络抖动（时延）变化，因此，虽然tx、bp、block、fork等消息都是broadcast的，
    * 但其传播时间不同，必须在可视化中考虑。
    */
-  'network.msg': { // message delivery
+  'network.msg': { // message delivery in a w3 network
     type: 'tx',  // tx | bp | block | fork
     data: {}, // corresponding data of the type
-    form: {address: 'node.account.address', i: '序号便于在开发调试中识认'},
-    to: {address: 'node.account.address', i: '序号便于在开发调试中识认'},
+    form: { address: 'node.account.address', i: '序号便于在开发调试中识认' },
+    to: { address: 'node.account.address', i: '序号便于在开发调试中识认' },
     departureTime: new Date(),
     arrivalTime: new Date(),
   },
 
-  'chain.block_added': {
-    node: {address: 'node.account.address', i: '序号便于在开发调试中识认'},
-    block: {height: 23, hash: 'hash-value', i: '序号便于在开发调试中识认'}
+  'network.ready': { // a w3 network is initialized and ready for delivering messages
+    nodes: [
+      { address: 'node.account.address', i: '序号便于在开发调试中识认' }
+    ]
+  },
+
+  'chain.blockAdded': {
+    node: { address: 'node.account.address', i: '序号便于在开发调试中识认' },
+    block: { height: 23, hash: 'hash-value', i: '序号便于在开发调试中识认' }
   },
 
   'chain.fork': {
-    node: {address: 'node.account.address', i: '序号便于在开发调试中识认'},
-    fork: {TODO: 'TODO'}
+    node: { address: 'node.account.address', i: '序号便于在开发调试中识认' },
+    fork: { TODO: 'TODO' }
   },
 
   'node.verify': {
     type: 'tx',  // tx | bp | block | fork
     data: {}, // corresponding data of the type
-    node: {address: 'node.account.address', i: '序号便于在开发调试中识认'},
+    node: { address: 'node.account.address', i: '序号便于在开发调试中识认' },
     valid: true
   },
 }
