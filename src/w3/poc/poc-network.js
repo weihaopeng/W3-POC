@@ -12,20 +12,38 @@ const debug = Debug('w3:poc:network')
 class PocNetwork extends EventEmitter2 {
   static events = ['tx', 'block-proposal', 'new-block', 'fork-wins', 'query']
 
+  // TODO: move theses to network.config.js
+  static NODES_AMOUNT = 100
+  static COLLECTORS_AMOUNT = 5
+  static WITNESSES_AMOUNT = 5
+  static WITNESS_ROUNDS_AMOUNT = 3
+  static TX_COUNT = 100
+  static INIT_CHAIN_INTERVAL = 10000 // 10秒
+
   static MSG_ARRIVAL_RATIO = 1 // the ratio is always 1 in a P2P network using TCP as transportation protocol
   static LATENCY_LOWER_BOUND = 0
   static LATENCY_UPPER_BOUND = 100 // 100 milliseconds
 
-  constructor (w3EventsOn = false) {
+
+  /**
+   * singleNodeMode true means in single node network mode, when only the node (i === 0) solely collect, witness and mint
+   * by set Node in singleNodeMode, we can easly write and debug the fundamental block building logics without
+   * disturbing from collaboration logics
+   */
+  constructor (def = {}) {
+    const { singleNodeMode=false, w3EventsOn = false } = def
     super()
     this.setMaxListeners(0) // to supass MaxListenersExceededWarning https://nodejs.org/docs/latest/api/events.html#events_emitter_setmaxlisteners_n
     this.sta = { collectors: [], witnesses: [] }
+    this.singleNodeMode = singleNodeMode
     this.w3EventsOn = w3EventsOn
     w3EventsOn && (this.events = new EventEmitter2({ wildcard: true }))
   }
 
-  async init (nodesAmount = PocNode.NODES_AMOUNT) {
-    this.nodes = [...new Array(nodesAmount)].map(i => new PocNode(this))
+  async init (nodesAmount = this.constructor.NODES_AMOUNT) {
+    nodesAmount = this.singleNodeMode ? 1 : nodesAmount
+    PocNode.setDistanceFn(nodesAmount)
+    this.nodes = [...new Array(nodesAmount)].map(i => new PocNode(this, this.singleNodeMode))
     await Promise.all(this.nodes.map(node => node.start()))
   }
 
@@ -36,8 +54,8 @@ class PocNetwork extends EventEmitter2 {
 
   listen (event, cb, target) {
     this.on(event, ({ origin, data }) => {
-      if (this.nodes?.[0].constructor.isSingleNodeMode )
-        return target !== origin && this._listenCb(cb, data, origin, target, event)
+      // node calls back immediately in its own event in single node mode to make two-stages-mint move forward
+      if (this.singleNodeMode) this._listenCb(cb, data, origin, target, event)
 
       // simulate of msg propagation, may lose in the way
       const arrivalRatio = this.constructor.MSG_ARRIVAL_RATIO
@@ -52,7 +70,7 @@ class PocNetwork extends EventEmitter2 {
   }
 
   _listenCb (cb, data, origin, target, event) {
-    cb(data)
+    cb(data, origin)
     this.w3EventsOn && this.emitW3EventMsgArrival({ origin, target, event, data })
   }
 
@@ -75,9 +93,8 @@ class PocNetwork extends EventEmitter2 {
   sendFakeTx (i) {
     const tx = this.createFakeTx(i)
     const origin = _.sample(this.nodes) // simulating where the tx from
-    origin.handleTx(tx)
+    // origin.handleTx(tx)
     debug('---node %s broadcast tx %s (already collected into its tx pool) ', origin.i, tx)
-    // debug('---send tx:', tx)
 
     this.broadcast('tx', tx,  origin)
   }

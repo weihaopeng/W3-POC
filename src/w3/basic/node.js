@@ -20,13 +20,14 @@ class Account {
 }
 
 class Node {
-  constructor ({ account, network, txCount, initChainInterval, witnessRounds }) {
+  constructor ({ account, network, txCount, initChainInterval, witnessRounds, isSingleNode=false }) {
     if (!account || !network || !txCount || !initChainInterval || !witnessRounds) throw new Error(`can't create node, check the params`)
     this.account = account
     this.initChainInterval = initChainInterval
     this.witnessRounds = witnessRounds
     this.network = network
     this.txPool = new TransactionsPool(txCount)
+    this.isSingleNode = isSingleNode // is the only node in the network, used to separate the concern of two-stages-mint and the collaborations among nodes.
   }
 
   async init () {
@@ -68,15 +69,10 @@ class Node {
 
     this.network.listen('block-proposal', (bp) => this.handleWitness(bp), this)
 
-    this.network.listen('new-block',  (block) => this.handleNewBlock(block), this)
+    this.network.listen('new-block',  (block, origin) => this.handleNewBlock(block, origin), this)
 
     this.network.listen('fork-wins',  (fork) => this.handleForkWins(fork), this)
 
-  }
-
-  async handleWitness (bp) {
-    await this.updateLocalFact({ bp })
-    this.isWitness(bp) && await this.witnessAndMint(bp)
   }
 
   async handleTx (tx) {
@@ -84,10 +80,15 @@ class Node {
     this.isCollector() && await this.collect(tx)
   }
 
-  async handleNewBlock (block) {
+  async handleWitness (bp) {
+    await this.updateLocalFact({ bp })
+    this.isWitness(bp) && await this.witnessAndMint(bp)
+  }
+
+  async handleNewBlock (block, origin) {
     // TODO: 按 design/handle-new-block.png 算法处理
     await this.updateLocalFact({ block })
-    this.chain.addBlock(block, this)
+    this === origin || this.chain.addBlock(block, this) // in single node mode, the new-block msg also comes from itself, so we need to check the origin
   }
 
   async handleForkWins (forkBlocks) { // { forkPoint, blocksAfter }
@@ -96,10 +97,18 @@ class Node {
   }
 
   isCollector () {
+    return this.isSingleNode || this._isCollector()
+  }
+
+  _isCollector () {
     // abstract now
   }
 
   isWitness () {
+    return this.isSingleNode || this._isWitness()
+  }
+
+  _isWitness () {
     // abstract now
   }
 

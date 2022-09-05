@@ -20,47 +20,27 @@ const getEthereumAccount = () => {
 }
 
 class PocNode extends Node {
-  static NODES_AMOUNT = 3000
-  static COLLECTORS_AMOUNT = 5
-  static WITNESSES_AMOUNT = 5
-  static WITNESS_ROUNDS_AMOUNT = 3
-  static TX_COUNT = 100
-  static INIT_CHAIN_INTERVAL = 10000 // 10秒
-  static setNodeAmount (nodesAmount) {
-    this.NODES_AMOUNT = nodesAmount
-    this.distanceFn = util.NHashDistance(this.NODES_AMOUNT)
+  static setDistanceFn (nodesAmount) {
+    this.distanceFn = util.NHashDistance(nodesAmount)
+    this.initPreBlockValue = Math.floor(Math.random() * nodesAmount) // TODO: use a better way to init preBlockValue
   }
-
-  static distanceFn = util.NHashDistance(PocNode.NODES_AMOUNT)
-
-  static initPreBlockValue = Math.floor(Math.random() * this.NODES_AMOUNT)
-
-  /**
-   * true means in single node network mode, when only the node (i === 0) solely collect, witness and mint
-   * by set Node in singleNodeMode, we can easly write and debug the fundamental block building logics without
-   * disturbing from collaboration logics
-   */
-  static isSingleNodeMode = false
 
   static index = 0
 
-  constructor (network) {
+  constructor (network, isSingleNode=false) {
     const account = getEthereumAccount()
     super({
       account, network,
-      txCount: PocNode.TX_COUNT,
-      initChainInterval: PocNode.INIT_CHAIN_INTERVAL,
-      witnessRounds: PocNode.WITNESS_ROUNDS_AMOUNT
+      txCount: network.constructor.TX_COUNT,
+      initChainInterval: network.constructor.INIT_CHAIN_INTERVAL,
+      witnessRounds: network.constructor.WITNESS_ROUNDS_AMOUNT,
+      isSingleNode
     })
     this.i = this.constructor.index++
   }
 
   get briefObj() {
     return {i: this.i, address: this.account.addressString}
-  }
-
-  isCollector () {
-    return this.constructor.isSingleNodeMode ? this.isSingleNode() : this._isCollector()
   }
 
   _isCollector () {
@@ -70,22 +50,8 @@ class PocNode extends Node {
     return distance < this.constructor.COLLECTORS_AMOUNT
   }
 
-  isWitness (blockProposal) {
-    return this.constructor.isSingleNodeMode ? this.isSingleNode() : this._isWitness(blockProposal)
-  }
-
   _isWitness (blockProposal) {
     return this.constructor.distanceFn(blockProposal.toString(), this.account.publicKey) < this.constructor.WITNESSES_AMOUNT
-  }
-
-  isSingleNode() {
-    return this.constructor.isSingleNodeMode && this.i === 0
-  }
-
-
-  async askForWitnessAndMint(txs) {
-    // singleNodeMode, directly witnessAndMint
-    return this.constructor.isSingleNodeMode ? this.witnessAndMint(this.createBlockProposal(txs)) : super.askForWitnessAndMint(txs)
   }
 
   async continueWitnessAndMint (bp) {
