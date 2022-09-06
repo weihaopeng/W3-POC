@@ -41,29 +41,29 @@ class MessageHandler {
 
   handleTxOnNetwork(msg) {
     console.log('get tx msg on network', msg)
-    msg.action === 'arrive' ? this.arriveOnSwarm(msg.data) : this.departureOnSwarm(msg.data)
+    msg.action === 'arrive' ? this.arriveOnSwarm(msg) : this.departureOnSwarm(msg)
     // this.txPainter.append(data)
   }
 
   handleBpOnNetwork(msg) {
     console.log('get bp msg on network', msg)
     if (msg.action === 'arrive') {
-      this.arriveOnSwarm(msg.data)
+      this.arriveOnSwarm(msg)
       this.bpPainter.append(msg.data)
     } else if (msg.action === 'eliminate') {
-      this.arriveOnSwarm(msg.data)
+      this.arriveOnSwarm(msg)
     } else {
-      this.departureOnSwarm(msg.data)
+      this.departureOnSwarm(msg)
     }
   }
 
   handleBlockOnNetwork(msg) {
     console.log('get block msg on network', msg)
     if (msg.action === 'arrive') {
-      this.arriveOnSwarm(msg.data)
+      this.arriveOnSwarm(msg)
       this.blockPainter.append(msg.data)
     } else {
-      this.departureOnSwarm(msg.data)
+      this.departureOnSwarm(msg)
     }
   }
 
@@ -71,16 +71,18 @@ class MessageHandler {
     // TODO
   }
 
-  departureOnSwarm(data) {
-    this.swarmPainter.highlightNodes([data.from])
+  departureOnSwarm(msg) {
+    const data = msg.data
+    this.swarmPainter.highlightNodes([data.from], msg)
     this.swarmPainter.highlightLines([data])
   }
 
-  arriveOnSwarm(data) {
-    this.swarmPainter.highlightNodes([data.to])
+  arriveOnSwarm(msg) {
+    const data = msg.data
+    this.swarmPainter.highlightNodes([data.to], msg)
     setTimeout(() => {
-      this.swarmPainter.downplayLines([data])
-    }, DELAY_FOR_VIEW / 2)
+      this.swarmPainter.downplayLines([data], msg)
+    }, DELAY_FOR_VIEW)
   }
 }
 

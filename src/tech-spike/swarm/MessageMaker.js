@@ -97,7 +97,7 @@ class MessageMaker {
       while(r > 0) {
         const key = r === 1 ? 'txCommunicateCost' : `bpCommunicateCost${r - 1}`
         console.log(round, key, collector[key]) // 这个算法有问题。tx的消耗是记录在to节点的，而from节点没有。from可能是后续轮次的见证者，tx的消耗不一定会记录在后续轮的节点上。
-        totalCost += collector[key]
+        totalCost += (collector[key] || 2000)
         r--
       }
       // setTimeout(() => {
@@ -119,7 +119,7 @@ class MessageMaker {
     this.broadcastBp(1)
     this.broadcastBp(2)
     this.broadcastBp(3)
-    this.broadcastBlock()
+    // this.broadcastBlock()
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         let max = 0

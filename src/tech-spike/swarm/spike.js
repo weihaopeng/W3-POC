@@ -1,5 +1,5 @@
 import MessageMaker from './MessageMaker.js'
-import nodes from './MockNodes.json'
+import nodes from './assets/nodes.json'
 import MessageHandler from './MessageHandler.js'
 import ChainPainter from './painter/ChainPainter.js'
 import BlockPainter from './painter/BlockPainter.js'
@@ -13,7 +13,7 @@ async function fetchHistory(messageMaker) {
 
 async function main() {
   const bpPainter = new BpPainter(document.getElementById('bp-container'))
-  const swarmPainter = new SwarmPainter(document.getElementById('swarm-container'), nodes)
+  const swarmPainter = new SwarmPainter(document.getElementById('swarm-node-cvs'), document.getElementById('swarm-tooltip-container'), nodes)
   swarmPainter.init()
   const blockPainter = new BlockPainter(document.getElementById('block-container'))
   const chainPainter = new ChainPainter(document.getElementById('chain-container'))
@@ -21,8 +21,8 @@ async function main() {
   const messageMaker = new MessageMaker({ handler: messageHandler, nodes })
   await fetchHistory(messageMaker)
   setTimeout(() => {
-    messageMaker.work(5)
-  }, 1000)
+    messageMaker.work(1)
+  }, 100)
 }
 
 main()
