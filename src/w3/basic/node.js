@@ -2,10 +2,10 @@ import { Chain } from './chain.js'
 import { TransactionsPool } from './transactions-pool.js'
 import { Transaction } from './transaction.js'
 import { Block } from './block.js'
+import { Fork } from './fork.js'
 import { BlockProposal } from './block-proposal.js'
 
 import Debug from 'debug'
-import { Fork } from './fork.js'
 const debug = Debug('w3:node')
 
 class Account {
@@ -13,10 +13,15 @@ class Account {
   constructor ({ address, publicKey, privateKey, addressString, publicKeyString, privateKeyString }) {
     Object.assign(this, { address, publicKey, privateKey, addressString, publicKeyString, privateKeyString })
     this.i = this.constructor.index++ // TODO: currently only used for theory test
+    this.nonce = 0
   }
 
   compareTo (other) {
     return this.address === other.address ? 0 : this.address > other.address ? 1 : -1
+  }
+
+  equals(other) {
+    return this.address === other.address
   }
 }
 
@@ -45,7 +50,7 @@ class Node {
   async boot () { //
     // this.chain = await Chain.create()
     // const block = new Block(null, 'FIRST_BLOCK')
-    // this.network.broadcast('new-block', block, this) //this used in theory test to aviod of react on its own message
+    // this.network.broadcast('block', block, this) //this used in theory test to aviod of react on its own message
   }
 
   async start () {
@@ -68,28 +73,24 @@ class Node {
   startTwoStagesBlockGeneration () {
     this.network.listen('tx', (tx) => this.handleTx(tx), this) // this is the target used in theory test to aviod of react on its own message
 
-    this.network.listen('block-proposal', (bp) => this.handleWitness(bp), this)
+    this.network.listen('bp', (bp) => this.handleWitness(bp), this)
 
-    this.network.listen('new-block',  (block, origin) => this.handleNewBlock(block, origin), this)
+    this.network.listen('block',  (block, origin) => this.handleNewBlock(block, origin), this)
 
-    this.network.listen('fork-wins',  (fork) => this.handleForkWins(fork), this)
+    this.network.listen('fork',  (fork) => this.handleForkWins(fork), this)
 
   }
 
   async handleTx (tx) {
     tx = new Transaction(tx)
-    tx = await this.updateLocalFact({ tx })
-    tx && this.isCollector() && await this.collect(tx)
+    const isTxAdded = await this.updateLocalFact({ tx })
+    isTxAdded && this.isCollector() && await this.collect(tx)
   }
 
   async handleWitness (bp) {
     bp = new BlockProposal(bp)
-    const isValid = await this.verifyBp(bp)
-    if (!isValid) {
-      debug('bp is invalid, skip it', bp)
-      return this.network.events.emit('node.verify', {type: 'bp', data: bp, node: this, valid: isValid})
-    }
-    await this.updateLocalFact({ bp })
+    const isValid = await this.updateLocalFact({ bp })
+    if (!isValid) debug('--- FATAL witnes invalid bp', bp.brief)
     this.isWitness(bp) && await this.witnessAndMint(bp)
   }
 
@@ -101,8 +102,8 @@ class Node {
       return this.network.events.emit('node.verify', {type: 'block', data: block, node: this, valid: isValid})
     }
     await this.updateLocalFact({ block })
-    // TODO: 按 design/handle-new-block.png 算法处理
-    this === origin || this.chain.addBlock(block, this) // in single node mode, the new-block msg also comes from itself, so we need to check the origin
+    // TODO: 按 design/handle-block.png 算法处理
+    this === origin || this.chain.addBlock(block, this) // in single node mode, the block msg also comes from itself, so we need to check the origin
   }
 
   async handleForkWins (fork) { // { blocks }
@@ -149,7 +150,7 @@ class Node {
 
   async askForWitnessAndMint (txs) {
     const bp = this.createBlockProposal(txs)
-    this.network.broadcast('block-proposal', bp, this) //this used in theory test to aviod of react on its own message
+    this.network.broadcast('bp', bp, this) //this used in theory test to aviod of react on its own message
   }
 
   createBlockProposal (txs) {
@@ -158,11 +159,6 @@ class Node {
     })
     bp.askForWitness(this.account)
     return bp
-  }
-
-  async verifyBp (bp) {
-    // verify bp according to local facts, include the chain, fork, txPools
-    return true // TODO
   }
 
   async verifyBlock (block) {
@@ -181,13 +177,13 @@ class Node {
 
   async continueWitnessAndMint (bp) {
     bp.askForWitness(this)
-    this.network.broadcast('block-proposal', bp, this) //this used in theory test to aviod of react on its own message
+    this.network.broadcast('bp', bp, this) //this used in theory test to aviod of react on its own message
   }
 
   async mintBlock (bp) {
     const block = Block.mint(bp, this.chain)
     this.chain.addBlock(block, this) // add to local chain before broadcast
-    this.network.broadcast('new-block', block, this) //this used in theory test to aviod of react on its own message
+    this.network.broadcast('block', block, this) //this used in theory test to aviod of react on its own message
   }
 
   async query (query) {
@@ -195,15 +191,16 @@ class Node {
     return { chain: this.chain }
   }
 
-  async updateLocalFact ({ tx, block, bp, fork }) {
-    if (!tx) return true
-    const isValid = await tx.isValid() && (await this.txPool.verifyAndAdd(tx)).res !== 'reject'
-    if (!isValid) {
-      debug('tx is invalid, skip it', tx)
-      this.network.events.emit('node.verify', {type: 'tx', data: tx, node: this, valid: isValid})
-      return null
-    } else {
-      return tx
+  async updateLocalFact ({ tx, bp, block, fork }) {
+    // TODO: 根据bp、block、fork消息中的height，来判定当前node是否需要stop(退出ready)
+    if (tx) {
+      const { valid, isTxAdd } = await this.txPool.verifyAndAddTx(tx)
+      this.network.emitW3Event('node.verify', {type: 'tx', data: tx, node: this, valid})
+      return isTxAdd
+    } else if (bp) {
+      const { valid, isTxAdd } = await this.txPool.verifyBpAndAddTxs(bp)
+      this.network.emitW3Event('node.verify', {type: 'bp', data: bp, node: this, valid})
+      return valid
     }
     // TODO:
   }

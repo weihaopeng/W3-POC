@@ -5,7 +5,7 @@
     <id>UMLState</id>
     <coordinates>
       <x>550</x>
-      <y>890</y>
+      <y>880</y>
       <w>90</w>
       <h>40</h>
     </coordinates>
@@ -17,7 +17,7 @@ mint block</panel_attributes>
     <id>UMLState</id>
     <coordinates>
       <x>80</x>
-      <y>690</y>
+      <y>680</y>
       <w>1040</w>
       <h>40</h>
     </coordinates>
@@ -29,7 +29,7 @@ update facts of  txs, bps, blocks, chain</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>500</x>
-      <y>620</y>
+      <y>610</y>
       <w>250</w>
       <h>90</h>
     </coordinates>
@@ -41,7 +41,7 @@ recieve msg: tx, bp , block, fork</panel_attributes>
     <id>UMLSpecialState</id>
     <coordinates>
       <x>100</x>
-      <y>510</y>
+      <y>500</y>
       <w>20</w>
       <h>20</h>
     </coordinates>
@@ -52,7 +52,7 @@ recieve msg: tx, bp , block, fork</panel_attributes>
     <id>UMLState</id>
     <coordinates>
       <x>270</x>
-      <y>800</y>
+      <y>790</y>
       <w>120</w>
       <h>40</h>
     </coordinates>
@@ -64,7 +64,7 @@ collect tx</panel_attributes>
     <id>UMLState</id>
     <coordinates>
       <x>420</x>
-      <y>800</y>
+      <y>790</y>
       <w>220</w>
       <h>40</h>
     </coordinates>
@@ -76,7 +76,7 @@ witness bp</panel_attributes>
     <id>UMLState</id>
     <coordinates>
       <x>670</x>
-      <y>800</y>
+      <y>790</y>
       <w>120</w>
       <h>40</h>
     </coordinates>
@@ -88,7 +88,7 @@ append block</panel_attributes>
     <id>UMLState</id>
     <coordinates>
       <x>820</x>
-      <y>800</y>
+      <y>790</y>
       <w>230</w>
       <h>40</h>
     </coordinates>
@@ -100,7 +100,7 @@ change fork</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>290</x>
-      <y>720</y>
+      <y>710</y>
       <w>110</w>
       <h>100</h>
     </coordinates>
@@ -113,7 +113,7 @@ tx valid
     <id>Relation</id>
     <coordinates>
       <x>290</x>
-      <y>830</y>
+      <y>820</y>
       <w>110</w>
       <h>80</h>
     </coordinates>
@@ -125,7 +125,7 @@ enough txs</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>100</x>
-      <y>730</y>
+      <y>720</y>
       <w>170</w>
       <h>320</h>
     </coordinates>
@@ -140,7 +140,7 @@ tx, bp, block, fork
     <id>Relation</id>
     <coordinates>
       <x>440</x>
-      <y>720</y>
+      <y>710</y>
       <w>110</w>
       <h>100</h>
     </coordinates>
@@ -153,7 +153,7 @@ bp valid
     <id>Relation</id>
     <coordinates>
       <x>720</x>
-      <y>720</y>
+      <y>710</y>
       <w>100</w>
       <h>100</h>
     </coordinates>
@@ -165,7 +165,7 @@ block valid </panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>440</x>
-      <y>830</y>
+      <y>820</y>
       <w>120</w>
       <h>80</h>
     </coordinates>
@@ -177,7 +177,7 @@ block valid </panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>580</x>
-      <y>830</y>
+      <y>820</y>
       <w>120</w>
       <h>80</h>
     </coordinates>
@@ -189,7 +189,7 @@ block valid </panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>580</x>
-      <y>920</y>
+      <y>910</y>
       <w>100</w>
       <h>130</h>
     </coordinates>
@@ -201,7 +201,7 @@ send block</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>830</x>
-      <y>720</y>
+      <y>710</y>
       <w>120</w>
       <h>100</h>
     </coordinates>
@@ -214,7 +214,7 @@ fork detected</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>970</x>
-      <y>720</y>
+      <y>710</y>
       <w>120</w>
       <h>100</h>
     </coordinates>
@@ -227,7 +227,7 @@ fork detected</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>1080</x>
-      <y>720</y>
+      <y>710</y>
       <w>110</w>
       <h>330</h>
     </coordinates>
@@ -240,7 +240,7 @@ detected</panel_attributes>
     <id>UMLState</id>
     <coordinates>
       <x>80</x>
-      <y>590</y>
+      <y>580</y>
       <w>860</w>
       <h>40</h>
     </coordinates>
@@ -253,7 +253,7 @@ fg=white</panel_attributes>
     <id>UMLState</id>
     <coordinates>
       <x>270</x>
-      <y>890</y>
+      <y>880</y>
       <w>250</w>
       <h>40</h>
     </coordinates>
@@ -265,7 +265,7 @@ ask for witness</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>370</x>
-      <y>920</y>
+      <y>910</y>
       <w>100</w>
       <h>130</h>
     </coordinates>
@@ -278,7 +278,7 @@ send bp
     <id>UMLState</id>
     <coordinates>
       <x>60</x>
-      <y>1030</y>
+      <y>1020</y>
       <w>1080</w>
       <h>40</h>
     </coordinates>
@@ -290,7 +290,7 @@ fg=gray</panel_attributes>
     <id>UMLSpecialState</id>
     <coordinates>
       <x>1120</x>
-      <y>600</y>
+      <y>590</y>
       <w>20</w>
       <h>20</h>
     </coordinates>
@@ -301,7 +301,7 @@ fg=gray</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>100</x>
-      <y>520</y>
+      <y>510</y>
       <w>400</w>
       <h>90</h>
     </coordinates>
@@ -313,7 +313,7 @@ init &amp; start (join w3-network, w3Node.ready === true)</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>930</x>
-      <y>590</y>
+      <y>580</y>
       <w>210</w>
       <h>50</h>
     </coordinates>
@@ -326,7 +326,7 @@ stop | crash
     <id>Relation</id>
     <coordinates>
       <x>900</x>
-      <y>830</y>
+      <y>820</y>
       <w>90</w>
       <h>220</h>
     </coordinates>
@@ -338,7 +338,7 @@ send fork</panel_attributes>
     <id>Text</id>
     <coordinates>
       <x>500</x>
-      <y>480</y>
+      <y>470</y>
       <w>370</w>
       <h>30</h>
     </coordinates>
@@ -350,7 +350,7 @@ style=wordwrap</panel_attributes>
     <id>Text</id>
     <coordinates>
       <x>870</x>
-      <y>510</y>
+      <y>500</y>
       <w>80</w>
       <h>30</h>
     </coordinates>
@@ -364,7 +364,7 @@ group=1</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>930</x>
-      <y>510</y>
+      <y>500</y>
       <w>110</w>
       <h>40</h>
     </coordinates>
@@ -378,7 +378,7 @@ group=1</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>1040</x>
-      <y>510</y>
+      <y>500</y>
       <w>110</w>
       <h>40</h>
     </coordinates>
@@ -392,7 +392,7 @@ group=1</panel_attributes>
     <id>UMLSpecialState</id>
     <coordinates>
       <x>30</x>
-      <y>150</y>
+      <y>140</y>
       <w>20</w>
       <h>20</h>
     </coordinates>
@@ -403,7 +403,7 @@ group=1</panel_attributes>
     <id>UMLState</id>
     <coordinates>
       <x>180</x>
-      <y>140</y>
+      <y>130</y>
       <w>90</w>
       <h>40</h>
     </coordinates>
@@ -414,7 +414,7 @@ group=1</panel_attributes>
     <id>UMLState</id>
     <coordinates>
       <x>490</x>
-      <y>300</y>
+      <y>290</y>
       <w>220</w>
       <h>40</h>
     </coordinates>
@@ -425,7 +425,7 @@ group=1</panel_attributes>
     <id>UMLState</id>
     <coordinates>
       <x>910</x>
-      <y>140</y>
+      <y>130</y>
       <w>170</w>
       <h>40</h>
     </coordinates>
@@ -438,7 +438,7 @@ fg=white</panel_attributes>
     <id>UMLState</id>
     <coordinates>
       <x>420</x>
-      <y>140</y>
+      <y>130</y>
       <w>280</w>
       <h>40</h>
     </coordinates>
@@ -449,7 +449,7 @@ fg=white</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>40</x>
-      <y>140</y>
+      <y>130</y>
       <w>160</w>
       <h>40</h>
     </coordinates>
@@ -461,12 +461,12 @@ init</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>260</x>
-      <y>140</y>
+      <y>130</y>
       <w>180</w>
       <h>60</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-start
+connect
 libp2p.start()
 </panel_attributes>
     <additional_attributes>10.0;20.0;160.0;20.0</additional_attributes>
@@ -475,7 +475,7 @@ libp2p.start()
     <id>Relation</id>
     <coordinates>
       <x>500</x>
-      <y>170</y>
+      <y>160</y>
       <w>100</w>
       <h>150</h>
     </coordinates>
@@ -488,7 +488,7 @@ disconnect
     <id>Relation</id>
     <coordinates>
       <x>660</x>
-      <y>170</y>
+      <y>160</y>
       <w>80</w>
       <h>150</h>
     </coordinates>
@@ -501,27 +501,27 @@ connect
     <id>Relation</id>
     <coordinates>
       <x>690</x>
-      <y>140</y>
+      <y>130</y>
       <w>240</w>
       <h>60</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-withLatencyThreshold
+start
 latency &lt;= threshold
-</panel_attributes>
+&amp;&amp; chain.h + 1 &gt;= block.h</panel_attributes>
     <additional_attributes>10.0;20.0;220.0;20.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
       <x>550</x>
-      <y>90</y>
+      <y>80</y>
       <w>460</w>
       <h>70</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-overLatencyThreshold
-latency &gt; threshold
+stop
+latency &gt; threshold || chain.height + 1 &lt; block.height
 </panel_attributes>
     <additional_attributes>440.0;50.0;440.0;20.0;10.0;20.0;10.0;50.0</additional_attributes>
   </element>
@@ -529,7 +529,7 @@ latency &gt; threshold
     <id>UMLSpecialState</id>
     <coordinates>
       <x>1040</x>
-      <y>400</y>
+      <y>390</y>
       <w>20</w>
       <h>20</h>
     </coordinates>
@@ -540,7 +540,7 @@ latency &gt; threshold
     <id>Relation</id>
     <coordinates>
       <x>210</x>
-      <y>170</y>
+      <y>160</y>
       <w>850</w>
       <h>260</h>
     </coordinates>
@@ -563,7 +563,7 @@ fg=gray</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>440</x>
-      <y>170</y>
+      <y>160</y>
       <w>620</w>
       <h>260</h>
     </coordinates>
@@ -586,7 +586,7 @@ fg=gray</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>590</x>
-      <y>330</y>
+      <y>320</y>
       <w>470</w>
       <h>100</h>
     </coordinates>
@@ -599,7 +599,7 @@ fg=gray</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>1040</x>
-      <y>170</y>
+      <y>160</y>
       <w>80</w>
       <h>250</h>
     </coordinates>
@@ -622,11 +622,11 @@ fg=gray</panel_attributes>
     <id>Text</id>
     <coordinates>
       <x>550</x>
-      <y>50</y>
+      <y>40</y>
       <w>240</w>
       <h>30</h>
     </coordinates>
-    <panel_attributes>* W3 Node Status *
+    <panel_attributes>* Peer（W3 Node) Status *
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
@@ -634,7 +634,7 @@ style=wordwrap</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>700</x>
-      <y>170</y>
+      <y>160</y>
       <w>340</w>
       <h>170</h>
     </coordinates>

@@ -1,5 +1,8 @@
 import { Transaction } from './transaction.js'
 
+import Debug from 'debug'
+const debug = Debug('w3:TxsPool')
+
 class TransactionsPool {
   constructor (txCount) {
     this.txCount = txCount
@@ -7,12 +10,12 @@ class TransactionsPool {
   }
 
   add (tx) {
-    this.txs.push(tx)
+    this.txs.some( _tx => _tx.equals(tx)) || this.txs.push(tx)
   }
 
   pickEnough (tx) {
     if (this.txs.length === this.txCount) {
-      return this.txs.splice(0, this.txCount).sort(Transaction.sort)
+       return this.txs.splice(0, this.txCount).sort(Transaction.sort)
     }
   }
 
@@ -26,13 +29,29 @@ class TransactionsPool {
    * 6. txs with invalid to
    * 9. txs with invalid timestamp
    */
-  async verifyAndAdd (tx) {
+  async verifyAndAddTx (tx) {
+
+    // this.add(tx)
+    // return { res: 'add', tx }
+    if (!await tx.verify()) return { valid: false, isTxAdd: false }
     // TODO: using traditional tx verification algorithem verify against local fact,
     //  find double spend txs add apply the Universal Rule
-
-    // 1. added, 2. replaced, 3. reject
+    // results: 1. added, 2. replaced, 3. reject
     this.add(tx)
-    return { res: 'add', tx }
+    return { valid: true, isTxAdd: true }
+  }
+
+  async verifyBpAndAddTxs (bp) {
+    let valid = await bp.verify()
+    debug('--- FATAL: verifyBpAndAddTxs: bp is invalid, should not happen', bp.brief)
+    let allTxValid = true, isTxAdd = false
+    for (let tx of bp.txs) {
+      // bp 中的tx需要更新到本地
+      let { valid: txValid, isTxAdd: txAdd } = await this.verifyAndAddTx(tx)
+      if (!txValid) allTxValid = false
+      if (txAdd) isTxAdd = true
+    }
+    return { valid: valid && allTxValid, isTxAdd }
   }
 }
 

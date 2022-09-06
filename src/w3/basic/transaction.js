@@ -1,13 +1,23 @@
+import Debug from 'debug'
+const debug = Debug('w3:tx')
+
 class Transaction {
-  constructor ({ i, to, from, value, sig='sig' }) { // we ignore sig for now
-    Object.assign(this, { i, to, from, value, sig })
+  static createFake ({ i, from, to, value, nonce }) {
+    nonce = nonce || from.nonce++
+    return new this({ i, from, to, value, nonce })
   }
 
-  async isValid() {
-    return this.to && this.from && this.value && this.sig && await this.isValidSig()
+  constructor ({ i, to, from, nonce, value, sig='sig' }) { // we ignore sig for now
+    Object.assign(this, { i, to, from, nonce, value, sig })
   }
 
-  async isValidSig() {
+  async verify() {
+    const valid = this.to && this.from && this.nonce && this.value && this.sig && await this.verifySig()
+    if (!valid) debug('--- FATAL: verifyBpAndAddTxs: bp is invalid, should not happen', bp.brief)
+    return valid
+  }
+
+  async verifySig() {
     return true
   }
 
@@ -23,6 +33,10 @@ class Transaction {
 
   toString() {
     return `< i: ${this.i}, from: ${this.from.i}, to: ${this.to.i}, value: ${this.value} >`
+  }
+
+  equals(other) {
+    return this.from.equals(other.from) && this.to.equals(other.to) && this.value === other.value && this.nonce === other.nonce
   }
 }
 

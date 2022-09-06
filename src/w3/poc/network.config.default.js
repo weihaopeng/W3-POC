@@ -1,5 +1,5 @@
 const config = {
-  NODE_EVENTS: ['tx', 'block-proposal', 'new-block', 'fork-wins', 'query'], // events consumed by node
+  NODE_EVENTS: ['tx', 'bp', 'block', 'fork', 'query'], // events consumed by node
 
   W3_EVENTS: [ // events consumed by w3dashboard
     'network.msg.departure', 'network.msg.arrival', 'network.ready',

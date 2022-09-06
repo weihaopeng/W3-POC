@@ -56,7 +56,7 @@ class PocNode extends Node {
 
   async continueWitnessAndMint (bp) {
     bp.askForWitness(this)
-    // this.network.broadcast('block-proposal', bp, this) //this used in theory test to aviod of react on its own message
+    // this.network.broadcast('bp', bp, this) //this used in theory test to aviod of react on its own message
     // singleNodeMode, directly witnessAndMint
     return this.witnessAndMint(bp)
   }

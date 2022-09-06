@@ -1,7 +1,7 @@
 class BlockProposal {
   static index = 0 // TODO: currently only used for theory test
   constructor ({height, tailHash, txs, collector, witnessRecords=[]}) {
-    Object.assign(this, {height, tailHash, txs, witnessRecords})
+    Object.assign(this, {height, tailHash, collector, txs, witnessRecords})
     this.i = this.constructor.index++  // TODO: currently only used for theory test
   }
 
@@ -18,7 +18,13 @@ class BlockProposal {
   }
 
   async verify () {
-    return undefined
+    return typeof this.height === 'number' && this.txs && this.witnessRecords.every(wr => this.verifyWitnessRecord(wr))
+    && (this.height === 1 || this.tailHash) // height bigger than 1, must have tailHash
+  }
+
+  verifyWitnessRecord() {
+    // TODO: check witness record with sig
+    return true
   }
 
   witnessHash (blockProposal, publicKey) {

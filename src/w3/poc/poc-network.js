@@ -82,7 +82,7 @@ class PocNetwork extends EventEmitter2 {
   createFakeTx (i) {
     const from = _.sample(this.nodes).account
     const to = _.sample(this.nodes).account
-    return new Transaction({ i, from, to, value: 10000 * Math.random() })
+    return  Transaction.createFake({ i, from, to, value: 10000 * Math.random() })
   }
 
   recordCollector (tx, node) {
@@ -108,7 +108,7 @@ class PocNetwork extends EventEmitter2 {
   }
 
   emitW3EventMsgDeparture ({ origin, target, event, data }) {
-    this.events.emit('network.msg.departure', {
+    this.emitW3Event('network.msg.departure', {
       from: origin.briefObj,
       to: target?.briefObj, // target null for broadcast
       type: event, data, departureTime: new Date()
@@ -116,11 +116,15 @@ class PocNetwork extends EventEmitter2 {
   }
 
   emitW3EventMsgArrival ({ origin, target, event, data }) {
-    this.events.emit('network.msg.arrival', {
+    this.emitW3Event('network.msg.arrival', {
       from: origin.briefObj,
       to: target.briefObj,
       type: event, data, arrivalTime: new Date()
     })
+  }
+
+  emitW3Event(event, data) {
+    this.events?.emit(event, data)
   }
 
 }
