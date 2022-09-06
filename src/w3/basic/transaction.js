@@ -1,6 +1,18 @@
 class Transaction {
-  constructor ({ i, to, from, value }) {
-    Object.assign(this, { i, to, from, value })
+  constructor ({ i, to, from, value, sig='sig' }) { // we ignore sig for now
+    Object.assign(this, { i, to, from, value, sig })
+  }
+
+  async isValid() {
+    return this.to && this.from && this.value && this.sig && await this.isValidSig()
+  }
+
+  async isValidSig() {
+    return true
+  }
+
+  addHash() {
+    this.hash = 'hash-' + i // TODO
   }
 
   static sort (a, b) {

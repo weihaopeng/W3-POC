@@ -1,15 +1,15 @@
 class Block {
   static index = 0 // TODO: currently only used for theory test
   static mint (blockProposal, chain) {
-    return new Block(chain.tailHash, blockProposal)
+    return new this({ preHash: chain.tailHash, bp: blockProposal })
   }
 
-  constructor (preHash, bp) { // TODO: currently only used for theory test
+  constructor ({ preHash, bp, i, hash }) { // TODO: currently only used for theory test
     this.preHash = preHash
     this.bp = bp
-    this.i = this.constructor.index++ // TODO: currently only used for theory test
+    this.i = i !== undefined ? i : this.constructor.index++ // TODO: currently only used for theory test
     // this.hash = (preHash ? preHash + '-h' : 'h') + this.i // make debug easy in theory test
-    this.hash = 'h' + this.i // make debug easy in theory test
+    this.hash = hash !== undefined ? hash : 'h' + this.i // make debug easy in theory test
   }
 
   get brief() {

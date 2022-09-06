@@ -5,6 +5,7 @@ import { Block } from './block.js'
 import { BlockProposal } from './block-proposal.js'
 
 import Debug from 'debug'
+import { Fork } from './fork.js'
 const debug = Debug('w3:node')
 
 class Account {
@@ -42,9 +43,9 @@ class Node {
   }
 
   async boot () { //
-    this.chain = await Chain.create()
-    const block = new Block(null, 'FIRST_BLOCK')
-    this.network.broadcast('new-block', block, this) //this used in theory test to aviod of react on its own message
+    // this.chain = await Chain.create()
+    // const block = new Block(null, 'FIRST_BLOCK')
+    // this.network.broadcast('new-block', block, this) //this used in theory test to aviod of react on its own message
   }
 
   async start () {
@@ -76,22 +77,41 @@ class Node {
   }
 
   async handleTx (tx) {
-    await this.updateLocalFact({ tx })
-    this.isCollector() && await this.collect(tx)
+    tx = new Transaction(tx)
+    tx = await this.updateLocalFact({ tx })
+    tx && this.isCollector() && await this.collect(tx)
   }
 
   async handleWitness (bp) {
+    bp = new BlockProposal(bp)
+    const isValid = await this.verifyBp(bp)
+    if (!isValid) {
+      debug('bp is invalid, skip it', bp)
+      return this.network.events.emit('node.verify', {type: 'bp', data: bp, node: this, valid: isValid})
+    }
     await this.updateLocalFact({ bp })
     this.isWitness(bp) && await this.witnessAndMint(bp)
   }
 
   async handleNewBlock (block, origin) {
-    // TODO: 按 design/handle-new-block.png 算法处理
+    block = new Block(block)
+    const isValid = await this.verifyBlock(block)
+    if (!isValid) {
+      debug('block is invalid, skip it', block)
+      return this.network.events.emit('node.verify', {type: 'block', data: block, node: this, valid: isValid})
+    }
     await this.updateLocalFact({ block })
+    // TODO: 按 design/handle-new-block.png 算法处理
     this === origin || this.chain.addBlock(block, this) // in single node mode, the new-block msg also comes from itself, so we need to check the origin
   }
 
-  async handleForkWins (forkBlocks) { // { forkPoint, blocksAfter }
+  async handleForkWins (fork) { // { blocks }
+    fork = new Fork(fork)
+    const isValid = await this.verifyFork(fork)
+    if (!isValid) {
+      debug('fork is invalid, skip it', fork)
+      return this.network.events.emit('node.verify', {type: 'fork', data: fork, node: this, valid: isValid})
+    }
     await this.updateLocalFact({ block })
     // TODO: 按其中的消息，检查chain
   }
@@ -115,17 +135,11 @@ class Node {
   async collect (tx) {
     debug('---node %s collect tx %s ', this.account.i, tx)
     this.network.recordCollector(tx, this)
-    tx = new Transaction(tx)
-    const isValid = await this.verifyTx(tx)
-    if (!isValid) return debug('tx is invalid, skip it', tx)
-    const txs = this.txPool.addAndPickTxs(tx)
+    const txs = this.txPool.pickEnough(tx)
     txs && await this.askForWitnessAndMint(txs)
   }
 
   async witnessAndMint (bp) {
-    bp = new BlockProposal(bp)
-    const isValid = await this.verifyBp(bp)
-    if (!isValid) return debug('bp is invalid, skip it', bp)
     debug('---node %s witness bp %s ', this.account.i, bp.brief)
     this.network.recordWitness(bp, this)
     await bp.witness(this.account)
@@ -146,13 +160,18 @@ class Node {
     return bp
   }
 
-  async verifyTx (tx) {
-    // verify transaction according to local facts, include the chain, fork, txPools
+  async verifyBp (bp) {
+    // verify bp according to local facts, include the chain, fork, txPools
     return true // TODO
   }
 
-  async verifyBp (bp) {
-    // verify bp according to local facts, include the chain, fork, txPools
+  async verifyBlock (block) {
+    // verify block according to local facts, include the chain, fork, txPools
+    return true // TODO
+  }
+
+  async verifyFork (fork) {
+    // verify fork according to local facts, include the chain, fork, txPools
     return true // TODO
   }
 
@@ -177,6 +196,15 @@ class Node {
   }
 
   async updateLocalFact ({ tx, block, bp, fork }) {
+    if (!tx) return true
+    const isValid = await tx.isValid() && (await this.txPool.verifyAndAdd(tx)).res !== 'reject'
+    if (!isValid) {
+      debug('tx is invalid, skip it', tx)
+      this.network.events.emit('node.verify', {type: 'tx', data: tx, node: this, valid: isValid})
+      return null
+    } else {
+      return tx
+    }
     // TODO:
   }
 }
