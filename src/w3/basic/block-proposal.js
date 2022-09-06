@@ -1,6 +1,9 @@
+import { Transaction } from './transaction.js'
+
 class BlockProposal {
   static index = 0 // TODO: currently only used for theory test
   constructor ({height, tailHash, txs, collector, witnessRecords=[]}) {
+    txs = txs[0] instanceof Transaction ? txs : txs.map(tx => new Transaction(tx))
     Object.assign(this, {height, tailHash, collector, txs, witnessRecords})
     this.i = this.constructor.index++  // TODO: currently only used for theory test
   }

@@ -25,6 +25,7 @@ describe('Single Node Network Mode', () => {
     w3.showWitnessesStatistic()
     w3.nodes.should.have.length(1)
     w3.nodes[0].chain.blocks.should.have.length(2) // 2 blocks are appended to the chain
+    w3.nodes[0].txPool.txs.forEach(({state}) => state.should.equal('chain'))
   }).timeout(0)
 
 })

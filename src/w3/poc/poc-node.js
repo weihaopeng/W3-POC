@@ -4,8 +4,8 @@ import Wallet from 'ethereumjs-wallet'
 import { Account, Node } from '../basic/node.js'
 import { util } from '../util.js'
 
-
 import Debug from 'debug'
+
 const debug = Debug('w3:poc:node')
 
 const getEthereumAccount = () => {
@@ -27,31 +27,27 @@ class PocNode extends Node {
 
   static index = 0
 
-  constructor (network, isSingleNode=false) {
+  constructor (network, isSingleNode = false) {
     const account = getEthereumAccount()
-    super({
-      account, network,
-      txCount: network.config.TX_COUNT,
-      initChainInterval: network.config.INIT_CHAIN_INTERVAL,
-      witnessRounds: network.config.WITNESS_ROUNDS_AMOUNT,
-      isSingleNode
-    })
+    super({ account, network, isSingleNode })
     this.i = this.constructor.index++
   }
 
-  get briefObj() {
-    return {i: this.i, address: this.account.addressString}
+  get briefObj () {
+    return { i: this.i, address: this.account.addressString }
   }
 
   _isCollector () {
     const preBlock = this.chain.tailHash || this.constructor.initPreBlockValue
     const distance = this.constructor.distanceFn(preBlock.toString(), this.account.publicKey)
-    // debug('is collector,distance:', distance)
-    return distance < this.constructor.COLLECTORS_AMOUNT
+    // debug('--- is collector,distance:', distance)
+    return distance < this.network.config.COLLECTORS_AMOUNT
   }
 
   _isWitness (blockProposal) {
-    return this.constructor.distanceFn(blockProposal.toString(), this.account.publicKey) < this.constructor.WITNESSES_AMOUNT
+    const distance = this.constructor.distanceFn(blockProposal.toString(), this.account.publicKey)
+    // debug('--- is witness, distance:', distance)
+    return distance < this.network.config.WITNESSES_AMOUNT
   }
 
   async continueWitnessAndMint (bp) {
@@ -62,6 +58,5 @@ class PocNode extends Node {
   }
 
 }
-
 
 export { PocNode }

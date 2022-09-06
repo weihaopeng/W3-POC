@@ -26,13 +26,11 @@ class Account {
 }
 
 class Node {
-  constructor ({ account, network, txCount, initChainInterval, witnessRounds, isSingleNode=false }) {
-    if (!account || !network || !txCount || !initChainInterval || !witnessRounds) throw new Error(`can't create node, check the params`)
+  constructor ({ account, network, isSingleNode=false }) {
+    if (!account || !network) throw new Error(`can't create node, check the params`)
     this.account = account
-    this.initChainInterval = initChainInterval
-    this.witnessRounds = witnessRounds
     this.network = network
-    this.txPool = new TransactionsPool(txCount)
+    this.txPool = new TransactionsPool(this.network.config.TX_COUNT)
     this.isSingleNode = isSingleNode // is the only node in the network, used to separate the concern of two-stages-mint and the collaborations among nodes.
   }
 
@@ -44,7 +42,7 @@ class Node {
 
   async initChain () {
     const chain = await this.network.queryPeers?.({})
-    return chain ? chain : new Promise((r, j) => setTimeout(() => r(this.initChain()), this.initChainInterval))
+    return chain ? chain : new Promise((r, j) => setTimeout(() => r(this.initChain()), this.network.config.INIT_CHAIN_INTERVAL))
   }
 
   async boot () { //
@@ -90,20 +88,16 @@ class Node {
   async handleWitness (bp) {
     bp = new BlockProposal(bp)
     const isValid = await this.updateLocalFact({ bp })
-    if (!isValid) debug('--- FATAL witnes invalid bp', bp.brief)
-    this.isWitness(bp) && await this.witnessAndMint(bp)
+    if (!isValid) debug('--- FATAL: witness invalid bp', bp.brief)
+    isValid && this.isWitness(bp) && await this.witnessAndMint(bp)
   }
 
   async handleNewBlock (block, origin) {
     block = new Block(block)
-    const isValid = await this.verifyBlock(block)
-    if (!isValid) {
-      debug('block is invalid, skip it', block)
-      return this.network.events.emit('node.verify', {type: 'block', data: block, node: this, valid: isValid})
-    }
-    await this.updateLocalFact({ block })
+    const isValid = await this.updateLocalFact({ bp })
+    if (!isValid) debug('--- FATAL: receive invalid block', block.brief)
     // TODO: 按 design/handle-block.png 算法处理
-    this === origin || this.chain.addBlock(block, this) // in single node mode, the block msg also comes from itself, so we need to check the origin
+    isValid && (this === origin || this.chain.addBlock(block, this)) // in single node mode, the block msg also comes from itself, so we need to check the origin
   }
 
   async handleForkWins (fork) { // { blocks }
@@ -125,8 +119,8 @@ class Node {
     // abstract now
   }
 
-  isWitness () {
-    return this.isSingleNode || this._isWitness()
+  isWitness (bp) {
+    return this.isSingleNode || this._isWitness(bp)
   }
 
   _isWitness () {
@@ -134,14 +128,14 @@ class Node {
   }
 
   async collect (tx) {
-    debug('---node %s collect tx %s ', this.account.i, tx)
+    debug('--- node %s collect tx %s ', this.account.i, tx)
     this.network.recordCollector(tx, this)
     const txs = this.txPool.pickEnoughForBp()
     txs && await this.askForWitnessAndMint(txs)
   }
 
   async witnessAndMint (bp) {
-    debug('---node %s witness bp %s ', this.account.i, bp.brief)
+    debug('--- node %s witness bp %s ', this.account.i, bp.brief)
     this.network.recordWitness(bp, this)
     await bp.witness(this.account)
     this.isNeedMoreRoundOfWitness(bp) ? await this.continueWitnessAndMint(bp) :
@@ -172,7 +166,7 @@ class Node {
   }
 
   isNeedMoreRoundOfWitness (bp) {
-    return bp.witnessRecords.length < this.witnessRounds
+    return bp.witnessRecords.length < this.network.config.WITNESS_ROUNDS_AMOUNT
   }
 
   async continueWitnessAndMint (bp) {
@@ -183,6 +177,7 @@ class Node {
   async mintBlock (bp) {
     const block = Block.mint(bp, this.chain)
     this.chain.addBlock(block, this) // add to local chain before broadcast
+    this.txPool.update(block.txs, 'chain')
     this.network.broadcast('block', block, this) //this used in theory test to aviod of react on its own message
   }
 
@@ -201,6 +196,12 @@ class Node {
       const { valid, isTxAdd } = await this.txPool.verifyBpAndAddTxs(bp)
       this.network.emitW3Event('node.verify', {type: 'bp', data: bp, node: this, valid})
       return valid
+    } else if (block) {
+      const { valid, isTxAdd } = await this.txPool.verifyBlockAndAddTxs(bp)
+      this.network.emitW3Event('node.verify', {type: 'block', data: block, node: this, valid})
+      return valid
+    } else { // fork
+      throw new Error('not implemented')
     }
     // TODO:
   }
