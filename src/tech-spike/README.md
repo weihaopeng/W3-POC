@@ -2,7 +2,7 @@
 
 ## How to start
 1. run `npm run start` in the root of project directory.
-1. visit `${host}/tech-spike/swarm` or `${host}/tech-spike/network`
+1. visit `${host}/tech-spike/swarm.html` or `${host}/tech-spike/network.html`
 
 ## The render logic
 

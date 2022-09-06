@@ -1,4 +1,4 @@
-import { getRandomNode, getRandomNodeWithout, getOtherNodes } from './util'
+import { getRandomNode, getRandomNodeWithout, getOtherNodes } from '../util'
 const DELAY_FOR_VIEW = 2000 // 基础通信耗时
 const DELAY_CHURN_THRESHOLD = 200 // 波动产生的额外时间
 const DELAY_FILTER_RATIO = 0.2 // 因波动进行过滤的节点比例
