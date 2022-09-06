@@ -12,7 +12,7 @@ class Transaction {
   }
 
   async verify() {
-    const valid = this.to && this.from && this.nonce && this.value && this.sig && await this.verifySig()
+    const valid = this.to && this.from && typeof this.nonce === 'number' && this.value && this.sig && await this.verifySig()
     if (!valid) debug('--- FATAL: verifyBpAndAddTxs: bp is invalid, should not happen', bp.brief)
     return valid
   }

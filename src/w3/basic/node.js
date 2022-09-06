@@ -136,7 +136,7 @@ class Node {
   async collect (tx) {
     debug('---node %s collect tx %s ', this.account.i, tx)
     this.network.recordCollector(tx, this)
-    const txs = this.txPool.pickEnough(tx)
+    const txs = this.txPool.pickEnoughForBp()
     txs && await this.askForWitnessAndMint(txs)
   }
 
