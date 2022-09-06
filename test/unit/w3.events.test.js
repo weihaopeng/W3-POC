@@ -10,9 +10,7 @@ import Debug from 'debug'
 const debug = Debug('w3:test')
 
 describe('w3.events  @issue#8', () => {
-  PocNetwork.TX_COUNT = 5
-  PocNetwork.NODES_AMOUNT = 5
-  let w3 = new PocNetwork({ w3EventsOn: true })
+  let w3 = new PocNetwork({ W3_EVENTS_ON: true, TX_COUNT: 5, NODES_AMOUNT: 5 })
 
   before(async function () {
     this.timeout(0)

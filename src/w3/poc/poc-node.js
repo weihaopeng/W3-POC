@@ -31,9 +31,9 @@ class PocNode extends Node {
     const account = getEthereumAccount()
     super({
       account, network,
-      txCount: network.constructor.TX_COUNT,
-      initChainInterval: network.constructor.INIT_CHAIN_INTERVAL,
-      witnessRounds: network.constructor.WITNESS_ROUNDS_AMOUNT,
+      txCount: network.config.TX_COUNT,
+      initChainInterval: network.config.INIT_CHAIN_INTERVAL,
+      witnessRounds: network.config.WITNESS_ROUNDS_AMOUNT,
       isSingleNode
     })
     this.i = this.constructor.index++

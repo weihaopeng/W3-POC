@@ -9,10 +9,7 @@ import Debug from 'debug'
 
 const debug = Debug('w3:test')
 describe('Full(Normal) Network Mode @issue#2', () => {
-  const nodeAmounts = 5
-  PocNetwork.TX_COUNT = 5
-  PocNetwork.NODES_AMOUNT = 5
-  let w3 = new PocNetwork()
+  let w3 = new PocNetwork({TX_COUNT: 5, NODES_AMOUNT: 5})
 
   before(async function () {
     this.timeout(0)

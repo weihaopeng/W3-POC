@@ -7,43 +7,23 @@ import Debug from 'debug'
 import EventEmitter2 from 'eventemitter2'
 import { Transaction } from '../basic/transaction.js'
 
+import { config as defaultConfig } from './network.config.default.js'
+
 const debug = Debug('w3:poc:network')
 
 class PocNetwork extends EventEmitter2 {
-  static events = ['tx', 'block-proposal', 'new-block', 'fork-wins', 'query']
-
-  // TODO: move theses to network.config.js
-  static NODES_AMOUNT = 100
-  static COLLECTORS_AMOUNT = 5
-  static WITNESSES_AMOUNT = 5
-  static WITNESS_ROUNDS_AMOUNT = 3
-  static TX_COUNT = 100
-  static INIT_CHAIN_INTERVAL = 10000 // 10秒
-
-  static MSG_ARRIVAL_RATIO = 1 // the ratio is always 1 in a P2P network using TCP as transportation protocol
-  static LATENCY_LOWER_BOUND = 0
-  static LATENCY_UPPER_BOUND = 100 // 100 milliseconds
-
-
-  /**
-   * singleNodeMode true means in single node network mode, when only the node (i === 0) solely collect, witness and mint
-   * by set Node in singleNodeMode, we can easly write and debug the fundamental block building logics without
-   * disturbing from collaboration logics
-   */
-  constructor (def = {}) {
-    const { singleNodeMode=false, w3EventsOn = false } = def
+  constructor (config) {
     super()
+    this.config = {...defaultConfig, ...config }
     this.setMaxListeners(0) // to supass MaxListenersExceededWarning https://nodejs.org/docs/latest/api/events.html#events_emitter_setmaxlisteners_n
     this.sta = { collectors: [], witnesses: [] }
-    this.singleNodeMode = singleNodeMode
-    this.w3EventsOn = w3EventsOn
-    w3EventsOn && (this.events = new EventEmitter2({ wildcard: true }))
+    this.config.W3_EVENTS_ON && (this.events = new EventEmitter2({ wildcard: true }))
   }
 
-  async init (nodesAmount = this.constructor.NODES_AMOUNT) {
-    nodesAmount = this.singleNodeMode ? 1 : nodesAmount
+  async init (nodesAmount = this.config.NODES_AMOUNT) {
+    nodesAmount = this.config.SINGLE_NODE_MODE? 1 : nodesAmount
     PocNode.setDistanceFn(nodesAmount)
-    this.nodes = [...new Array(nodesAmount)].map(i => new PocNode(this, this.singleNodeMode))
+    this.nodes = [...new Array(nodesAmount)].map(i => new PocNode(this, this.config.SINGLE_NODE_MODE))
     await Promise.all(this.nodes.map(node => node.start()))
   }
 
@@ -55,12 +35,12 @@ class PocNetwork extends EventEmitter2 {
   listen (event, cb, target) {
     this.on(event, ({ origin, data }) => {
       // node calls back immediately in its own event in single node mode to make two-stages-mint move forward
-      if (this.singleNodeMode) this._listenCb(cb, data, origin, target, event)
+      if (this.config.SINGLE_NODE_MODE) this._listenCb(cb, data, origin, target, event)
 
       // simulate of msg propagation, may lose in the way
-      const arrivalRatio = this.constructor.MSG_ARRIVAL_RATIO
+      const arrivalRatio = this.config.MSG_ARRIVAL_RATIO
       // simulate the network jitter, latency may randomly as Gauss distribution
-      const latency = util.gaussRandom(this.constructor.LATENCY_LOWER_BOUND, this.constructor.LATENCY_UPPER_BOUND)
+      const latency = util.gaussRandom(this.config.LATENCY_LOWER_BOUND, this.config.LATENCY_UPPER_BOUND)
       // debug('***** arrivalRatio: %s, latency: %s', arrivalRatio, latency)
 
       if (Math.random() < arrivalRatio && target !== origin) {
@@ -71,12 +51,12 @@ class PocNetwork extends EventEmitter2 {
 
   _listenCb (cb, data, origin, target, event) {
     cb(data, origin)
-    this.w3EventsOn && this.emitW3EventMsgArrival({ origin, target, event, data })
+    this.config.W3_EVENTS_ON && this.emitW3EventMsgArrival({ origin, target, event, data })
   }
 
   broadcast (event, data, origin) {
     this.emit(event, { origin, data}) // use the origin to prevent origin's listen
-    this.w3EventsOn && this.emitW3EventMsgDeparture({ origin, target: null, event, data })
+    this.config.W3_EVENTS_ON && this.emitW3EventMsgDeparture({ origin, target: null, event, data })
   }
 
   async sendFakeTxs (n, tps = 1) { // transaction per second, is the lamda of the Poisson Distribution
@@ -87,7 +67,7 @@ class PocNetwork extends EventEmitter2 {
       await util.wait(latency)
       this.sendFakeTx(i)
     }
-    await util.wait(2 * this.constructor.LATENCY_UPPER_BOUND) // wait for all txs to be collected
+    await util.wait(2 * this.config.LATENCY_UPPER_BOUND) // wait for all txs to be collected
   }
 
   sendFakeTx (i) {

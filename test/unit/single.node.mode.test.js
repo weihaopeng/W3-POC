@@ -10,8 +10,7 @@ import Debug from 'debug'
 const debug = Debug('w3:test')
 
 describe('Single Node Network Mode', () => {
-  PocNetwork.TX_COUNT = 5
-  let w3 = new PocNetwork({ singleNodeMode: true })
+  let w3 = new PocNetwork({ SINGLE_NODE_MODE: true, TX_COUNT: 5 })
 
   before(async function () {
     this.timeout(0)
