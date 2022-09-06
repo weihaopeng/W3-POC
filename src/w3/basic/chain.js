@@ -15,6 +15,7 @@ class Chain {
   addBlock(block, node) {
     debug('--- node: %s add block to its chain: ', node.i, block.brief)
     this.blocks.push(block)
+    debug('--- SHOW chain: %s ', this.superBrief)
   }
 
   get height() {
@@ -23,6 +24,14 @@ class Chain {
 
   get tailHash() {
     return this.blocks.slice(-1)[0]?.hash
+  }
+
+  get brief() {
+    return `height: ${this.height}, tailHash: ${this.tailHash}, blocks: ${this.blocks.map(b => b.brief)}`
+  }
+
+  get superBrief() {
+    return `height: ${this.height}, ${this.blocks.map(b => b.superBrief).join(' -> ')}`
   }
 }
 

@@ -34,8 +34,12 @@ class BlockProposal {
     return this.brief() === other.brief()
   }
 
+  get superBrief() {
+    return this.txs.map(tx => tx.i).join('-')
+  }
+
   get brief() {
-    return 'height:' + this.height + ', txs:' + this.txs.map(tx => tx.i).join('-')
+    return 'height:' + this.height + ', txs:' + this.superBrief
   }
 
   toString() {
