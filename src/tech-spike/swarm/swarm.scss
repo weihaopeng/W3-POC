@@ -1,0 +1,160 @@
+@use 'sass:map';
+@use 'sass:meta';
+/*************** basic ***************/
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: #eee;
+  overflow: hidden;
+  #main {
+    width: calc(100% - 64px);
+    height: calc(100% - 64px);
+    display: flex;
+    margin: 32px;
+    background: #fff;
+  }
+}
+
+.chain-column, .block-column, .bp-column, .swarm-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 8px;
+}
+
+.chain-column, .block-column, .bp-column {
+  width: 300px;
+  overflow-y: auto;
+  max-height: 75vh;
+}
+
+.swarm-column {
+  flex-grow: 1;
+}
+
+#chain-container, #block-container, #bp-container {
+  overflow-y: auto;
+}
+
+/*************** swarm ***************/
+@mixin swarm-tooltip-wrapper-layout($layout) {
+  $card-flex-direction: row;
+  $tooltip-flex-direction: column;
+  $tooltip-card-margin-direction: right;
+  $tooltip-margin-direction: top;
+  @if $layout == horizontal {
+    $card-flex-direction: column;
+    $tooltip-flex-direction: row;
+    $tooltip-card-margin-direction: bottom;
+    $tooltip-margin-direction: left;
+  }
+
+  flex-direction: $card-flex-direction;
+  .swarm-tooltip-card {
+    flex-direction: $tooltip-flex-direction;
+    &:not(:last-child) {
+      margin-#{$tooltip-card-margin-direction}: 8px;
+      padding-#{$tooltip-card-margin-direction}: 8px;
+      border-#{$tooltip-card-margin-direction}: solid 1px #333;
+    }
+    .swarm-tooltip + .swarm-tooltip {
+      margin-#{$tooltip-margin-direction}: 24px;
+    }
+  }
+}
+
+$tooltip-bg-map: (
+  'tx': #1890ff,
+  'bp': #52c41a,
+  'block': #722ed1,
+  'fork': #722ed1,
+  'invalid': #8c8c8c,
+);
+
+@mixin tooltip-bg($selectors...) {
+  @for $i from 0 to length($selectors) {
+    $type: nth($selectors, $i + 1);
+    &.#{$type} {
+      background-color: map.get($tooltip-bg-map, #{$type});
+    }
+  }
+}
+
+.swarm-cvs-container {
+  flex-grow: 1;
+  background: #dcdcdc;
+  width: 100%;
+  position: relative;
+  padding: 40px;
+  box-sizing: border-box;
+  #swarm-node-cvs {
+    width: 100%;
+    height: 100%;
+  }
+  #swarm-tooltip-container {
+    position: absolute;
+    top: 40px;
+    left: 40px;
+    width: calc(100% - 80px);
+    height: calc(100% - 80px);
+
+    .swarm-tooltip-wrapper {
+      position: absolute;
+      display: flex;
+      flex-direction: row;
+      .swarm-tooltip-card {
+        display: flex;
+        .swarm-tooltip {
+          padding: 12px;
+          @include tooltip-bg('tx', 'bp', 'block', 'fork', 'invalid');
+          &.to-remove {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+          }
+        }
+      }
+      &.horizontal {
+        @include swarm-tooltip-wrapper-layout(horizontal)
+      }
+      &.vertical {
+        @include swarm-tooltip-wrapper-layout(vertical)
+      }
+    }
+  }
+}
+
+/*************** chain, block, bp ***************/
+@keyframes yellow-fade {
+  0% {
+    background: #fff;
+  }
+  50% {
+    background: #fff1b8;
+  }
+  100% {
+    background: #fff;
+  }
+}
+
+@mixin container($types...) {
+  @for $i from 0 to length($types) {
+    $type: nth($types, $i + 1);
+
+    .#{$type}-container {
+      border: solid 1px #dcdcdc;
+      border-radius: 4px;
+      margin: 16px;
+      padding: 16px;
+      animation: yellow-fade 2s linear 1;
+    }
+    .#{$type}-type {
+      margin-right: 8px;
+      color: #666;
+      width: 4em;
+      display: inline-block;
+    }
+  }
+}
+
+@include container('chain', 'block', 'bp');

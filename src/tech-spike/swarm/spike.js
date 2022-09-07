@@ -22,7 +22,7 @@ async function main() {
   await fetchHistory(messageMaker)
   setTimeout(() => {
     messageMaker.work(1)
-  }, 100)
+  }, 1000)
 }
 
 main()

@@ -1,4 +1,5 @@
 const DELAY_FOR_VIEW = 2000
+const TIMEOUT_THRESHOLD = 3000
 
 class MessageHandler {
   constructor({ chainPainter, blockPainter, swarmPainter, bpPainter }) {
@@ -74,6 +75,9 @@ class MessageHandler {
   departureOnSwarm(msg) {
     const data = msg.data
     this.swarmPainter.highlightNodes([data.from], msg)
+    setTimeout(() => {
+      this.swarmPainter.downplayNodes([data.from], msg)
+    }, TIMEOUT_THRESHOLD)
     this.swarmPainter.highlightLines([data])
   }
 
@@ -82,7 +86,8 @@ class MessageHandler {
     this.swarmPainter.highlightNodes([data.to], msg)
     setTimeout(() => {
       this.swarmPainter.downplayLines([data], msg)
-    }, DELAY_FOR_VIEW)
+      this.swarmPainter.downplayNodes([data.to], msg)
+    }, DELAY_FOR_VIEW / 2)
   }
 }
 

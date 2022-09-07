@@ -90,6 +90,7 @@ class SwarmNode {
       return
     }
     const tooltip = document.createElement('div')
+    tooltip.classList.add('swarm-tooltip')
     // TODO 根据data内容，调整tooltip内容
     tooltip.innerText = this.getShortFor(msg.type)
     tooltip.classList.add(msg.action)
@@ -104,8 +105,11 @@ class SwarmNode {
     if (!tooltipCard) return // 实际不应该存在
     const children = Array.from(tooltipCard.children)
     const child = children.find((child) => child.innerText === this.getShortFor(msg.type))
-    if (!child) debugger
-    child.remove()
+    if (!child) return
+    child.classList.add('to-remove')
+    setTimeout(() => {
+      child.remove()
+    }, 300)
     if (tooltipCard.children.length === 0) this._removeTooltipCard(tooltipCard)
   }
 }
