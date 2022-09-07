@@ -12,6 +12,10 @@ class Chain {
     this.blocks = []
   }
 
+  reset () {
+    this.blocks = []
+  }
+
   addBlock(block, node) {
     debug('--- node: %s add block to its chain: ', node.i, block.brief)
     this.blocks.push(block)
@@ -33,6 +37,7 @@ class Chain {
   get superBrief() {
     return `height: ${this.height}, ${this.blocks.map(b => b.superBrief).join(' -> ')}`
   }
+
 }
 
 export { Chain }

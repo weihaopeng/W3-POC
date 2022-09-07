@@ -8,6 +8,7 @@ A large-scale P2P application protocol testbed based on IPFS and Libp2p for test
 
 ## Getting started
 [TODO]: usages
+[TODO: add a part of how to build & deploy the whole project]: @jian
 
 ## Documentation
 [阐明无共识区块链，给出相关paper和博文，博客]: 注释

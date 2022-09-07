@@ -11,9 +11,13 @@ class Transaction {
     Object.assign(this, { i, to, from, nonce, value, sig })
   }
 
+  get brief() {
+    return `${this.i}:(${this.from.i}#${this.nonce}(${this.value})=>${this.to.i})`
+  }
+
   async verify() {
-    const valid = this.to && this.from && typeof this.nonce === 'number' && this.value && this.sig && await this.verifySig()
-    if (!valid) debug('--- FATAL: verifyBpAndAddTxs: bp is invalid, should not happen', bp.brief)
+    const valid = this.to && this.from && typeof this.nonce === 'number' && this.nonce >= 0 && this.value && this.sig && await this.verifySig()
+    if (!valid) debug('--- FATAL: tx is invalid', this.brief)
     return valid
   }
 
@@ -34,6 +38,7 @@ class Transaction {
   toString() {
     return `< i: ${this.i}, from: ${this.from.i}, to: ${this.to.i}, value: ${this.value} >`
   }
+
 
   equals(other) {
     return this.from.equals(other.from) && this.to.equals(other.to) && this.value === other.value && this.nonce === other.nonce

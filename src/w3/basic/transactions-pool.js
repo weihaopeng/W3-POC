@@ -10,6 +10,10 @@ class TransactionsPool {
     this.txs = [] // { tx, state } state: tx | bp | block | chain
   }
 
+  reset () {
+    this.txs = []
+  }
+
   add (tx, state) {
     let found = false
     for (let _tx of this.txs) {
@@ -85,6 +89,7 @@ class TransactionsPool {
     }
     return { valid: valid && allTxValid, isTxAdd }
   }
+
 }
 
 export { TransactionsPool }

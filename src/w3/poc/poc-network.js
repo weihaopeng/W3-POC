@@ -17,7 +17,6 @@ class PocNetwork extends EventEmitter2 {
     this.config = {...defaultConfig, ...config }
     this.setMaxListeners(0) // to supass MaxListenersExceededWarning https://nodejs.org/docs/latest/api/events.html#events_emitter_setmaxlisteners_n
     this.sta = { collectors: [], witnesses: [] }
-    this.config.W3_EVENTS_ON && (this.events = new EventEmitter2({ wildcard: true }))
   }
 
   async init (nodesAmount = this.config.NODES_AMOUNT) {
@@ -25,6 +24,12 @@ class PocNetwork extends EventEmitter2 {
     PocNode.setDistanceFn(nodesAmount)
     this.nodes = [...new Array(nodesAmount)].map(i => new PocNode(this, this.config.SINGLE_NODE_MODE))
     await Promise.all(this.nodes.map(node => node.start()))
+    this.config.W3_EVENTS_ON && (this.events = new EventEmitter2({ wildcard: true }))
+  }
+
+  reset() {
+    this.config.W3_EVENTS_ON && this.events.removeAllListeners()
+    this.nodes.forEach(node => node.reset())
   }
 
   destroy () {
@@ -59,30 +64,31 @@ class PocNetwork extends EventEmitter2 {
     this.config.W3_EVENTS_ON && this.emitW3EventMsgDeparture({ origin, target: null, event, data })
   }
 
-  async sendFakeTxs (n, tps = 1) { // transaction per second, is the lamda of the Poisson Distribution
+  async sendFakeTxs (n, tps = 1, badTx= 0) { // transaction per second, is the lamda of the Poisson Distribution
     this.fakeTxs = n
+    const badIndexs = _.sampleSize([...new Array(n)].map((_, i) => i), badTx)
     for (let i = 0; i < n; i++) {
       const latency = util.exponentialRandom(tps / 1000)
       debug('--- sendFakeTx latency: %s ms', latency)
       await util.wait(latency)
-      this.sendFakeTx(i)
+      this.sendFakeTx(i, badIndexs.includes(i))
     }
     await util.wait(2 * this.config.LATENCY_UPPER_BOUND) // wait for all txs to be collected
   }
 
-  sendFakeTx (i) {
-    const tx = this.createFakeTx(i)
+  sendFakeTx (i, bad) {
+    const tx = this.createFakeTx(i, bad)
     const origin = _.sample(this.nodes) // simulating where the tx from
     // origin.handleTx(tx)
-    debug('---node %s broadcast tx %s (already collected into its tx pool) ', origin.i, tx)
+    debug('---node %s broadcast tx %s ', origin.i, tx)
 
     this.broadcast('tx', tx,  origin)
   }
 
-  createFakeTx (i) {
+  createFakeTx (i, bad = false) {
     const from = _.sample(this.nodes).account
     const to = _.sample(this.nodes).account
-    return  Transaction.createFake({ i, from, to, value: 10000 * Math.random() })
+    return  Transaction.createFake({ i, from, to, value: 10000 * Math.random(), nonce: bad ? -1 : null })
   }
 
   recordCollector (tx, node) {

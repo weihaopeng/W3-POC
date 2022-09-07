@@ -17,9 +17,10 @@ describe('Single Node Network Mode', () => {
     await w3.init()
   })
 
+  afterEach(() => w3.reset())
   after(() => w3.destroy())
 
-  it('single node (network) mode', async () => {
+  it('normal creation of blocks', async () => {
     await w3.sendFakeTxs(10, 100) // only two block to drive the single node mode dev.
     w3.showCollectorsStatistic()
     w3.showWitnessesStatistic()
@@ -27,6 +28,40 @@ describe('Single Node Network Mode', () => {
     w3.nodes[0].chain.blocks.should.have.length(2) // 2 blocks are appended to the chain
     w3.nodes[0].txPool.txs.forEach(({state}) => state.should.equal('chain'))
   }).timeout(0)
+
+  it('drop a bad tx', async () => {
+    await w3.sendFakeTxs(10, 100, 1) // only two block to drive the single node mode dev.
+    w3.showCollectorsStatistic()
+    w3.showWitnessesStatistic()
+    w3.nodes.should.have.length(1)
+    w3.nodes[0].chain.blocks.should.have.length(1) // only 1 blocks are appended to the chain
+    w3.nodes[0].txPool.txs.should.have.length(9)
+    w3.nodes[0].txPool.txs.filter(({state}) => state === 'chain').should.have.length(5)
+    w3.nodes[0].txPool.txs.filter(({state}) => state === 'tx').should.have.length(4)
+  }).timeout(0)
+  //
+  // it('drop a bad bp which has an invalid tx', async () => {
+  //   await w3.sendFakeTxs(10, 100, 1) // only two block to drive the single node mode dev.
+  //   w3.showCollectorsStatistic()
+  //   w3.showWitnessesStatistic()
+  //   w3.nodes.should.have.length(1)
+  //   w3.nodes[0].chain.blocks.should.have.length(1) // only 1 blocks are appended to the chain
+  //   w3.nodes[0].txPool.txs.should.have.length(9)
+  //   w3.nodes[0].txPool.txs.filter(({state}) => state === 'chain').should.have.length(5)
+  //   w3.nodes[0].txPool.txs.filter(({state}) => state === 'tx').should.have.length(4)
+  // }).timeout(0)
+  //
+  //
+  // it('drop a bad bp which has an invalid witness', async () => {
+  //   await w3.sendFakeTxs(10, 100, 1) // only two block to drive the single node mode dev.
+  //   w3.showCollectorsStatistic()
+  //   w3.showWitnessesStatistic()
+  //   w3.nodes.should.have.length(1)
+  //   w3.nodes[0].chain.blocks.should.have.length(1) // only 1 blocks are appended to the chain
+  //   w3.nodes[0].txPool.txs.should.have.length(9)
+  //   w3.nodes[0].txPool.txs.filter(({state}) => state === 'chain').should.have.length(5)
+  //   w3.nodes[0].txPool.txs.filter(({state}) => state === 'tx').should.have.length(4)
+  // }).timeout(0)
 
 })
 

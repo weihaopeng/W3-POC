@@ -40,6 +40,15 @@ class Node {
     this.chain = await Chain.create()
   }
 
+  reset() {
+    this.txPool.reset()
+    this.chain.reset()
+  }
+
+  async destroy() {
+    // abstract, may use to release resources
+  }
+
   async initChain () {
     const chain = await this.network.queryPeers?.({})
     return chain ? chain : new Promise((r, j) => setTimeout(() => r(this.initChain()), this.network.config.INIT_CHAIN_INTERVAL))
