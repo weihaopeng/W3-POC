@@ -120,19 +120,19 @@ class Node {
     // TODO: 按其中的消息，检查chain
   }
 
-  isCollector () {
-    return this.isSingleNode || this._isCollector()
+  isCollector (pks = this.account.publicKeyString) {
+    return this.isSingleNode || this._isCollector(pks)
   }
 
-  _isCollector () {
+  _isCollector (pks) {
     // abstract now
   }
 
-  isWitness (bp) {
-    return this.isSingleNode || this._isWitness(bp)
+  isWitness (bp, pks = this.account.publicKeyString) {
+    return this.isSingleNode || this._isWitness(bp, pks)
   }
 
-  _isWitness () {
+  _isWitness (bp, pks) {
     // abstract now
   }
 
@@ -202,11 +202,11 @@ class Node {
       this.network.emitW3Event('node.verify', {type: 'tx', data: tx, node: this, valid})
       return isTxAdd
     } else if (bp) {
-      const { valid, isTxAdd } = await this.txPool.verifyBpAndAddTxs(bp)
+      const { valid, isTxAdd } = await this.txPool.verifyBpAndAddTxs(bp, this)
       this.network.emitW3Event('node.verify', {type: 'bp', data: bp, node: this, valid})
       return valid
     } else if (block) {
-      const { valid, isTxAdd } = await this.txPool.verifyBlockAndAddTxs(bp)
+      const { valid, isTxAdd } = await this.txPool.verifyBlockAndAddTxs(bp, this)
       this.network.emitW3Event('node.verify', {type: 'block', data: block, node: this, valid})
       return valid
     } else { // fork

@@ -64,29 +64,28 @@ class TransactionsPool {
     return { valid: true, isTxAdd: true }
   }
 
-  async verifyBpAndAddTxs (bp) {
-    let valid = await bp.verify()
+  async verifyBpAndAddTxs (bp, node) {
+    let valid = await bp.verify(node)
     if (!valid) debug('--- FATAL: verifyBpAndAddTxs: bp is invalid, should not happen', bp.brief)
-    let allTxValid = true, isTxAdd = false
-    for (let tx of bp.txs) {
-      // bp 中的tx需要更新到本地
-      let { valid: txValid, isTxAdd: txAdd } = await this.verifyAndAddTx(tx, valid ? 'bp' : 'tx')
-      if (!txValid) allTxValid = false
-      if (txAdd) isTxAdd = true
-    }
+    let { allTxValid, isTxAdd } = await this._verifyAndUpdateTxs(bp.txs, valid ? 'bp' : 'tx')
     return { valid: valid && allTxValid, isTxAdd }
   }
 
-  async verifyBlockAndAddTxs (block) { // TODO: not tested in single node mode
-    let valid = await block.verify()
-    if (!valid) debug('--- FATAL: verifyBlockAndAddTxs: bp is invalid, should not happen', block.brief)
+  async _verifyAndUpdateTxs (txs, state) {
     let allTxValid = true, isTxAdd = false
-    for (let tx of block.txs) {
+    for (let tx of txs) {
       // bp 中的tx需要更新到本地
-      let { valid: txValid, isTxAdd: txAdd } = await this.verifyAndAddTx(tx, valid ? 'block' : 'tx')
+      let { valid: txValid, isTxAdd: txAdd } = await this.verifyAndAddTx(tx, state)
       if (!txValid) allTxValid = false
       if (txAdd) isTxAdd = true
     }
+    return { allTxValid, isTxAdd }
+  }
+
+  async verifyBlockAndAddTxs (block, node) { // TODO: not tested in single node mode
+    let valid = await block.verify(node)
+    if (!valid) debug('--- FATAL: verifyBlockAndAddTxs: bp is invalid, should not happen', block.brief)
+    let { allTxValid, isTxAdd } = await this._verifyAndUpdateTxs(block.txs, valid ? 'block' : 'tx')
     return { valid: valid && allTxValid, isTxAdd }
   }
 

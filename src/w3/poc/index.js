@@ -1,4 +1,4 @@
-import { PocNode } from './poc-node.js'
-import { PocNetwork } from './poc-network.js'
+import { W3Node } from './w3.node.js'
+import { W3Network } from './w3.network.js'
 
-export { PocNode, PocNetwork }
+export { W3Node, W3Network }

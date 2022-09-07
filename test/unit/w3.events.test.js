@@ -2,7 +2,7 @@ import chai from 'chai'
 
 chai.should()
 
-import { PocNetwork, PocNode } from '../../src/w3/poc/index.js'
+import { W3Network, W3Node } from '../../src/w3/poc/index.js'
 import { util } from '../../src/w3/util.js'
 
 import Debug from 'debug'
@@ -10,7 +10,7 @@ import Debug from 'debug'
 const debug = Debug('w3:test')
 
 describe('w3.events  @issue#8', () => {
-  let w3 = new PocNetwork({ W3_EVENTS_ON: true, TX_COUNT: 5, NODES_AMOUNT: 5 })
+  let w3 = new W3Network({ W3_EVENTS_ON: true, TX_COUNT: 5, NODES_AMOUNT: 5 })
 
   before(async function () {
     this.timeout(0)
@@ -20,7 +20,7 @@ describe('w3.events  @issue#8', () => {
   after(() => w3.destroy())
 
   it('`network.msg` messages are collected and sent', async () => {
-    PocNode.isSingleNodeMode = false
+    W3Node.isSingleNodeMode = false
     w3.events.on('network.msg.*', function (data) {
       debug(`--- ${this.event}: %o`, {
         from: data.from.i,

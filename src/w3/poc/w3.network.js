@@ -1,17 +1,18 @@
 import { EventEmitter } from 'node:events'
 import _ from 'lodash'
 import { util } from '../util.js'
-import { PocNode } from './poc-node.js'
+import { W3Node } from './w3.node.js'
 
-import Debug from 'debug'
 import EventEmitter2 from 'eventemitter2'
 import { Transaction } from '../basic/transaction.js'
 
 import { config as defaultConfig } from './network.config.default.js'
+import { w3Algorithm } from './w3.algorithm.js'
 
+import Debug from 'debug'
 const debug = Debug('w3:poc:network')
 
-class PocNetwork extends EventEmitter2 {
+class W3Network extends EventEmitter2 {
   constructor (config) {
     super()
     this.config = {...defaultConfig, ...config }
@@ -21,10 +22,11 @@ class PocNetwork extends EventEmitter2 {
 
   async init (nodesAmount = this.config.NODES_AMOUNT) {
     nodesAmount = this.config.SINGLE_NODE_MODE? 1 : nodesAmount
-    PocNode.setDistanceFn(nodesAmount)
-    this.nodes = [...new Array(nodesAmount)].map(i => new PocNode(this, this.config.SINGLE_NODE_MODE))
+    this.nodes = [...new Array(nodesAmount)].map(i => new W3Node(this, this.config.SINGLE_NODE_MODE))
     await Promise.all(this.nodes.map(node => node.start()))
     this.config.W3_EVENTS_ON && (this.events = new EventEmitter2({ wildcard: true }))
+    this.distanceFn = w3Algorithm.NHashDistance(nodesAmount)
+    this.initPreBlockValue = Math.floor(Math.random() * nodesAmount) // TODO: use a better way to init preBlockValue
   }
 
   reset() {
@@ -135,4 +137,4 @@ class PocNetwork extends EventEmitter2 {
 
 }
 
-export { PocNetwork }
+export { W3Network }

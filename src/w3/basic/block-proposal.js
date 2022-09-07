@@ -1,59 +1,109 @@
 import { Transaction } from './transaction.js'
 
+import Debug from 'debug'
+import _ from 'lodash'
+const debug = Debug('w3:bp')
+
 class BlockProposal {
   static index = 0 // TODO: currently only used for theory test
-  constructor ({height, tailHash, txs, collector, witnessRecords=[]}) {
+  constructor ({ height, tailHash, txs, collector, witnessRecords = [] }) {
     txs = txs[0] instanceof Transaction ? txs : txs.map(tx => new Transaction(tx))
-    Object.assign(this, {height, tailHash, collector, txs, witnessRecords})
+    Object.assign(this, { height, tailHash, collector, txs, witnessRecords })
     this.i = this.constructor.index++  // TODO: currently only used for theory test
   }
 
-  askForWitness({ publicKey, privateKey }) {
-    // const askForWitness = { publicKey, witnessOriginPoint: this.wopHash(this, publicKey)}
-    const askForWitness = { asker: publicKey } // use distanceFn directly using bp as input insteadof wop
-    this.witnessRecords.push({askForWitness, sig: this.sig(privateKey)})
+  askForWitness ({ publicKeyString, privateKey }) {
+    this.witnessRecords.push( { asker: publicKeyString, askerSig: this.sig(privateKey) })
   }
 
-  async witness({ publicKey, privateKey }) {
+  async witness ({ publicKeyString, privateKey }) {
     const afw = this.witnessRecords.find(record => !record.witness)
-    afw.witness = this.witnessHash(this, publicKey)
-    afw.sig = this.sig(privateKey)
+    Object.assign(afw, { witness: publicKeyString, witnessSig: this.sig(privateKey) })
   }
 
-  async verify () {
-    return typeof this.height === 'number' && this.txs && this.witnessRecords.every(wr => this.verifyWitnessRecord(wr))
-    && (this.height === 1 || this.tailHash) // height bigger than 1, must have tailHash
+  async verify (node) {
+    let valid = typeof this.height === 'number' && this.txs?.length === node.network.config.TX_COUNT
+      && (this.height === 1 || this.tailHash) // height bigger than 1, must have tailHash
+      && node.chain.height + 1 === this.height
+      && node.isCollector(this.collector)
+      && this.verifyWitnessRecords(node)
+    // if (!valid) debug('--- FATAL: bp invalid, node.chain.height: %s, bp height: %s ', node.chain.height, this.height)
+    // if (!valid) debug('--- FATAL: bp invalid, node.isCollector(this.collector): ', node.isCollector(this.collector))
+    // if (!valid) debug('--- FATAL: bp invalid: %O', this)
+    return valid
   }
 
-  verifyWitnessRecord() {
-    // TODO: check witness record with sig
+  verifyWitnessRecords (node) {
+    let asker = this.collector, length = this.witnessRecords.length
+    for (let i = 0; i < length; i++) {
+      const wr = this.witnessRecords[i]
+      if (i !== length - 1 && !wr.witness) return false // if not the last record, must have witness
+      if (!this.verifyWitnessRecord(i,wr, asker, node)) return false
+      asker = wr.witness // asker must be the witness of the previous record
+    }
     return true
   }
 
-  witnessHash (blockProposal, publicKey) {
-    return 'WITNESS HASH TODO' // TODO
+  verifyWitnessRecord (i, wr, asker, node) {
+    if (wr.asker !== asker) return false
+
+    const bpAskForWitness = this.getBpAskForWitness(i)
+    if (!bpAskForWitness.verifySig(wr.asker, wr.askerSig)) return false
+
+    if (!wr.witness) return true // last record may not witnessed yet
+
+    debug('--- SHOW: before node.isWitness(bpAskForWitness, wr.witness)')
+    const isValidWitness = node.isWitness(bpAskForWitness, wr.witness)
+    if (!isValidWitness) debug('--- FATAL: not valid witness: %s', wr.witness)
+    if (!isValidWitness) return false
+
+    bpAskForWitness.witnessRecords.push(_.pick(wr, ['asker', 'askerSig']))
+    return bpAskForWitness.verifySig(wr.witness, wr.witnessSig)
+
+
   }
 
-  sig (privateKey) {
-    return 'SIG TODO' // TODO
+  getBpAskForWitness (i) {
+    const res = this.shallowCopy()
+    res.witnessRecords = this.witnessRecords.slice(0, i)
+    return res
   }
 
-  equals(other) {
+  isAllWitnessed(node) {
+    return this.witnessRecords.length === node.network.config.WITNESS_ROUNDS_AMOUNT && this.witnessRecords.every(wr => wr. wr.witness)
+  }
+
+  sig (privateKeyString) {
+    // TODO: degist this object, than sign
+    return 'SIG TODO'
+  }
+
+  verifySig(publicKeyString, sig) {
+    // TODO: real sig check
+    return publicKeyString && sig
+  }
+
+  equals (other) {
     // return this.height === other.height && this.txs.every((tx, j) => tx.i === other.txs[j].i)
     return this.brief() === other.brief()
   }
 
-  get superBrief() {
+  get superBrief () {
     return this.txs.map(tx => tx.i).join('-')
   }
 
-  get brief() {
+  get brief () {
     return 'height:' + this.height + ', txs:' + this.superBrief
   }
 
-  toString() {
+  toString () {
     return JSON.stringify(this)
   }
+
+  shallowCopy() {
+    return new BlockProposal(this)
+  }
+
 }
 
 export { BlockProposal }
