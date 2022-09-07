@@ -10,7 +10,7 @@ import Debug from 'debug'
 const debug = Debug('w3:test')
 
 describe('w3.events  @issue#8', () => {
-  let w3 = new W3Network({ W3_EVENTS_ON: true, TX_COUNT: 5, NODES_AMOUNT: 5 })
+  let w3 = new W3Network({ W3_EVENTS_ON: true, TX_COUNT: 5, NODES_AMOUNT: 8 })
 
   before(async function () {
     this.timeout(0)

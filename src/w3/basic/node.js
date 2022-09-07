@@ -6,6 +6,7 @@ import { Fork } from './fork.js'
 import { BlockProposal } from './block-proposal.js'
 
 import Debug from 'debug'
+import _ from 'lodash'
 const debug = Debug('w3:node')
 
 class Account {
@@ -22,6 +23,10 @@ class Account {
 
   equals(other) {
     return this.address === other.address
+  }
+
+  toJSON() {
+    return _.omit(this, 'nonce') // 注意！这里必须要omit nonce，否则会导致verifyWitness时，同一account，其nonce不同，导致验证失败。
   }
 }
 
@@ -97,7 +102,6 @@ class Node {
   async handleWitness (bp) {
     bp = new BlockProposal(bp)
     const isValid = await this.updateLocalFact({ bp })
-    if (!isValid) debug('--- FATAL: witness invalid bp', bp.brief)
     isValid && this.isWitness(bp) && await this.witnessAndMint(bp)
   }
 
@@ -144,8 +148,9 @@ class Node {
   }
 
   async witnessAndMint (bp) {
-    debug('--- node %s witness bp %s ', this.account.i, bp.brief)
+    debug('--- node %s witness bp %s ', this.account.publicKeyString, bp.brief)
     this.network.recordWitness(bp, this)
+    // this.network.debug.witnesses.push({bp, node: this})
     await bp.witness(this.account)
     this.isNeedMoreRoundOfWitness(bp) ? await this.continueWitnessAndMint(bp) :
       await this.mintBlock(bp)
@@ -179,7 +184,7 @@ class Node {
   }
 
   async continueWitnessAndMint (bp) {
-    bp.askForWitness(this)
+    bp.askForWitness(this.account)
     this.network.broadcast('bp', bp, this) //this used in theory test to aviod of react on its own message
   }
 

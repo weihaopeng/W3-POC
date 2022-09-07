@@ -38,14 +38,6 @@ class W3Node extends Node {
   _isWitness (bp, publicKeyString) {
     return w3Algorithm.isRandomSelected(this.network.distanceFn, bp, publicKeyString, this.network.config.WITNESSES_AMOUNT)
   }
-
-  async continueWitnessAndMint (bp) {
-    bp.askForWitness(this)
-    // this.network.broadcast('bp', bp, this) //this used in theory test to aviod of react on its own message
-    // singleNodeMode, directly witnessAndMint
-    return this.witnessAndMint(bp)
-  }
-
 }
 
 export { W3Node }

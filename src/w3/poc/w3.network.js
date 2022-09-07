@@ -18,6 +18,7 @@ class W3Network extends EventEmitter2 {
     this.config = {...defaultConfig, ...config }
     this.setMaxListeners(0) // to supass MaxListenersExceededWarning https://nodejs.org/docs/latest/api/events.html#events_emitter_setmaxlisteners_n
     this.sta = { collectors: [], witnesses: [] }
+    // this.debug = {witnesses: [], invalidWitness: []}
   }
 
   async init (nodesAmount = this.config.NODES_AMOUNT) {
@@ -26,7 +27,7 @@ class W3Network extends EventEmitter2 {
     await Promise.all(this.nodes.map(node => node.start()))
     this.config.W3_EVENTS_ON && (this.events = new EventEmitter2({ wildcard: true }))
     this.distanceFn = w3Algorithm.NHashDistance(nodesAmount)
-    this.initPreBlockValue = Math.floor(Math.random() * nodesAmount) // TODO: use a better way to init preBlockValue
+    this.initPreBlockValue = 'genuesis' + Math.floor(Math.random() * nodesAmount) // TODO: use a better way to init preBlockValue
   }
 
   reset() {
@@ -93,6 +94,10 @@ class W3Network extends EventEmitter2 {
     return  Transaction.createFake({ i, from, to, value: 10000 * Math.random(), nonce: bad ? -1 : null })
   }
 
+  sendFakeBp (bp) {
+    this.broadcast('bp', bp,  _.sample(this.nodes))
+  }
+
   recordCollector (tx, node) {
     this.sta.collectors.push({ tx, node })
   }
@@ -134,7 +139,6 @@ class W3Network extends EventEmitter2 {
   emitW3Event(event, data) {
     this.events?.emit(event, data)
   }
-
 }
 
 export { W3Network }

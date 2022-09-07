@@ -2,18 +2,19 @@ import { Transaction } from './transaction.js'
 
 import Debug from 'debug'
 import _ from 'lodash'
+
 const debug = Debug('w3:bp')
 
 class BlockProposal {
   static index = 0 // TODO: currently only used for theory test
   constructor ({ height, tailHash, txs, collector, witnessRecords = [] }) {
-    txs = txs[0] instanceof Transaction ? txs : txs.map(tx => new Transaction(tx))
+    txs = txs.map(tx => tx instanceof Transaction ? tx : new Transaction(tx))
     Object.assign(this, { height, tailHash, collector, txs, witnessRecords })
     this.i = this.constructor.index++  // TODO: currently only used for theory test
   }
 
   askForWitness ({ publicKeyString, privateKey }) {
-    this.witnessRecords.push( { asker: publicKeyString, askerSig: this.sig(privateKey) })
+    this.witnessRecords.push({ asker: publicKeyString, askerSig: this.sig(privateKey) })
   }
 
   async witness ({ publicKeyString, privateKey }) {
@@ -23,14 +24,17 @@ class BlockProposal {
 
   async verify (node) {
     let valid = typeof this.height === 'number' && this.txs?.length === node.network.config.TX_COUNT
-      && (this.height === 1 || this.tailHash) // height bigger than 1, must have tailHash
+      && (this.height === 1 || this.tailHash === node.chain.tailHash) // height bigger than 1, must have tailHash // TODO: tailHash should eqls node.
       && node.chain.height + 1 === this.height
-      && node.isCollector(this.collector)
-      && this.verifyWitnessRecords(node)
-    // if (!valid) debug('--- FATAL: bp invalid, node.chain.height: %s, bp height: %s ', node.chain.height, this.height)
-    // if (!valid) debug('--- FATAL: bp invalid, node.isCollector(this.collector): ', node.isCollector(this.collector))
-    // if (!valid) debug('--- FATAL: bp invalid: %O', this)
-    return valid
+    if (!valid) return !!debug('--- FATAL: bp height invalid, node.chain.height: %s, bp height: %s ', node.chain.height, this.height)
+
+
+    valid = valid && node.isCollector(this.collector)
+    if (!valid) return !!debug('--- FATAL: bp collector invalid, node.isCollector(this.collector): ', node.isCollector(this.collector))
+
+    valid = valid && this.verifyWitnessRecords(node)
+    if (!valid) return !!debug('--- FATAL: bp witnessRecords invalid: %O', this.witnessRecords)
+    return true
   }
 
   verifyWitnessRecords (node) {
@@ -38,7 +42,7 @@ class BlockProposal {
     for (let i = 0; i < length; i++) {
       const wr = this.witnessRecords[i]
       if (i !== length - 1 && !wr.witness) return false // if not the last record, must have witness
-      if (!this.verifyWitnessRecord(i,wr, asker, node)) return false
+      if (!this.verifyWitnessRecord(i, wr, asker, node)) return false
       asker = wr.witness // asker must be the witness of the previous record
     }
     return true
@@ -47,30 +51,32 @@ class BlockProposal {
   verifyWitnessRecord (i, wr, asker, node) {
     if (wr.asker !== asker) return false
 
-    const bpAskForWitness = this.getBpAskForWitness(i)
+    const bpAskForWitness = this.getBpAskForWitness(i, wr)
     if (!bpAskForWitness.verifySig(wr.asker, wr.askerSig)) return false
 
     if (!wr.witness) return true // last record may not witnessed yet
 
-    debug('--- SHOW: before node.isWitness(bpAskForWitness, wr.witness)')
     const isValidWitness = node.isWitness(bpAskForWitness, wr.witness)
-    if (!isValidWitness) debug('--- FATAL: not valid witness: %s', wr.witness)
-    if (!isValidWitness) return false
+    if (!isValidWitness) {
+      debug('--- FATAL: not valid witness: %s', wr.witness)
+      // node.network.debug.invalidWitness.push({ node: wr.witness, bp: bpAskForWitness })
+      return false
+    }
 
-    bpAskForWitness.witnessRecords.push(_.pick(wr, ['asker', 'askerSig']))
+    // bpAskForWitness.witnessRecords.push(_.pick(wr, ['asker', 'askerSig']))
     return bpAskForWitness.verifySig(wr.witness, wr.witnessSig)
-
 
   }
 
-  getBpAskForWitness (i) {
+  getBpAskForWitness (i, wr) {
     const res = this.shallowCopy()
     res.witnessRecords = this.witnessRecords.slice(0, i)
+    res.witnessRecords.push(_.pick(wr, ['asker', 'askerSig']))
     return res
   }
 
-  isAllWitnessed(node) {
-    return this.witnessRecords.length === node.network.config.WITNESS_ROUNDS_AMOUNT && this.witnessRecords.every(wr => wr. wr.witness)
+  isAllWitnessed (node) {
+    return this.witnessRecords.length === node.network.config.WITNESS_ROUNDS_AMOUNT && this.witnessRecords.every(wr => wr.wr.witness)
   }
 
   sig (privateKeyString) {
@@ -78,7 +84,7 @@ class BlockProposal {
     return 'SIG TODO'
   }
 
-  verifySig(publicKeyString, sig) {
+  verifySig (publicKeyString, sig) {
     // TODO: real sig check
     return publicKeyString && sig
   }
@@ -100,10 +106,13 @@ class BlockProposal {
     return JSON.stringify(this)
   }
 
-  shallowCopy() {
+  shallowCopy () {
     return new BlockProposal(this)
   }
 
+  toJSON () { // make distanceFn has same results for different bp instances transferred by network
+    return _.omit(this, 'i')
+  }
 }
 
 export { BlockProposal }

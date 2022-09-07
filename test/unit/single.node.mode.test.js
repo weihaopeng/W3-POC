@@ -6,6 +6,7 @@ import { W3Network, W3Node } from '../../src/w3/poc/index.js'
 import { util } from '../../src/w3/util.js'
 
 import Debug from 'debug'
+import { BlockProposal } from '../../src/w3/basic/block-proposal.js'
 
 const debug = Debug('w3:test')
 
@@ -40,7 +41,16 @@ describe('Single Node Network Mode', () => {
     w3.nodes[0].txPool.txs.filter(({state}) => state === 'tx').should.have.length(4)
   })
 
-  it('drop a bad bp which has an invalid tx', async () => {})
+  it('drop a bad bp which has an invalid tx', async () => {
+    await w3.sendFakeTxs(10, 100) // only two block to drive the single node mode dev.
+    w3.nodes.should.have.length(1)
+    w3.nodes[0].chain.blocks.should.have.length(2) // 2 blocks are appended to the chain
+    w3.nodes[0].txPool.txs.forEach(({state}) => state.should.equal('chain'))
+
+    const txs = w3.nodes[0].txPool.txs.map(({tx}) => tx).slice(0, 4).concat('bad-tx')
+    w3.sendFakeBp(new BlockProposal({height: 3, tailHash: w3.nodes[0].chain.tailHash, txs}))
+
+  })
 
   it('drop a bad bp which has an invalid collector', async () => {})
 

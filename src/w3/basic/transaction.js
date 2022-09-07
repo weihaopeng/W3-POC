@@ -12,7 +12,7 @@ class Transaction {
   }
 
   get brief() {
-    return `${this.i}:(${this.from.i}#${this.nonce}(${this.value})=>${this.to.i})`
+    return `${this.i}:(${this.from?.i}#${this.nonce}(${this.value})=>${this.to?.i})`
   }
 
   async verify() {

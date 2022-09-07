@@ -7,7 +7,7 @@ const config = {
     'node.verify'
   ], // events consumed by w3
 
-  NODES_AMOUNT: 100,
+  NODES_AMOUNT: 2**8,
   COLLECTORS_AMOUNT: 5,
   WITNESSES_AMOUNT: 5,
   WITNESS_ROUNDS_AMOUNT: 3,
