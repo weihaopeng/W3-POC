@@ -41,4 +41,4 @@ jobs:
         prerelease: true
         title: "Development Build"
         files: |
-          *.tar.gz
+          w3-poc.tar.gz
