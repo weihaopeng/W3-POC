@@ -28,7 +28,7 @@ describe('Key points of Protocol', () => {
       /**
        * 分步原理验证，distanceFn(bp, pk) === distanceFn(bp.clone(), pk)
        */
-      let distanceFn = w3Algorithm.NHashDistance(100) // nodes amount 1000
+      let distanceFn = w3Algorithm.NHashDistance(128) // nodes amount 1280
       let bp = { id: 'bp', txs: ['1','2']} // fake bp
       let bpReceived = {...bp}
       let publicKeyString = '123345566'

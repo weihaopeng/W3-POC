@@ -33,7 +33,7 @@ describe('w3.events  @issue#8', () => {
     await w3.sendFakeTxs(10, 1000) // only two block to driven the signle node mode dev.
     w3.showCollectorsStatistic()
     w3.showWitnessesStatistic()
-    w3.nodes.should.have.length(5)
+    w3.nodes.should.have.length(8)
   }).timeout(0)
 
 })

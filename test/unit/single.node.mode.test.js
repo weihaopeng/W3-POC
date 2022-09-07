@@ -52,6 +52,11 @@ describe('Single Node Network Mode', () => {
 
   })
 
+  // TODO:
+  //  1. tx-pool中的添加时，去重
+  //  2. results: 1. added, 2. replaced, 3. reject
+  //  3. tx-pool的双花查找
+  //  4. tx-pool中tx的状态更新？valid bp ? state -> valid ? 'bp' : 'tx'
   it('drop a bad bp which has an invalid collector', async () => {})
 
   it('drop a bad bp which has an invalid witness', async () => {})
