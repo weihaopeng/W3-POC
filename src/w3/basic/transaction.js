@@ -47,12 +47,20 @@ class Transaction {
   compare(other) {
     return this.from.lt(other.from) ? this : this.from.gt(other.from) ? other :
       this.from.nonce < other.from.nonce ? this : this.from.nonce > other.from.nonce ? other :
-        this.to.lt(other.to) ? this : this.to.gt(other.to) ? other :
-          this.value <= other.value ? this : other
+        this.resolveDoubleSpending(other)
+  }
+
+  resolveDoubleSpending (other) {
+    return this.to.lt(other.to) ? this : this.to.gt(other.to) ? other :
+      this.value <= other.value ? this : other
   }
 
   compareTo(other) {
     return this.compare(other) === this ? -1 : 1
+  }
+
+  isDoubleSpend(other) {
+    return this.from.equals(other.from) && this.nonce === other.nonce
   }
 }
 

@@ -68,16 +68,17 @@ describe('Single Node Network Mode', () => {
   describe('add double spending txs, only lower score one added', () => {
 
     it('lower one first, higher one rejected', async () => {
-      const [low, high] = w3.sendFakeDoubleSpendingTxs('lowerScore')
+      const [low, high] = await w3.sendFakeDoubleSpendingTxs('lowerScore')
       await util.wait(100) // wait node received the txs
       w3.nodes[0].txPool.txs.should.have.length(1)
-      w3.nodes[0].txPool.txs[0].should.equal(low)
+      w3.nodes[0].txPool.txs[0].tx.equals(low).should.true
     })
 
     it('higher one first, lower one replaced', async () => {
-      const [high, low] = w3.sendFakeDoubleSpendingTxs('higherScore')
+      const [high, low] = await w3.sendFakeDoubleSpendingTxs('higherScore')
+      await util.wait(100) // wait node received the txs
       w3.nodes[0].txPool.txs.should.have.length(1)
-      w3.nodes[0].txPool.txs[0].should.equal(low)
+      w3.nodes[0].txPool.txs[0].tx.equals(low).should.true
     })
 
   })

@@ -92,9 +92,10 @@ class W3Network extends EventEmitter2 {
   }
 
   sendFakeDoubleSpendingTxs (first = 'lowerScore', i=0) {
-    const txs = this.createFakeDoubleSpendingTxs(first, i)
-    txs.forEach(tx => this._sendFakeTx(tx))
-    return txs
+    const [txa, txb] = this.createFakeDoubleSpendingTxs(first, i)
+    this._sendFakeTx(txa)
+    this._sendFakeTx(txb)
+    return [txa, txb]
   }
 
   createFakeTx (i, bad = false) {
@@ -104,9 +105,9 @@ class W3Network extends EventEmitter2 {
 
   createFakeDoubleSpendingTxs (first, i) {
     const from = getEthereumAccount()
-    let [low, high] = [getEthereumAccount(), getEthereumAccount()].sort()
-    low =  Transaction.createFake({ i, from, to: low, value: 10000 * Math.random() })
-    high =  Transaction.createFake({ i: i + 1, from, to: high, value: 10000 * Math.random() })
+    let [low, high] = [getEthereumAccount(), getEthereumAccount()].sort((a, b) => a.compareTo(b))
+    low =  Transaction.createFake({ i, from, to: low, nonce: 1,  value: 10000 * Math.random() })
+    high =  Transaction.createFake({ i: i + 1, from, to: high, nonce: 1, value: 10000 * Math.random() })
     return first === 'lowerScore' ? [low, high] : [high, low]
   }
 

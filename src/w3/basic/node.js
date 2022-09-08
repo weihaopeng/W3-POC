@@ -75,6 +75,7 @@ class Node {
   async handleTx (tx) {
     tx = new Transaction(tx)
     const isTxAdded = await this.updateLocalFact({ tx })
+    debug('--- isTxAdded: ', isTxAdded)
     isTxAdded && this.isCollector() && await this.collect(tx)
   }
 
@@ -182,15 +183,15 @@ class Node {
   async updateLocalFact ({ tx, bp, block, fork }) {
     // TODO: 根据bp、block、fork消息中的height，来判定当前node是否需要stop(退出ready)
     if (tx) {
-      const { valid, isTxAdd } = await this.txPool.verifyAndAddTx(tx)
+      const { valid, txRes } = await this.txPool.verifyAndAddTx(tx)
       this.network.emitW3Event('node.verify', {type: 'tx', data: tx, node: this, valid})
-      return isTxAdd
+      return txRes === 'added' // replaced or rejected tx will not cause the txs in txPool count up, and no need to make a block proposal
     } else if (bp) {
-      const { valid, isTxAdd } = await this.txPool.verifyBpAndAddTxs(bp, this)
+      const { valid } = await this.txPool.verifyBpAndAddTxs(bp, this)
       this.network.emitW3Event('node.verify', {type: 'bp', data: bp, node: this, valid})
       return valid
     } else if (block) {
-      const { valid, isTxAdd } = await this.txPool.verifyBlockAndAddTxs(bp, this)
+      const { valid } = await this.txPool.verifyBlockAndAddTxs(bp, this)
       this.network.emitW3Event('node.verify', {type: 'block', data: block, node: this, valid})
       return valid
     } else { // fork
