@@ -77,6 +77,20 @@ class SwarmPainter {
     })
   }
 
+  setSelectedLineColor(color) {
+    this.chart.setOption({
+      series: [
+        {
+          select: {
+            lineStyle: {
+              color
+            }
+          }
+        }
+      ]
+    })
+  }
+
   setNodesCoordinates() {
     let xmin = Infinity, xmax = 0
     const nodeLayouts = this.chart._chartsViews[0]._symbolDraw._data._itemLayouts

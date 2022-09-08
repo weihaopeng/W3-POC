@@ -94,8 +94,12 @@ class MessageHandler {
     this.swarmPainter.highlightNodes([from], msg)
     this.swarmPainter.highlightLines([{ from, to }])
     setTimeout(() => {
-      this.swarmPainter.downplayNodes([from], msg)
-      this.swarmPainter.downplayLines([{ from, to }], msg)
+      this.swarmPainter.setSelectedLineColor('#f5222d')
+      setTimeout(() => {
+        this.swarmPainter.downplayNodes([from], msg)
+        this.swarmPainter.downplayLines([{ from, to }], msg)
+        this.swarmPainter.setSelectedLineColor('#1890ff')
+      }, DELAY_FOR_VIEW)
     }, TIMEOUT_THRESHOLD)
   }
 

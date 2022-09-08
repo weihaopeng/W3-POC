@@ -11,3 +11,25 @@ export function getRandomNodeWithout(nodes, id) {
   const filtered = nodes.filter((node) => node.id !== id);
   return getRandomNode(filtered);
 }
+
+function getRandomBetween(min, max) {
+  const range = max - min;
+  return Math.floor(Math.random() * range) + min;
+}
+
+export function getRandomIp() {
+  let str = `${getRandomBetween(0, 255)}`;
+  for (let i = 0; i < 3; i++) {
+    str += `.${getRandomBetween(0, 255)}`;
+  }
+  return str;
+}
+
+export function getRandomHash(length = 20) {
+  let str = ""
+  while(str.length < length) {
+    str += ((Math.random() * 16) | 0).toString(16);
+  }
+  console.log(str);
+  return `0x${str}`;
+}

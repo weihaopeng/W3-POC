@@ -8,6 +8,7 @@ class BlockPainter {
   }
 
   append(data) {
+    if (Array.from(document.getElementsByClassName('block-container')).find((dom) => dom.title === data.block.hash)) return;
     const element = document.createElement("div");
     element.classList.add('block-container')
     const nodeInfo = document.createElement("div");

@@ -1,3 +1,5 @@
+import { getRandomIp, getRandomHash } from '../util';
+
 const msgTypes = ["tx", "bp", "block", "fork"];
 const chainEvents = ["block on chain", "chain fork"];
 
@@ -15,8 +17,10 @@ class MessageSimulator {
   }
 
   init() {
+    this.currentHeight = Math.ceil(Math.random() * 100);
     this.initNetworkControl();
     this.initChainControl();
+    this.initAutoControl();
     this.bindDragEvent();
   }
 
@@ -235,9 +239,19 @@ class MessageSimulator {
 
   sendNetworkSeriesMsg() {
     const toList = this.parseToList()
-    this.sendDepartureMsg(toList);
-    this.sendArriveMsg(toList);
+    let block;
+    if (this.networkObj.type === 'block') block = this.mockBlockInfo();
+    this.sendDepartureMsg(toList, block);
+    this.sendArriveMsg(toList, block);
     this.sendVerifyMsg(toList);
+  }
+
+  mockBlockInfo() {
+    const address = getRandomIp()
+    return {
+      node: { address, i: Math.floor(Math.random() * 1000) },
+      block: { height: this.currentHeight++, hash: getRandomHash(), i: Math.floor(Math.random() * 1000) }
+    }
   }
 
   parseToList() {
@@ -255,20 +269,20 @@ class MessageSimulator {
     return list
   }
 
-  sendDepartureMsg(toList) {
+  sendDepartureMsg(toList, block) {
     for (const to of toList) {
-      const msg = this.createNetworkMsg(to.node.name);
+      const msg = this.createNetworkMsg(to.node.name, block);
       console.log(msg)
       this.messageHandler.handleNetworkMessage(msg, 'departure');
     }
   }
 
-  sendArriveMsg(toList) {
+  sendArriveMsg(toList, block) {
     for (const to of toList) {
       if (to.overtime) continue
       to.arriveTime = Math.random() * COMMUNICATE_COST_THRESHOLD + COMMUNICATE_COST
       setTimeout(() => {
-        const msg = this.createNetworkMsg(to.node.name, false);
+        const msg = this.createNetworkMsg(to.node.name, block, false);
         this.messageHandler.handleNetworkMessage(msg, 'arrive');
       }, to.arriveTime)
     }
@@ -280,13 +294,12 @@ class MessageSimulator {
       if (to.overtime) continue
       setTimeout(() => {
         const msg = this.createNodeVerifyMsg(to.node.name, to.valid);
-        console.log(msg)
         this.messageHandler.handleNodeVerify(msg);
       }, to.arriveTime + Math.random() * CALCULATE_COST_THRESHOLD + CALCULATE_COST)
     }
   }
 
-  createNetworkMsg(to, isDeparture = true) {
+  createNetworkMsg(to, block, isDeparture = true) {
     const msg = {
       type: this.networkObj.type,
       data: {},
@@ -295,10 +308,7 @@ class MessageSimulator {
     }
     if (this.networkObj.type === 'bp') msg.data.round = 1;
     if (this.networkObj.type === 'block') {
-      msg.data = {
-        block: { height: 23, hash: '0x12345678901234567', i: 10 },
-        node: { address: '192.168.1.1', i: 10}
-      };
+      msg.data = block;
     }
     if (isDeparture) msg.departureTime = new Date()
     else msg.arrivalTime = new Date()
@@ -315,13 +325,11 @@ class MessageSimulator {
   }
 
   sendChainMessage() {
-    const data = { node: { address: '192.168.1.1', i: 10} };
     if (this.chainObj.event === 'block on chain') {
-      data.block = { height: 23, hash: '0x12345678901234567', i: 10 };
-      this.messageHandler.handleBlockOnChain({ data });
+      this.messageHandler.handleBlockOnChain({ data: this.mockBlockInfo() });
     } else {
-      data.fork = { data: 'TODO' };
-      this.messageHandler.handleChainForked({ data });
+      // TODO fork
+      this.messageHandler.handleChainForked({ data: {} });
       alert('Todo');
     }
   }
@@ -351,6 +359,10 @@ class MessageSimulator {
     document.body.addEventListener("mouseup", (event) => {
       onDragging = false;
     });
+  }
+
+  initAutoControl() {
+    // TODO auto send msg engine.
   }
 }
 
