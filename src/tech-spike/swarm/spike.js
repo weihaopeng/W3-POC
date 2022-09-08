@@ -1,4 +1,5 @@
 import MessageMaker from './MessageMaker.js'
+import MessageSimulator from './MessageSimulator.js'
 import nodes from './assets/nodes.json'
 import MessageHandler from './MessageHandler.js'
 import ChainPainter from './painter/ChainPainter.js'
@@ -19,10 +20,12 @@ async function main() {
   const chainPainter = new ChainPainter(document.getElementById('chain-container'))
   const messageHandler = new MessageHandler({ chainPainter, blockPainter, swarmPainter, bpPainter })
   const messageMaker = new MessageMaker({ handler: messageHandler, nodes })
+  const messageSimulator = new MessageSimulator({ messageHandler, messageMaker, nodes })
+  console.log(messageSimulator);
   await fetchHistory(messageMaker)
-  setTimeout(() => {
-    messageMaker.work(1)
-  }, 1000)
+  // setTimeout(() => {
+  //   messageMaker.work(1)
+  // }, 1000)
 }
 
 main()
