@@ -62,6 +62,13 @@ const w3Algorithm = {
     return Buffer.from(
       blake2b(Buffer.from(JSON.stringify(v)), 8))  // 8位便于开发，生产用32位
       .toString('hex')
+  },
+
+  universalRuleTx(txa, txb) {
+    return txa.from.lt(txb.from) ? txa : txa.from.gt(txb.from) ? txb :
+      txa.from.nonce < txb.from.nonce ? txa : txa.from.nonce > txb.from.nonce ? txb :
+        txa.to.lt(txb.to) ? txa : txa.to.gt(txb.to) ? txb :
+          txa.value < txb.value ? txa : txb
   }
 }
 

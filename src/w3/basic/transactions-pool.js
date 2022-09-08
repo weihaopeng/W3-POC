@@ -38,7 +38,7 @@ class TransactionsPool {
   pickEnoughForBp (txCount = this.txCount) {
     const txs = this.txs.filter(({ state }) => state === 'tx')
     if (txs.length === txCount) {
-      debug('--- SHOW: this.txs.length: ', this.txs.length)
+      // debug('--- SHOW: this.txs.length: ', this.txs.length)
       txs.map(tx => tx.state = 'bp')
       return txs.map(({ tx }) => tx).sort(Transaction.sort)
     }

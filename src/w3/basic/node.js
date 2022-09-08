@@ -9,27 +9,6 @@ import Debug from 'debug'
 import _ from 'lodash'
 const debug = Debug('w3:node')
 
-class Account {
-  static index = 0 // TODO: currently only used for theory test
-  constructor ({ address, publicKey, privateKey, addressString, publicKeyString, privateKeyString }) {
-    Object.assign(this, { address, publicKey, privateKey, addressString, publicKeyString, privateKeyString })
-    this.i = this.constructor.index++ // TODO: currently only used for theory test
-    this.nonce = 0
-  }
-
-  compareTo (other) {
-    return this.address === other.address ? 0 : this.address > other.address ? 1 : -1
-  }
-
-  equals(other) {
-    return this.address === other.address
-  }
-
-  toJSON() {
-    return _.omit(this, 'nonce') // 注意！这里必须要omit nonce，否则会导致verifyWitness时，同一account，其nonce不同，导致验证失败。
-  }
-}
-
 class Node {
   constructor ({ account, network, isSingleNode=false }) {
     if (!account || !network) throw new Error(`can't create node, check the params`)
@@ -221,4 +200,4 @@ class Node {
   }
 }
 
-export { Account, Node }
+export { Node }

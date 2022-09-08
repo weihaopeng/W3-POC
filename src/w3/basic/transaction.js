@@ -32,16 +32,27 @@ class Transaction {
   static sort (a, b) {
     // const r = a.from.compareTo(b.from)
     // return r !== 0 ? r : a.to.compareTo(b.to)
-    return a.i - b.i // TODO only for theory test
+    // return a.i - b.i // TODO only for theory test
+    return a.compareTo(b)
   }
 
   toString() {
     return `< i: ${this.i}, from: ${this.from.i}, to: ${this.to.i}, value: ${this.value} >`
   }
 
-
   equals(other) {
     return this.from.equals(other.from) && this.to.equals(other.to) && this.value === other.value && this.nonce === other.nonce
+  }
+
+  compare(other) {
+    return this.from.lt(other.from) ? this : this.from.gt(other.from) ? other :
+      this.from.nonce < other.from.nonce ? this : this.from.nonce > other.from.nonce ? other :
+        this.to.lt(other.to) ? this : this.to.gt(other.to) ? other :
+          this.value <= other.value ? this : other
+  }
+
+  compareTo(other) {
+    return this.compare(other) === this ? -1 : 1
   }
 }
 

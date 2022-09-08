@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events'
 import _ from 'lodash'
 import { util } from '../util.js'
-import { W3Node } from './w3.node.js'
+import { getEthereumAccount, W3Node } from './w3.node.js'
 
 import EventEmitter2 from 'eventemitter2'
 import { Transaction } from '../basic/transaction.js'
@@ -81,17 +81,33 @@ class W3Network extends EventEmitter2 {
 
   sendFakeTx (i, bad) {
     const tx = this.createFakeTx(i, bad)
+    this._sendFakeTx(tx)
+  }
+
+  _sendFakeTx (tx) {
     const origin = _.sample(this.nodes) // simulating where the tx from
     // origin.handleTx(tx)
     debug('---node %s broadcast tx %s ', origin.i, tx)
+    this.broadcast('tx', tx, origin)
+  }
 
-    this.broadcast('tx', tx,  origin)
+  sendFakeDoubleSpendingTxs (first = 'lowerScore', i=0) {
+    const txs = this.createFakeDoubleSpendingTxs(first, i)
+    txs.forEach(tx => this._sendFakeTx(tx))
+    return txs
   }
 
   createFakeTx (i, bad = false) {
-    const from = _.sample(this.nodes).account
-    const to = _.sample(this.nodes).account
+    const [from, to] = [getEthereumAccount(), getEthereumAccount()]
     return  Transaction.createFake({ i, from, to, value: 10000 * Math.random(), nonce: bad ? -1 : null })
+  }
+
+  createFakeDoubleSpendingTxs (first, i) {
+    const from = getEthereumAccount()
+    let [low, high] = [getEthereumAccount(), getEthereumAccount()].sort()
+    low =  Transaction.createFake({ i, from, to: low, value: 10000 * Math.random() })
+    high =  Transaction.createFake({ i: i + 1, from, to: high, value: 10000 * Math.random() })
+    return first === 'lowerScore' ? [low, high] : [high, low]
   }
 
   sendFakeBp (bp) {

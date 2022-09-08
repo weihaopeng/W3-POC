@@ -1,5 +1,6 @@
 import Wallet from 'ethereumjs-wallet'
-import { Account, Node } from '../basic/node.js'
+import { Node } from '../basic/node.js'
+import { Account } from '../basic/account.js'
 
 import Debug from 'debug'
 import { w3Algorithm } from './w3.algorithm.js'
@@ -40,4 +41,4 @@ class W3Node extends Node {
   }
 }
 
-export { W3Node }
+export { W3Node, getEthereumAccount }
