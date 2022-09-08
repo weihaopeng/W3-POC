@@ -7,9 +7,8 @@ const COMMUNICATE_COST_THRESHOLD = 500 // 通信在2000~2200ms波动
 const CALCULATE_COST = 500
 const CALCULATE_COST_THRESHOLD = 500 // 验证用时在500~1000ms波动
 class MessageSimulator {
-  constructor({ messageHandler, messageMaker, nodes }) {
+  constructor({ messageHandler, nodes }) {
     this.messageHandler = messageHandler;
-    this.messageMaker = messageMaker;
     this.nodes = nodes;
     this.initMsgObj();
     this.init();
@@ -65,7 +64,14 @@ class MessageSimulator {
   initFromControl(container) {
     const fromControl = this.createFormItem(container, "From");
     const nodeNames = this.nodes.map((node) => node.name);
-    const handler = (val) => (this.networkObj.from = val);
+    const handler = (val) => {
+      this.networkObj.from = this.nodes.find((node) => node.name === val).id;
+      const checkboxGroup = Array.from(document.getElementsByClassName('w3-checkbox-group'));
+      checkboxGroup.map((dom) => {
+        if (dom.innerText.startsWith(val)) dom.classList.add('w3-checkbox-group--hidden');
+        else dom.classList.remove('w3-checkbox-group--hidden');
+      })
+    };
     const fromBtnGroup = this.createBtnGroup(nodeNames, "No.1", handler);
     fromBtnGroup.classList.add("w3-form-item__control");
     fromControl.append(fromBtnGroup);
