@@ -39,12 +39,12 @@ class SwarmPainter {
           },
           data: this.nodes,
           links: this.links,
-          // label: {
-          //   show: true,
-          //   fontSize: 20,
-          //   position: 'right',
-          //   formatter: '{b}'
-          // },
+          label: {
+            show: true,
+            fontSize: 20,
+            position: 'top',
+            formatter: '{b}'
+          },
           itemStyle: {
             color: '#333'
           },
@@ -148,7 +148,7 @@ class SwarmPainter {
   unCacheHighlightedLines(lines) {
     for (const line of lines) {
       const index = this.highlightedLines.findIndex((l) => l.from.id === line.from.id && l.to.id === line.to.id)
-      if (index > -1) this.highlightedLines.splice(index)
+      if (index > -1) this.highlightedLines.splice(index, 1)
     }
   }
 

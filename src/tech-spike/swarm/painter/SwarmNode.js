@@ -1,4 +1,4 @@
-const TOOLTIP_DISTANCE = 20
+const TOOLTIP_DISTANCE = 25
 class SwarmNode {
   /**
    * A node instance with info, tooltip dom controller based on echarts node and its layout.
