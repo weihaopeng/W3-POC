@@ -1,15 +1,17 @@
-const DELAY_FOR_VIEW = 2000
-const TIMEOUT_THRESHOLD = 3000
+const DELAY_FOR_VIEW = 1500 // 到达节点的延时隐藏
+const TIMEOUT_THRESHOLD = 5000 // 超时判定机制
 
 class MessageHandler {
-  constructor({ chainPainter, blockPainter, swarmPainter, bpPainter }) {
+  constructor({ chainPainter, blockPainter, swarmPainter, bpPainter, nodes }) {
     this.chainPainter = chainPainter
     this.blockPainter = blockPainter
     this.swarmPainter = swarmPainter
     this.bpPainter = bpPainter
+    this.nodes = nodes
   }
 
-  handleNetworkMessage(msg) {
+  handleNetworkMessage(msg, action) {
+    if (action) msg.action = action
     switch (msg.type) {
       case 'tx':
         this.handleTxOnNetwork(msg)
@@ -38,6 +40,12 @@ class MessageHandler {
 
   handleNodeVerify(msg) {
     // TODO
+    console.log(msg)
+    const node = this.nodes.find((node) => node.id === msg.node.address)
+    this.swarmPainter.highlightNodes([node], msg)
+    setTimeout(() => {
+      this.swarmPainter.downplayNodes([node], msg)
+    }, DELAY_FOR_VIEW)
   }
 
   handleTxOnNetwork(msg) {
@@ -50,7 +58,9 @@ class MessageHandler {
     console.log('get bp msg on network', msg)
     if (msg.action === 'arrive') {
       this.arriveOnSwarm(msg)
-      this.bpPainter.append(msg.data)
+      msg.from = this.nodes.find((node) => node.id === msg.from.address)
+      msg.to = this.nodes.find((node) => node.id === msg.to.address)
+      this.bpPainter.append(msg)
     } else if (msg.action === 'eliminate') {
       this.arriveOnSwarm(msg)
     } else {
@@ -62,32 +72,41 @@ class MessageHandler {
     console.log('get block msg on network', msg)
     if (msg.action === 'arrive') {
       this.arriveOnSwarm(msg)
+    } else {
+      this.departureOnSwarm(msg)
       this.blockPainter.append(msg.data)
+    }
+  }
+
+  handleForkOnNetwork(msg) {
+    console.log('get fork msg on network', msg)
+    // TODO modify myself's chain?
+    if (msg.action === 'arrive') {
+      this.arriveOnSwarm(msg)
     } else {
       this.departureOnSwarm(msg)
     }
   }
 
-  handleForkOnNetwork(data) {
-    // TODO
-  }
-
   departureOnSwarm(msg) {
-    const data = msg.data
-    this.swarmPainter.highlightNodes([data.from], msg)
+    const from = this.nodes.find((node) => node.id === msg.from.address)
+    const to = this.nodes.find((node) => node.id === msg.to.address)
+    this.swarmPainter.highlightNodes([from], msg)
+    this.swarmPainter.highlightLines([{ from, to }])
     setTimeout(() => {
-      this.swarmPainter.downplayNodes([data.from], msg)
+      this.swarmPainter.downplayNodes([from], msg)
+      this.swarmPainter.downplayLines([{ from, to }], msg)
     }, TIMEOUT_THRESHOLD)
-    this.swarmPainter.highlightLines([data])
   }
 
   arriveOnSwarm(msg) {
-    const data = msg.data
-    this.swarmPainter.highlightNodes([data.to], msg)
+    const from = this.nodes.find((node) => node.id === msg.from.address)
+    const to = this.nodes.find((node) => node.id === msg.to.address)
+    this.swarmPainter.highlightNodes([to], msg)
     setTimeout(() => {
-      this.swarmPainter.downplayLines([data], msg)
-      this.swarmPainter.downplayNodes([data.to], msg)
-    }, DELAY_FOR_VIEW / 2)
+      this.swarmPainter.downplayLines([{ from, to }], msg)
+      this.swarmPainter.downplayNodes([to], msg)
+    }, DELAY_FOR_VIEW)
   }
 }
 

@@ -1,5 +1,11 @@
 const msgTypes = ["tx", "bp", "block", "fork"];
 const chainEvents = ["block on chain", "chain fork"];
+
+const COMMUNICATE_COST = 2000
+const COMMUNICATE_COST_THRESHOLD = 500 // 通信在2000~2200ms波动
+
+const CALCULATE_COST = 500
+const CALCULATE_COST_THRESHOLD = 500 // 验证用时在500~1000ms波动
 class MessageSimulator {
   constructor({ messageHandler, messageMaker, nodes }) {
     this.messageHandler = messageHandler;
@@ -131,20 +137,21 @@ class MessageSimulator {
   }
 
   createToCheckboxMatrix() {
-    this.checkList = {} // To facilitate the change of state 
+    this.checkboxMap = {} // To facilitate the change of state 
     const group = document.createElement("div");
     const onCheckall = (checked) => this.onCheckAllTo(checked);
-    this.checkList.checkAll = this.createCheckbox("Check all", onCheckall);
-    this.checkList.checkAll.classList.add('w3-checkbox--checkall')
+    this.checkboxMap.checkAll = this.createCheckbox("Check all", onCheckall, true);
+    this.checkboxMap.checkAll.classList.add('w3-checkbox--checkall')
     group.classList.add("w3-form-item__control");
-    group.append(this.checkList.checkAll);
+    group.append(this.checkboxMap.checkAll);
     for (const node of this.nodes) {
       const dom = document.createElement('div');
-      dom.classList.add('w3-checkbox-group')
+      dom.classList.add('w3-checkbox-group');
+      if (node.name === 'No.1') dom.classList.add('w3-checkbox-group--hidden');
       for (const key of [node.name, 'valid', 'overtime']) {
         const onCheck = (checked) => this.onCheckItem(checked, node.name, key);
-        const checkboxItem = this.createCheckbox(key, onCheck);
-        this.checkList[`${node.name}.${key}`] = checkboxItem
+        const checkboxItem = this.createCheckbox(key, onCheck, key !== 'overtime');
+        this.checkboxMap[`${node.name}.${key}`] = checkboxItem
         dom.append(checkboxItem)
       }
       group.append(dom);
@@ -152,16 +159,18 @@ class MessageSimulator {
     return group;
   }
 
-  createCheckbox(text, handler, disabled = false) {
+  createCheckbox(text, handler, defaultCheck = false, disabled = false) {
     const checkbox = document.createElement("label");
     checkbox.classList.add("w3-checkbox");
     const input = document.createElement("input");
     input.setAttribute("type", "checkbox");
     if (disabled) input.setAttribute("disabled", "");
+    if (defaultCheck) input.checked = true;
     const checkmark = document.createElement("span");
     checkmark.classList.add("w3-checkbox__checkmark");
     checkbox.innerText = text;
-    checkbox.addEventListener("click", () => {
+    checkbox.addEventListener("click", (event) => {
+      if (event.target !== input) return;
       const checked = input.checked;
       handler && handler(checked);
     });
@@ -172,11 +181,29 @@ class MessageSimulator {
 
   onCheckAllTo(checked) {
     if (checked) {
+      for (const node of this.nodes) {
+        if (this.ifChecked(`${node.name}.${node.name}`)) continue
+        for (const key of [node.name, 'valid']) {
+          this.setChecked(`${node.name}.${key}`, true)
+        }
+      }
+    } else {
+      Object.values(this.checkboxMap).map((checkbox) => checkbox.firstElementChild.checked = false)
     }
   }
 
-  onCheckItem(checked, item, key) {
+  ifChecked(key) {
+    return this.checkboxMap[key].firstElementChild.checked
+  }
 
+  setChecked(key, val) {
+    this.checkboxMap[key].firstElementChild.checked = val
+  }
+
+  onCheckItem(checked, item, key) {
+    if (key.startsWith('No') && checked) {
+      this.setChecked(`${item}.valid`, true)
+    }
   }
 
   onChangeKey(btn, btnGroup) {
@@ -194,19 +221,113 @@ class MessageSimulator {
   }
 
   onSendMsg(type) {
-    console.log(type, this.networkObj, this.chainObj);
+    if (type === 'network') this.sendNetworkSeriesMsg();
+    else {
+      this.sendChainMessage();
+    }
+  }
+
+  sendNetworkSeriesMsg() {
+    const toList = this.parseToList()
+    this.sendDepartureMsg(toList);
+    this.sendArriveMsg(toList);
+    this.sendVerifyMsg(toList);
+  }
+
+  parseToList() {
+    const list = []
+    for (const node of this.nodes) {
+      if (node.id === this.networkObj.from) continue
+      if (this.ifChecked(`${node.name}.${node.name}`)) {
+        list.push({
+          node,
+          valid: this.ifChecked(`${node.name}.valid`),
+          overtime: this.ifChecked(`${node.name}.overtime`)
+        })
+      }
+    }
+    return list
+  }
+
+  sendDepartureMsg(toList) {
+    for (const to of toList) {
+      const msg = this.createNetworkMsg(to.node.name);
+      console.log(msg)
+      this.messageHandler.handleNetworkMessage(msg, 'departure');
+    }
+  }
+
+  sendArriveMsg(toList) {
+    for (const to of toList) {
+      if (to.overtime) continue
+      to.arriveTime = Math.random() * COMMUNICATE_COST_THRESHOLD + COMMUNICATE_COST
+      setTimeout(() => {
+        const msg = this.createNetworkMsg(to.node.name, false);
+        this.messageHandler.handleNetworkMessage(msg, 'arrive');
+      }, to.arriveTime)
+    }
+  }
+
+  // valid true need to present?
+  sendVerifyMsg(toList) {
+    for (const to of toList) {
+      if (to.overtime) continue
+      setTimeout(() => {
+        const msg = this.createNodeVerifyMsg(to.node.name, to.valid);
+        console.log(msg)
+        this.messageHandler.handleNodeVerify(msg);
+      }, to.arriveTime + Math.random() * CALCULATE_COST_THRESHOLD + CALCULATE_COST)
+    }
+  }
+
+  createNetworkMsg(to, isDeparture = true) {
+    const msg = {
+      type: this.networkObj.type,
+      data: {},
+      from: { address: this.networkObj.from, i: Math.floor(Math.random() * 1000) },
+      to: { address: this.nodes.find((node) => node.name === to).id, i: Math.floor(Math.random() * 1000) }
+    }
+    if (this.networkObj.type === 'bp') msg.data.round = 1;
+    if (this.networkObj.type === 'block') {
+      msg.data = {
+        block: { height: 23, hash: '0x12345678901234567', i: 10 },
+        node: { address: '192.168.1.1', i: 10}
+      };
+    }
+    if (isDeparture) msg.departureTime = new Date()
+    else msg.arrivalTime = new Date()
+    return msg
+  }
+
+  createNodeVerifyMsg(to, valid) {
+    return {
+      type: this.networkObj.type,
+      data: {},
+      valid,
+      node: { address: this.nodes.find((node) => node.name === to).id, i: Math.floor(Math.random() * 1000) }
+    }
+  }
+
+  sendChainMessage() {
+    const data = { node: { address: '192.168.1.1', i: 10} };
+    if (this.chainObj.event === 'block on chain') {
+      data.block = { height: 23, hash: '0x12345678901234567', i: 10 };
+      this.messageHandler.handleBlockOnChain({ data });
+    } else {
+      data.fork = { data: 'TODO' };
+      this.messageHandler.handleChainForked({ data });
+      alert('Todo');
+    }
   }
 
   bindDragEvent() {
     const simulator = document.getElementById("control-simulator");
-    const dragBar = simulator.getElementsByClassName(
-      "control-simulator__dragging-bar"
-    )[0];
+    const dragBar = simulator.getElementsByClassName("control-simulator__dragging-bar")[0];
     let onDragging = false;
     let x = 0,
       y = 0;
-    const initLeft = 100;
-    const initTop = 100;
+    const initLeft = simulator.offsetLeft;
+    const initTop = simulator.offsetTop;
     dragBar.addEventListener("mousedown", (event) => {
       onDragging = true;
       x = event.clientX;
@@ -214,17 +335,14 @@ class MessageSimulator {
     });
     document.body.addEventListener("mousemove", (event) => {
       if (onDragging) {
-        simulator.style.left = `${
-          (parseInt(simulator.style.left) || initLeft) + event.clientX - x
-        }px`;
-        simulator.style.top = `${
-          (parseInt(simulator.style.top) || initTop) + event.clientY - y
-        }px`;
+        simulator.style.left = `${(parseInt(simulator.style.left) || initLeft) + event.clientX - x}px`;
+        simulator.style.top = `${(parseInt(simulator.style.top) || initTop) + event.clientY - y}px`;
+        simulator.style.bottom = 'unset';
         x = event.clientX;
         y = event.clientY;
       }
     });
-    dragBar.addEventListener("mouseup", (event) => {
+    document.body.addEventListener("mouseup", (event) => {
       onDragging = false;
     });
   }

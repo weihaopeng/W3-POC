@@ -71,7 +71,10 @@ class SwarmPainter {
     }
     this.chart.setOption(option)
     this.setNodesCoordinates()
-    console.log(this.nodes)
+    window.addEventListener('resize', () => {
+      this.chart.resize()
+      this.setNodesCoordinates()
+    })
   }
 
   setNodesCoordinates() {

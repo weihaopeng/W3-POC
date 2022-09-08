@@ -18,7 +18,7 @@ async function main() {
   swarmPainter.init()
   const blockPainter = new BlockPainter(document.getElementById('block-container'))
   const chainPainter = new ChainPainter(document.getElementById('chain-container'))
-  const messageHandler = new MessageHandler({ chainPainter, blockPainter, swarmPainter, bpPainter })
+  const messageHandler = new MessageHandler({ chainPainter, blockPainter, swarmPainter, bpPainter, nodes })
   const messageMaker = new MessageMaker({ handler: messageHandler, nodes })
   const messageSimulator = new MessageSimulator({ messageHandler, messageMaker, nodes })
   console.log(messageSimulator);

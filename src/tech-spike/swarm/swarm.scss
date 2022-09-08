@@ -65,10 +65,10 @@ html, body {
 }
 
 $tooltip-bg-map: (
-  'tx': #1890ff,
-  'bp': #52c41a,
-  'block': #722ed1,
-  'fork': #722ed1,
+  'tx': #40a9ff,
+  'bp': #73d13d,
+  'block': #b37feb,
+  'fork': #f759ab,
   'invalid': #8c8c8c,
 );
 
@@ -107,7 +107,15 @@ $tooltip-bg-map: (
         display: flex;
         .swarm-tooltip {
           padding: 12px;
+          position: relative;
           @include tooltip-bg('tx', 'bp', 'block', 'fork', 'invalid');
+          &.valid::after {
+            content: '✅';
+            position: absolute;
+            right: -10px;
+            top: -10px;
+            color: green;
+          }
           &.to-remove {
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
@@ -147,6 +155,7 @@ $tooltip-bg-map: (
       margin: 16px;
       padding: 16px;
       animation: yellow-fade 2s linear 1;
+      position: relative;
     }
     .#{$type}-type {
       margin-right: 8px;
@@ -163,7 +172,7 @@ $tooltip-bg-map: (
 
 #control-simulator {
   position: absolute;
-  top: 100px;
+  bottom: 5vh;
   left: 100px;
   border: solid 1px #dcdcdc;
   box-shadow: 0 0 4px 0 #000;
@@ -271,7 +280,6 @@ $primary-active-color: #096dd9;
     }
     &__control {
       margin-left: 16px;
-
     }
   }
 }
@@ -341,5 +349,8 @@ $primary-active-color: #096dd9;
     &:not(:first-child) {
       margin-left: 16px;
     }
+  }
+  &--hidden {
+    display: none;
   }
 }
