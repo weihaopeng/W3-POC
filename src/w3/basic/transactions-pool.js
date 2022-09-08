@@ -38,6 +38,7 @@ class TransactionsPool {
   pickEnoughForBp (txCount = this.txCount) {
     const txs = this.txs.filter(({ state }) => state === 'tx')
     if (txs.length === txCount) {
+      debug('--- SHOW: this.txs.length: ', this.txs.length)
       txs.map(tx => tx.state = 'bp')
       return txs.map(({ tx }) => tx).sort(Transaction.sort)
     }
@@ -84,7 +85,7 @@ class TransactionsPool {
 
   async verifyBlockAndAddTxs (block, node) { // TODO: not tested in single node mode
     let valid = await block.verify(node)
-    if (!valid) debug('--- FATAL: verifyBlockAndAddTxs: bp is invalid, should not happen', block.brief)
+    if (!valid) debug('--- FATAL: verifyBlockAndAddTxs: block is invalid, should not happen', block.brief)
     let { allTxValid, isTxAdd } = await this._verifyAndUpdateTxs(block.txs, valid ? 'block' : 'tx')
     return { valid: valid && allTxValid, isTxAdd }
   }

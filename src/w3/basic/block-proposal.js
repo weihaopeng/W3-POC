@@ -7,10 +7,10 @@ const debug = Debug('w3:bp')
 
 class BlockProposal {
   static index = 0 // TODO: currently only used for theory test
-  constructor ({ height, tailHash, txs, collector, witnessRecords = [] }) {
+  constructor ({i, height, tailHash, txs, collector, witnessRecords = [] }) {
     txs = txs.map(tx => tx instanceof Transaction ? tx : new Transaction(tx))
     Object.assign(this, { height, tailHash, collector, txs, witnessRecords })
-    this.i = this.constructor.index++  // TODO: currently only used for theory test
+    this.i = i !== undefined ? i : this.constructor.index++  // TODO: currently only used for theory test
   }
 
   askForWitness ({ publicKeyString, privateKey }) {
@@ -26,7 +26,7 @@ class BlockProposal {
     let valid = typeof this.height === 'number' && this.txs?.length === node.network.config.TX_COUNT
       && (this.height === 1 || this.tailHash === node.chain.tailHash) // height bigger than 1, must have tailHash // TODO: tailHash should eqls node.
       && node.chain.height + 1 === this.height
-    if (!valid) return !!debug('--- FATAL: bp height invalid, node.chain.height: %s, bp height: %s ', node.chain.height, this.height)
+    if (!valid) return !!debug('--- bp height invalid, node.chain.height: %s, bp height: %s ', node.chain.height, this.height)
 
 
     valid = valid && node.isCollector(this.collector)

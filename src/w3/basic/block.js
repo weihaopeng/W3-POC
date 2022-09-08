@@ -35,7 +35,11 @@ class Block {
   }
 
   toJSON() {
-    return _.omit(this.bp, ['i', 'collector', 'witnessRecords']) // toJSON时，去掉不必要的属性，特别是计算hash时，会去掉collector和witnessRecords
+    /**
+     * remove unnecessary properties, especially when calculating hash, collector and witnessRecords will be removed,
+     * by this means the block mint by different nodes with same txs and prehash will have the same hash.
+     */
+    return _.omit(this.bp, ['i', 'collector', 'witnessRecords'])
   }
 
 }
