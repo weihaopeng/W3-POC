@@ -1,4 +1,4 @@
-import { FSM } from '../../../lib/fsm/index.js'
+import { FSM } from '../../../../lib/fsm/index.js'
 
 import Debug from 'debug'
 

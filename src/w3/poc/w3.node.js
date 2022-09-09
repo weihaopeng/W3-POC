@@ -1,6 +1,6 @@
 import Wallet from 'ethereumjs-wallet'
-import { Node } from '../basic/node.js'
-import { Account } from '../basic/account.js'
+import { Node } from '../core/node/node.js'
+import { Account } from '../core/entities/account.js'
 
 import Debug from 'debug'
 import { w3Algorithm } from './w3.algorithm.js'

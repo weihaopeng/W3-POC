@@ -1,5 +1,5 @@
 import { Chain } from './chain.js'
-import { TransactionsPool } from './transactions-pool.js'
+import { TransactionsPool } from '../node/transactions-pool.js'
 import { Transaction } from './transaction.js'
 import { Block } from './block.js'
 import { Fork } from './fork.js'
@@ -11,9 +11,9 @@ const debug = Debug('w3:account')
 
 class Account {
   static index = 0 // TODO: currently only used for theory test
-  constructor ({ address, publicKey, privateKey, addressString, publicKeyString, privateKeyString }) {
+  constructor ({i, address, publicKey, privateKey, addressString, publicKeyString, privateKeyString }) {
     Object.assign(this, { address, publicKey, privateKey, addressString, publicKeyString, privateKeyString })
-    this.i = this.constructor.index++ // TODO: currently only used for theory test
+    this.i = i !== undefined ? i : this.constructor.index++ // TODO: currently only used for theory test
     this.nonce = 0
   }
 

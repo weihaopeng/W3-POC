@@ -4,7 +4,7 @@ import { util } from '../util.js'
 import { getEthereumAccount, W3Node } from './w3.node.js'
 
 import EventEmitter2 from 'eventemitter2'
-import { Transaction } from '../basic/transaction.js'
+import { Transaction } from '../core/entities/transaction.js'
 
 import { config as defaultConfig } from './network.config.default.js'
 import { w3Algorithm } from './w3.algorithm.js'

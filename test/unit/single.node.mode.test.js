@@ -6,7 +6,7 @@ import { W3Network, W3Node } from '../../src/w3/poc/index.js'
 import { util } from '../../src/w3/util.js'
 
 import Debug from 'debug'
-import { BlockProposal } from '../../src/w3/basic/block-proposal.js'
+import { BlockProposal } from '../../src/w3/core/entities/block-proposal.js'
 
 const debug = Debug('w3:test')
 

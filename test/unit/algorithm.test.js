@@ -11,7 +11,7 @@ import { w3Algorithm } from '../../src/w3/poc/w3.algorithm.js'
 const debug = Debug('w3:test')
 
 import { blake2b } from 'ethereum-cryptography/blake2b.js'
-import { BlockProposal } from '../../src/w3/basic/block-proposal.js'
+import { BlockProposal } from '../../src/w3/core/entities/block-proposal.js'
 
 describe('Key points of Protocol', () => {
   // let w3 = new W3Network({TX_COUNT: 5, NODES_AMOUNT: 8})
