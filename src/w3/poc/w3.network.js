@@ -38,3 +38,5 @@ class W3Network {
     this.libp2p?.publish(topic, msg)
   }
 }
+
+export { W3Network }
