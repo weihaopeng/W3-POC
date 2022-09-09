@@ -1,11 +1,13 @@
 import { Transaction } from './transaction.js'
 
 import Debug from 'debug'
+import EventEmitter2 from 'eventemitter2'
 
 const debug = Debug('w3:TxsPool')
 
-class TransactionsPool {
+class TransactionsPool extends EventEmitter2{
   constructor (txCount) {
+    super()
     this.txCount = txCount
     this.txs = [] // { tx, state } state: tx | bp | block | chain
   }
@@ -39,7 +41,9 @@ class TransactionsPool {
     }
 
     found || this.txs.push({ tx, state })
-    return !found ? 'added' : replaced === null ? 'updatedState' : replaced ? 'replaced' : 'rejected'
+    const res = !found ? 'added' : replaced === null ? 'updatedState' : replaced ? 'replaced' : 'rejected'
+    this.emit('tx-added', {tx, state, res})
+    return res
   }
 
   update (txs, state) {

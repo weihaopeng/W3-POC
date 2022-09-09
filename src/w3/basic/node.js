@@ -70,6 +70,12 @@ class Node {
 
     this.network.listen('fork',  (fork) => this.handleForkWins(fork), this)
 
+    this.txPool.on('tx-added', async ({tx, state, res}) => {
+      if (res === 'added') { // updatedState, replaced, rejected means the count of txs in the pool is not change
+        const txs = this.txPool.pickEnoughForBp()
+        txs && await this.askForWitnessAndMint(txs)
+      }
+    })
   }
 
   async handleTx (tx) {
@@ -123,8 +129,10 @@ class Node {
   async collect (tx) {
     debug('--- node %s collect tx %s ', this.account.i, tx)
     this.network.recordCollector(tx, this)
-    const txs = this.txPool.pickEnoughForBp()
-    txs && await this.askForWitnessAndMint(txs)
+    // the tx is not only collected from tx messages, but also colected from bp, block, fork messages containing valid txs
+    // therefore refator the ASF logic to the txPool's tx-added event handler
+    // const txs = this.txPool.pickEnoughForBp()
+    // txs && addwait this.askForWitnessAndMint(txs)
   }
 
   async witnessAndMint (bp) {
