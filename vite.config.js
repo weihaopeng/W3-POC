@@ -20,6 +20,10 @@ export default defineConfig({
       target: 'es2020'
     }
   },
+  build: {
+    target: 'es2020',
+    outDir: '../dist'
+  },
   plugins: [
     vue({
       template: {
