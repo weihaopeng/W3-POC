@@ -10,6 +10,7 @@ $primary-active-color: #096dd9;
   text-align: center;
   border-radius: 4px;
   cursor: pointer;
+  width: fit-content;
   &--selected {
     border-color: $primary-color;
     color: $primary-color;

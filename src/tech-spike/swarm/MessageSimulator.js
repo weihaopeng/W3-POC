@@ -383,9 +383,16 @@ class MessageSimulator {
   initAutoplayControl(container) {
     const btnFormItem = this.createFormItem(container, "");
     const handler = () => this.autoplay(btnFormItem);
+    const wrapper = document.createElement('div');
+    const description = document.createElement('div');
+    description.innerText = 'tx msg 3 rounds, bp msg 2rounds, a block msg, then block on chain.'
+    description.style.width = '260px';
     const btn = this.createBtn("▶️", handler);
-    btn.classList.add("w3-form-item__control");
-    btnFormItem.append(btn);
+    wrapper.classList.add("w3-form-item__control");
+
+    wrapper.append(description);
+    wrapper.append(btn);
+    btnFormItem.append(wrapper);
     container.append(btnFormItem);
   }
 
