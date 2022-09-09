@@ -39,14 +39,20 @@ class MessageHandler {
     // TODO
   }
 
-  handleNodeVerify(msg) {
+  handleNodeVerify(msg, autoDownplay = true) {
     // TODO
     console.log(msg)
     const node = this.nodes.find((node) => node.id === msg.node.address)
     this.swarmPainter.highlightNodes([node], msg)
-    setTimeout(() => {
-      this.swarmPainter.downplayNodes([node], msg)
-    }, DELAY_FOR_VIEW)
+    if (autoDownplay) {
+      setTimeout(() => {
+        this.swarmPainter.downplayNodes([node], msg)
+      }, DELAY_FOR_VIEW)
+    } else {
+      return () => {
+        this.swarmPainter.downplayNodes([node], msg)
+      };
+    }
   }
 
   handleTxOnNetwork(msg) {
@@ -61,7 +67,9 @@ class MessageHandler {
       this.arriveOnSwarm(msg)
       msg.from = this.nodes.find((node) => node.id === msg.from.address)
       msg.to = this.nodes.find((node) => node.id === msg.to.address)
-      this.bpPainter.append(msg)
+      if (msg.data.isWitness) {
+        this.bpPainter.append(msg)
+      }
     } else if (msg.action === 'eliminate') {
       this.arriveOnSwarm(msg)
     } else {

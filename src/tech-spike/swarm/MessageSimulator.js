@@ -3,8 +3,8 @@ import { getRandomIp, getRandomHash, sleep } from '../util.js';
 const msgTypes = ["tx", "bp", "block", "fork"];
 const chainEvents = ["block on chain", "chain fork"];
 
-const COMMUNICATE_COST = 2000
-const COMMUNICATE_COST_THRESHOLD = 500 // 通信在2000~2200ms波动
+let COMMUNICATE_COST = 2000
+let COMMUNICATE_COST_THRESHOLD = 500 // 通信在2000~2500ms波动
 
 const CALCULATE_COST = 500
 const CALCULATE_COST_THRESHOLD = 500 // 验证用时在500~1000ms波动
@@ -13,7 +13,8 @@ class MessageSimulator {
     this.messageHandler = messageHandler;
     this.nodes = nodes;
     this.initMsgObj();
-    this.init();
+    if (location.search && location.search.indexOf('present')) this.initKeyboardControl();
+    else this.init();
   }
 
   init() {
@@ -22,6 +23,13 @@ class MessageSimulator {
     this.initChainControl();
     this.initAutoControl();
     this.bindDragEvent();
+  }
+
+  initKeyboardControl() {
+    document.body.addEventListener('keyup', (event) => {
+      if (event.code === 'Space') this.autoplay(this.play2)
+    })
+    document.body.getElementById('control-simulator').remove()
   }
 
   initMsgObj() {
@@ -242,9 +250,11 @@ class MessageSimulator {
     let block;
     if (this.networkObj.type === 'block') block = this.mockBlockInfo();
     const sessionId = getRandomHash();
-    this.sendDepartureMsg(sessionId, toList, block);
-    this.sendArriveMsg(sessionId, toList, block);
-    this.sendVerifyMsg(sessionId, toList);
+    const randomWitness = toList[Math.floor(Math.random() * toList.length)]
+    const verifyList = this.networkObj.type === 'bp' ? [randomWitness] : toList
+    this.sendDepartureMsg(sessionId, toList, null, block, randomWitness.node.id);
+    this.sendArriveMsg(sessionId, toList, null, block, randomWitness.node.id);
+    this.sendVerifyMsg(sessionId, verifyList);
   }
 
   mockBlockInfo() {
@@ -270,22 +280,22 @@ class MessageSimulator {
     return list
   }
 
-  sendDepartureMsg(sessionId, toList, block) {
+  sendDepartureMsg(sessionId, toList, count, block, witnessId) {
     for (const to of toList) {
-      const msg = this.createNetworkMsg(sessionId, to.node.name, block);
+      const msg = this.createNetworkMsg({ sessionId, to: to.node.name, witnessId, count, block });
       console.log(msg)
       this.messageHandler.handleNetworkMessage(msg, 'departure');
     }
   }
 
-  sendArriveMsg(sessionId, toList, block) {
+  sendArriveMsg(sessionId, toList, count, block, witnessId) {
     let max = 0;
     for (const to of toList) {
       if (to.overtime) continue
       to.arriveTime = Math.random() * COMMUNICATE_COST_THRESHOLD + COMMUNICATE_COST
       max = Math.max(max, to.arriveTime);
       setTimeout(() => {
-        const msg = this.createNetworkMsg(sessionId, to.node.name, block, false);
+        const msg = this.createNetworkMsg({ sessionId, to: to.node.name, count, block, witnessId, isDeparture: false });
         this.messageHandler.handleNetworkMessage(msg, 'arrive');
       }, to.arriveTime)
     }
@@ -293,42 +303,54 @@ class MessageSimulator {
   }
 
   // valid true need to present?
-  sendVerifyMsg(sessionId, toList) {
-    let max = 0;
-    for (const to of toList) {
-      if (to.overtime) continue
-      to.arriveAndCalcTime = to.arriveTime + Math.random() * CALCULATE_COST_THRESHOLD + CALCULATE_COST
-      max = Math.max(max, to.arriveAndCalcTime);
+  sendVerifyMsg(sessionId, nodeList, count, autoDownplay) {
+    const res = { cost: 0, nodeVerifyDownplayFn: null };
+    for (const node of nodeList) {
+      if (node.overtime) continue
+      node.arriveAndCalcTime = node.arriveTime + Math.random() * CALCULATE_COST_THRESHOLD + CALCULATE_COST
+      res.cost = Math.max(res.cost, node.arriveAndCalcTime);
       setTimeout(() => {
-        const msg = this.createNodeVerifyMsg(sessionId, to.node.name, to.valid);
-        this.messageHandler.handleNodeVerify(msg);
-      }, to.arriveAndCalcTime);
+        const msg = this.createNodeVerifyMsg(sessionId, node.node.name, node.valid, count);
+        res.nodeVerifyDownplayFn = this.messageHandler.handleNodeVerify(msg, autoDownplay);
+      }, node.arriveAndCalcTime);
     }
-    return max;
+    return res;
   }
 
-  createNetworkMsg(sessionId, to, block, isDeparture = true) {
+  // temporary
+  getShortFor(str) {
+    console.log(str);
+    if (str === 'block') return 'Bk'
+    if (str === 'fork') return 'Fk'
+    return str.toLocaleUpperCase()
+  }
+
+  createNetworkMsg({ sessionId, to, count, block, witnessId, isDeparture }) {
+    if (isDeparture === undefined) isDeparture = true
     const msg = {
       sessionId,
       type: this.networkObj.type,
-      data: {},
+      data: { content: this.getShortFor(this.networkObj.type) + (count || 1) },
       from: { address: this.networkObj.from, i: Math.floor(Math.random() * 1000) },
       to: { address: this.nodes.find((node) => node.name === to).id, i: Math.floor(Math.random() * 1000) }
     }
-    if (this.networkObj.type === 'bp') msg.data.round = this.networkObj.bpround || 1;
+    if (this.networkObj.type === 'bp') {
+      msg.data.isWitness = msg.to.address === witnessId
+      msg.data.round = this.networkObj.bpround || 1;
+    }
     if (this.networkObj.type === 'block') {
-      msg.data = block;
+      Object.assign(msg.data, block);
     }
     if (isDeparture) msg.departureTime = new Date()
     else msg.arrivalTime = new Date()
     return msg
   }
 
-  createNodeVerifyMsg(sessionId, to, valid) {
+  createNodeVerifyMsg(sessionId, to, valid, count) {
     return {
       sessionId,
       type: this.networkObj.type,
-      data: {},
+      data: { content: this.getShortFor(this.networkObj.type) + (count || 1) },
       valid,
       node: { address: this.nodes.find((node) => node.name === to).id, i: Math.floor(Math.random() * 1000) }
     }
@@ -372,20 +394,20 @@ class MessageSimulator {
   }
 
   initAutoControl() {
-    // TODO auto send msg engine.
     const container = document.createElement("div");
     container.classList.add("w3-form");
     this.initTitle(container, "Autoplay");
-    this.initAutoplayControl(container);
+    this.initAutoplayControl(container, 'tx msg 3 rounds, bp msg 2rounds, a block msg, then block on chain.', this.play);
+    this.initAutoplayControl(container, 'For present.', this.play2);
     document.getElementById("control-simulator").append(container);
   }
 
-  initAutoplayControl(container) {
+  initAutoplayControl(container, txt, playFn) {
     const btnFormItem = this.createFormItem(container, "");
-    const handler = () => this.autoplay(btnFormItem);
+    const handler = () => this.autoplay(playFn, btnFormItem);
     const wrapper = document.createElement('div');
     const description = document.createElement('div');
-    description.innerText = 'tx msg 3 rounds, bp msg 2rounds, a block msg, then block on chain.'
+    description.innerText = txt
     description.style.width = '260px';
     const btn = this.createBtn("▶️", handler);
     wrapper.classList.add("w3-form-item__control");
@@ -396,17 +418,19 @@ class MessageSimulator {
     container.append(btnFormItem);
   }
 
-  autoplay(btnParent) {
-    const btn = btnParent.getElementsByClassName('w3-btn')[0];
+  autoplay(playFn, btnParent) {
+    const btn = btnParent?.getElementsByClassName('w3-btn')[0] || {};
     if (!this.isPlaying) {
       this.isPlaying = true;
       btn.innerText = '⏹';
-      this.play(btn);
+      playFn.call(this, btn);
     } else {
       this.isPlaying = false;
       btn.innerText = '▶️';
     }
   }
+
+  /********************** autoplay scripts ***********************/
 
   async play(btn) {
     const txround = 3;
@@ -420,10 +444,10 @@ class MessageSimulator {
       const index = Math.floor(Math.random() * this.nodes.length);
       this.networkObj.from = this.nodes[index].id;
       const toList = this.nodes.filter((node) => (node.id !== this.networkObj.from)).map((node) => ({ node, valid: true, overtime: false }));
-      this.sendDepartureMsg(sessionId, toList);
-      this.sendArriveMsg(sessionId, toList);
-      const maxCost = this.sendVerifyMsg(sessionId, toList);
-      await sleep(maxCost + 2000);
+      this.sendDepartureMsg(sessionId, toList, i + 1);
+      this.sendArriveMsg(sessionId, toList, i + 1);
+      const { cost } = this.sendVerifyMsg(sessionId, toList, i + 1);
+      await sleep(cost + 2000);
     }
 
     this.networkObj.type = 'bp';
@@ -434,10 +458,11 @@ class MessageSimulator {
       const index = Math.floor(Math.random() * this.nodes.length);
       this.networkObj.from = this.nodes[index].id;
       const toList = this.nodes.filter((node) => (node.id !== this.networkObj.from)).map((node) => ({ node, valid: true, overtime: false }));
-      this.sendDepartureMsg(sessionId, toList);
-      this.sendArriveMsg(sessionId, toList);
-      const maxCost = this.sendVerifyMsg(sessionId, toList);
-      await sleep(maxCost + 2000);
+      const randomWitness = toList[Math.floor(Math.random() * toList.length)]
+      this.sendDepartureMsg(sessionId, toList, i + 1, randomWitness.node.id);
+      this.sendArriveMsg(sessionId, toList, i + 1, randomWitness.node.id);
+      const { cost } = this.sendVerifyMsg(sessionId, [randomWitness], i + 1);
+      await sleep(cost + 2000);
     }
 
     let block;
@@ -450,8 +475,8 @@ class MessageSimulator {
       block = this.mockBlockInfo();
       this.sendDepartureMsg(sessionId, toList, block);
       this.sendArriveMsg(sessionId, toList, block);
-      const blockCost = this.sendVerifyMsg(sessionId, toList);
-      await sleep(blockCost + 2000);
+      const { cost } = this.sendVerifyMsg(sessionId, toList);
+      await sleep(cost + 2000);
     }
 
     if (this.isPlaying) {
@@ -461,6 +486,74 @@ class MessageSimulator {
       this.chainObj.event = chainType
     }
 
+    this.isPlaying = false;
+    btn.innerText = '▶️';
+    this.networkObj.type = type;
+    this.networkObj.from = from;
+  }
+
+  async play2(btn) {
+    // some hardcode for the present video.
+    // 2,5 broadcast to 1,3,4; 4 is collector.
+    // 4 broadcast bp and 3 becomes first witness.
+    // 3 broadcast second bp and 1 becomes second witness.
+    // 1 broadcast block then put on chain.
+    const type = this.networkObj.type;
+    const from = this.networkObj.from;
+    this.networkObj.type = 'tx';
+    COMMUNICATE_COST = 200;
+    COMMUNICATE_COST_THRESHOLD = 50;
+    const txVerifyRes = [];
+    for (let i = 0; i < 3; i++) {
+      if (!this.isPlaying) break;
+      const sessionId = getRandomHash();
+      const index = Math.random() < 0.5 ? 1 : 4; // 只有1或5来发
+      this.networkObj.from = this.nodes[index].id;
+      const toList = this.nodes.filter((node) => (node.id !== this.networkObj.from)).map((node) => ({ node, valid: true, overtime: false }));
+      this.sendDepartureMsg(sessionId, toList, i + 1);
+      this.sendArriveMsg(sessionId, toList, i + 1);
+      const res = this.sendVerifyMsg(sessionId, toList, i + 1);
+      txVerifyRes.push(res);
+      await sleep(res.cost + 2000);
+    }
+
+    this.networkObj.type = 'bp';
+    for (let i = 0; i < 2; i++) {
+      if (!this.isPlaying) break;
+      this.networkObj.bpround = i + 1;
+      const sessionId = getRandomHash();
+      const index = i === 0 ? 3 : 2;
+      this.networkObj.from = this.nodes[index].id;
+      const toList = this.nodes.filter((node) => (node.id !== this.networkObj.from && node.id !== '444')).map((node) => ({ node, valid: true, overtime: false }));
+      const witnessNode = toList.filter((to) => i === 0 ? to.node.id === '333' : to.node.id === '111')
+      this.sendDepartureMsg(sessionId, toList, i + 1, null, witnessNode[0].node.id);
+      this.sendArriveMsg(sessionId, toList, i + 1, null, witnessNode[0].node.id);
+      const res = this.sendVerifyMsg(sessionId, witnessNode, i + 1);
+      await sleep(res.cost + 2000);
+    }
+
+    let block;
+    this.networkObj.type = 'block';
+    if (this.isPlaying) {
+      const sessionId = getRandomHash();
+      this.networkObj.from = this.nodes[0].id;
+      const toList = this.nodes.filter((node) => (node.id !== this.networkObj.from)).map((node) => ({ node, valid: true, overtime: false }));
+      block = this.mockBlockInfo();
+      this.sendDepartureMsg(sessionId, toList, null, block);
+      this.sendArriveMsg(sessionId, toList, null, block);
+      const res = this.sendVerifyMsg(sessionId, toList, null);
+      await sleep(res.cost + 2000);
+    }
+
+    if (this.isPlaying) {
+      const chainType = this.chainObj.event
+      this.chainObj.event = 'block on chain'
+      this.sendChainMessage(block)
+      this.chainObj.event = chainType
+    }
+
+    COMMUNICATE_COST = 2000;
+    COMMUNICATE_COST_THRESHOLD = 500;
     this.isPlaying = false;
     btn.innerText = '▶️';
     this.networkObj.type = type;

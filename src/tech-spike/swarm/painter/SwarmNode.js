@@ -74,25 +74,19 @@ class SwarmNode {
     tooltipCard.remove()
   }
 
-  // temporary
-  getShortFor(str) {
-    if (str === 'block') return 'Bk'
-    if (str === 'fork') return 'Fk'
-    return str.toLocaleUpperCase()
-  }
-
   appendTooltip(msg) {
     const id = this.id // TODO, 应该是data里面的用于区分一次session的id。这里先不考虑多session，所以直接用node的id。
     const tooltipCard = this.tooltipGroup.find((tooltipCard) => tooltipCard.id === id) || this._appendTooltipCard(id)
     const children = Array.from(tooltipCard.children)
-    if (children.find((child) => child.innerText === this.getShortFor(msg.type) && child.classList.contains(msg.action))) {
+    if (children.find((child) => (child.innerText === msg.data.content) && child.classList.contains(msg.action))) {
       // 已有重复的tooltip了。这是为了避免发出消息的节点，重复显示。目前用title判断，后续用其他标识。
       return
     }
     const tooltip = document.createElement('div')
     tooltip.classList.add('swarm-tooltip')
     // TODO 根据data内容，调整tooltip内容
-    tooltip.innerText = this.getShortFor(msg.type)
+    tooltip.innerText = msg.data.content
+    tooltip.setAttribute('w3-type', msg.type)
     tooltip.classList.add(msg.action)
     tooltip.classList.add(msg.type)
     if (msg.valid !== undefined) tooltip.classList.add(msg.valid ? 'valid' : 'invalid')
@@ -104,7 +98,7 @@ class SwarmNode {
     const tooltipCard = this.tooltipGroup.find((tooltipCard) => tooltipCard.id === id)
     if (!tooltipCard) return // 实际不应该存在
     const children = Array.from(tooltipCard.children)
-    const child = children.find((child) => child.innerText === this.getShortFor(msg.type))
+    const child = children.find((child) => child.innerText === msg.data.content)
     if (!child) return
     child.classList.add('to-remove')
     setTimeout(() => {

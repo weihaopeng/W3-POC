@@ -9,7 +9,7 @@ class SwarmPainter {
     this.nodes = nodes.map((node) => new SwarmNode(node, offsetWidth, offsetHeight, SYMBOL_SIZE, tooltipContainer))
     this.links = this.generateLinks(nodes)
     this.chart = echarts.init(cvsContainer)
-    // this.highlightedLines = []
+    this.tooltipContainer = tooltipContainer
   }
 
   generateLinks(nodes) {
@@ -24,6 +24,16 @@ class SwarmPainter {
   }
 
   init() {
+    this.initChart()
+    this.setNodesCoordinates()
+    window.addEventListener('resize', () => {
+      this.chart.resize()
+      this.setNodesCoordinates()
+    })
+    this.initClearBtn()
+  }
+
+  initChart() {
     const option = {
       series: [
         {
@@ -70,11 +80,20 @@ class SwarmPainter {
       ]
     }
     this.chart.setOption(option)
-    this.setNodesCoordinates()
-    window.addEventListener('resize', () => {
-      this.chart.resize()
-      this.setNodesCoordinates()
+  }
+
+  initClearBtn() {
+    const btn = document.createElement('div')
+    btn.classList.add('w3-btn')
+    btn.classList.add('w3-btn--primary')
+    btn.addEventListener('click', () => {
+      for (const tooltipWrapper of Array.from(document.getElementsByClassName('swarm-tooltip-wrapper'))) {
+        tooltipWrapper.innerHTML = ''
+      }
+      this.nodes.map((node) => node.tooltipGroup = [])
     })
+    btn.innerText = 'Clear all'
+    this.tooltipContainer.prepend(btn)
   }
 
   setSelectedLineColor(color) {
