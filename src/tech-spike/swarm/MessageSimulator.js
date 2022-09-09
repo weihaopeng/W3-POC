@@ -397,7 +397,7 @@ class MessageSimulator {
   }
 
   autoplay(btnParent) {
-    const btn = btnParent.getElementsByClassName('w3-form-item__control')[0];
+    const btn = btnParent.getElementsByClassName('w3-btn')[0];
     if (!this.isPlaying) {
       this.isPlaying = true;
       btn.innerText = '⏹';
