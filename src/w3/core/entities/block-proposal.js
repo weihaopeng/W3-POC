@@ -90,7 +90,7 @@ class BlockProposal {
   }
 
   equals (other) {
-    // return this.height === other.height && this.txs.every((tx, j) => tx.i === other.txs[j].i)
+    // return this.height === other.height && this.txPool.every((tx, j) => tx.i === other.txPool[j].i)
     return this.brief() === other.brief()
   }
 

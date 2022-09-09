@@ -22,7 +22,7 @@ mint block</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>更新事实
-update facts of  txs, bps, blocks, chain</panel_attributes>
+update facts of  txPool, bps, blocks, chain</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
@@ -105,7 +105,7 @@ change fork</panel_attributes>
       <h>100</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-tx valid 
+tx valid
 &amp; isCollector</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
   </element>
@@ -118,7 +118,7 @@ tx valid
       <h>80</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-enough txs</panel_attributes>
+enough txPool</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;60.0</additional_attributes>
   </element>
   <element>
@@ -130,8 +130,8 @@ enough txs</panel_attributes>
       <h>320</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-relay 
-valid &amp; effective msg: 
+relay
+valid &amp; effective msg:
 tx, bp, block, fork
 </panel_attributes>
     <additional_attributes>10.0;10.0;10.0;300.0</additional_attributes>
@@ -145,7 +145,7 @@ tx, bp, block, fork
       <h>100</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-bp valid 
+bp valid
 &amp; isWitness</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
   </element>
@@ -232,7 +232,7 @@ fork detected</panel_attributes>
       <h>330</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-HARD_FORK 
+HARD_FORK
 detected</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;310.0</additional_attributes>
   </element>
@@ -270,7 +270,7 @@ ask for witness</panel_attributes>
       <h>130</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-send bp 
+send bp
 (new/next)</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;110.0</additional_attributes>
   </element>
@@ -704,7 +704,7 @@ group=2</panel_attributes>
       <h>50</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-can't AFW 
+can't AFW
 bp.height will be wrong
 fg=gray
 group=2</panel_attributes>
@@ -745,7 +745,7 @@ group=2</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-can  AFW 
+can  AFW
 fg=blue
 group=2</panel_attributes>
     <additional_attributes>10.0;20.0;100.0;20.0</additional_attributes>
@@ -759,7 +759,7 @@ group=2</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-can't AFW 
+can't AFW
 fg=gray
 group=2</panel_attributes>
     <additional_attributes>10.0;20.0;370.0;20.0</additional_attributes>
@@ -773,7 +773,7 @@ group=2</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-can  AFW 
+can  AFW
 fg=blue
 group=2</panel_attributes>
     <additional_attributes>10.0;20.0;100.0;20.0</additional_attributes>

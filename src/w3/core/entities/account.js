@@ -1,5 +1,5 @@
 import { Chain } from './chain.js'
-import { TransactionsPool } from '../node/transactions-pool.js'
+import { LocalFacts } from '../node/local-facts.js'
 import { Transaction } from './transaction.js'
 import { Block } from './block.js'
 import { Fork } from './fork.js'

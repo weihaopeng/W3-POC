@@ -5,20 +5,20 @@ import EventEmitter2 from 'eventemitter2'
 
 const debug = Debug('w3:TxsPool')
 
-class TransactionsPool extends EventEmitter2{
+class LocalFacts extends EventEmitter2{
   constructor (txCount) {
     super()
     this.txCount = txCount
-    this.txs = [] // { tx, state } state: tx | bp | block | chain
+    this.txPool = [] // { tx, state } state: tx | bp | block | chain
   }
 
   reset () {
-    this.txs = []
+    this.txPool = []
   }
 
   add (tx, state) {
     let found = false, replaced = null
-    for (let _tx of this.txs) {
+    for (let _tx of this.txPool) {
       if (_tx.tx.equals(tx)) {
         found = true
         _tx.state = state
@@ -40,44 +40,51 @@ class TransactionsPool extends EventEmitter2{
 
     }
 
-    found || this.txs.push({ tx, state })
+    found || this.txPool.push({ tx, state })
     const res = !found ? 'added' : replaced === null ? 'updatedState' : replaced ? 'replaced' : 'rejected'
     this.emit('tx-added', {tx, state, res})
     return res
   }
 
-  update (txs, state) {
+  updateTxsState (txs, state) {
     txs.map(tx => this.updateState(tx, state))
   }
 
   updateState (tx, state) {
-    const _tx = this.txs.find(_tx => _tx.tx.equals(tx))
+    const _tx = this.txPool.find(_tx => _tx.tx.equals(tx))
     _tx && (_tx.state = state)
   }
 
   pickEnoughForBp (txCount = this.txCount) {
-    const txs = this.txs.filter(({ state }) => state === 'tx')
+    const txs = this.txPool.filter(({ state }) => state === 'tx')
     if (txs.length === txCount) {
-      // debug('--- SHOW: this.txs.length: ', this.txs.length)
+      // debug('--- SHOW: this.txPool.length: ', this.txPool.length)
       txs.map(tx => tx.state = 'bp')
       return txs.map(({ tx }) => tx).sort(Transaction.sort)
     }
+  }
+
+  async verifyAndUpdate(type, data, node) {
+    return type === 'tx' ? this.verifyAndAddTx(data) :
+      type === 'bp' ? this.verifyBpAndAddTxs(data, node) :
+        type === 'block' ? this.verifyBlockAndAddTxs(data, node) :
+          this.verifyForkAndAddTx(data, node)
   }
 
   async verifyAndAddTx (tx, state = 'tx') {
     if (!await tx.verify()) return { valid: false, txRes: 'rejected' }
     /**
      * TODO: using traditional tx verification algorithem verify against local fact
-     * Illegal txs
-     * 2. txs with invalid nonce
-     * 3. txs with invalid value
-     * 4. txs with invalid fee
-     * 5. txs with invalid gasPrice
-     * 5. txs with invalid from
-     * 6. txs with invalid to
-     * 9. txs with invalid timestamp
+     * Illegal txPool
+     * 2. txPool with invalid nonce
+     * 3. txPool with invalid value
+     * 4. txPool with invalid fee
+     * 5. txPool with invalid gasPrice
+     * 5. txPool with invalid from
+     * 6. txPool with invalid to
+     * 9. txPool with invalid timestamp
      *
-     * TODO: find double spend txs add apply the Universal Rule
+     * TODO: find double spend txPool add apply the Universal Rule
      *
      * results: 1. added, 2. replaced, 3. rejected
      */
@@ -109,10 +116,13 @@ class TransactionsPool extends EventEmitter2{
   async verifyBlockAndAddTxs (block, node) { // TODO: not tested in single node mode
     let valid = await block.verify(node)
     if (!valid) debug('--- FATAL: verifyBlockAndAddTxs: block is invalid, should not happen', block.brief)
-    let { allTxValid } = await this._verifyAndUpdateTxs(block.txs, valid ? 'block' : 'tx')
+    let { allTxValid } = await this._verifyAndUpdateTxs(block.txs, valid ? 'chain' : 'tx') // valid block add to chain
     return { valid: valid && allTxValid }
   }
 
+  async verifyForkAndAddTx (data, node) {
+    return 'not implemented yet.'
+  }
 }
 
-export { TransactionsPool }
+export { LocalFacts }

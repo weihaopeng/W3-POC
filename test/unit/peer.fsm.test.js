@@ -5,7 +5,7 @@ const { checkStateRoute } = FSM
 import Debug from 'debug'
 const debug = Debug('w3:test:peer.fsm')
 
-import { createFsm } from '../../src/w3/core/node/peer.fsm.js'
+import { createFsm } from '../../src/w3/core/node/node-fsm.js'
 
 describe('Peer Status test', () => {
   class Peer  {

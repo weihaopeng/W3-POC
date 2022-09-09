@@ -2,7 +2,7 @@ import chai from 'chai'
 
 chai.should()
 
-import { W3Network, W3Node } from '../../src/w3/poc/index.js'
+import { W3Swarm, W3Node } from '../../src/w3/poc/index.js'
 import { util } from '../../src/w3/util.js'
 
 import Debug from 'debug'
@@ -14,7 +14,7 @@ import { blake2b } from 'ethereum-cryptography/blake2b.js'
 import { BlockProposal } from '../../src/w3/core/entities/block-proposal.js'
 
 describe('Key points of Protocol', () => {
-  // let w3 = new W3Network({TX_COUNT: 5, NODES_AMOUNT: 8})
+  // let w3 = new W3Swarm({TX_COUNT: 5, NODES_AMOUNT: 8})
   //
   // before(async function () {
   //   this.timeout(0)

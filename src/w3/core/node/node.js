@@ -1,5 +1,5 @@
 import { Chain } from '../entities/chain.js'
-import { TransactionsPool } from './transactions-pool.js'
+import { LocalFacts } from './local-facts.js'
 import { Transaction } from '../entities/transaction.js'
 import { Block } from '../entities/block.js'
 import { Fork } from '../entities/fork.js'
@@ -14,7 +14,7 @@ class Node {
     if (!account || !network) throw new Error(`can't create node, check the params`)
     this.account = account
     this.network = network
-    this.txPool = new TransactionsPool(this.network.config.TX_COUNT)
+    this.localFacts = new LocalFacts(this.network.config.TX_COUNT)
     this.isSingleNode = isSingleNode // is the only node in the network, used to separate the concern of two-stages-mint and the collaborations among nodes.
   }
 
@@ -25,7 +25,7 @@ class Node {
   }
 
   reset() {
-    this.txPool.reset()
+    this.localFacts.reset()
     this.chain.reset()
   }
 
@@ -70,9 +70,9 @@ class Node {
 
     this.network.listen('fork',  (fork) => this.handleForkWins(fork), this)
 
-    this.txPool.on('tx-added', async ({tx, state, res}) => {
-      if (res === 'added') { // updatedState, replaced, rejected means the count of txs in the pool is not change
-        const txs = this.txPool.pickEnoughForBp()
+    this.localFacts.on('tx-added', async ({tx, state, res}) => {
+      if (res === 'added') { // updatedState, replaced, rejected means the count of txPool in the pool is not change
+        const txs = this.localFacts.pickEnoughForBp()
         txs && await this.askForWitnessAndMint(txs)
       }
     })
@@ -80,23 +80,23 @@ class Node {
 
   async handleTx (tx) {
     tx = new Transaction(tx)
-    const isTxAdded = await this.updateLocalFact({ tx })
+    const isTxAdded = await this.updateLocalFact('tx', tx)
     debug('--- isTxAdded: ', isTxAdded)
     isTxAdded && this.isCollector() && await this.collect(tx)
   }
 
   async handleWitness (bp) {
     bp = new BlockProposal(bp)
-    const isValid = await this.updateLocalFact({ bp })
+    const isValid = await this.updateLocalFact('bp', bp)
     isValid && this.isWitness(bp) && await this.witnessAndMint(bp)
   }
 
   async handleNewBlock (block, origin) {
     block = new Block(block)
-    const isValid = await this.updateLocalFact({ bp })
+    const isValid = await this.updateLocalFact('block', block)
     if (!isValid) debug('--- FATAL: receive invalid block', block.brief)
     // TODO: 按 design/handle-block.png 算法处理
-    isValid && (this === origin || this.chain.addBlock(block, this)) // in single node mode, the block msg also comes from itself, so we need to check the origin
+    isValid && ((this === origin && !this.isSingleNode) || this.chain.addBlock(block, this))
   }
 
   async handleForkWins (fork) { // { blocks }
@@ -106,7 +106,7 @@ class Node {
       debug('fork is invalid, skip it', fork)
       return this.network.events.emit('node.verify', {type: 'fork', data: fork, node: this, valid: isValid})
     }
-    await this.updateLocalFact({ block })
+    await this.updateLocalFact('fork', fork)
     // TODO: 按其中的消息，检查chain
   }
 
@@ -129,10 +129,10 @@ class Node {
   async collect (tx) {
     debug('--- node %s collect tx %s ', this.account.i, tx)
     this.network.recordCollector(tx, this)
-    // the tx is not only collected from tx messages, but also colected from bp, block, fork messages containing valid txs
-    // therefore refator the ASF logic to the txPool's tx-added event handler
-    // const txs = this.txPool.pickEnoughForBp()
-    // txs && addwait this.askForWitnessAndMint(txs)
+    // the tx is not only collected from tx messages, but also colected from bp, block, fork messages containing valid txPool
+    // therefore refator the ASF logic to the localFacts's tx-added event handler
+    // const txPool = this.localFacts.pickEnoughForBp()
+    // txPool && addwait this.askForWitnessAndMint(txPool)
   }
 
   async witnessAndMint (bp) {
@@ -157,16 +157,6 @@ class Node {
     return bp
   }
 
-  async verifyBlock (block) {
-    // verify block according to local facts, include the chain, fork, txPools
-    return true // TODO
-  }
-
-  async verifyFork (fork) {
-    // verify fork according to local facts, include the chain, fork, txPools
-    return true // TODO
-  }
-
   isNeedMoreRoundOfWitness (bp) {
     return bp.witnessRecords.length < this.network.config.WITNESS_ROUNDS_AMOUNT
   }
@@ -178,8 +168,8 @@ class Node {
 
   async mintBlock (bp) {
     const block = Block.mint(bp, this.chain)
-    this.chain.addBlock(block, this) // add to local chain before broadcast
-    this.txPool.update(block.txs, 'chain')
+    if (!this.isSingleNode) this.chain.addBlock(block, this) // add to local chain before broadcast, singleNodeMode will add it in handleNewBlock
+    this.localFacts.updateTxsState(block.txs, 'chain')
     this.network.broadcast('block', block, this) //this used in theory test to aviod of react on its own message
   }
 
@@ -188,24 +178,12 @@ class Node {
     return { chain: this.chain }
   }
 
-  async updateLocalFact ({ tx, bp, block, fork }) {
+  async updateLocalFact (type, data) { // type: tx, bp, block, fork
     // TODO: 根据bp、block、fork消息中的height，来判定当前node是否需要stop(退出ready)
-    if (tx) {
-      const { valid, txRes } = await this.txPool.verifyAndAddTx(tx)
-      this.network.emitW3Event('node.verify', {type: 'tx', data: tx, node: this, valid})
-      return txRes === 'added' // replaced or rejected tx will not cause the txs in txPool count up, and no need to make a block proposal
-    } else if (bp) {
-      const { valid } = await this.txPool.verifyBpAndAddTxs(bp, this)
-      this.network.emitW3Event('node.verify', {type: 'bp', data: bp, node: this, valid})
-      return valid
-    } else if (block) {
-      const { valid } = await this.txPool.verifyBlockAndAddTxs(bp, this)
-      this.network.emitW3Event('node.verify', {type: 'block', data: block, node: this, valid})
-      return valid
-    } else { // fork
-      throw new Error('not implemented')
-    }
-    // TODO:
+    const node = this
+    const valid = await this.localFacts.verifyAndUpdate(type, data, node)
+    this.network.emitW3Event('node.verify', {type, data, node, valid})
+    return valid
   }
 }
 

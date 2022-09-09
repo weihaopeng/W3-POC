@@ -9,7 +9,7 @@ class Block {
   }
 
   constructor ({ preHash, bp, i, hash }) { // TODO: currently only used for theory test
-    this.preHash = preHash
+    this.preHash = bp.height === 1 ? 'genuesis' : preHash
     this.bp = bp instanceof BlockProposal ? bp : new BlockProposal(bp)
     this.i = i !== undefined ? i : this.constructor.index++ // TODO: currently only used for theory test
     // this.hash = hash !== undefined ? hash : 'h' + this.i // make debug easy in theory test
@@ -36,7 +36,7 @@ class Block {
   toJSON() {
     /**
      * remove unnecessary properties, especially when calculating hash, collector and witnessRecords will be removed,
-     * by this means the block mint by different nodes with same txs and prehash will have the same hash.
+     * by this means the block mint by different nodes with same txPool and prehash will have the same hash.
      */
     return _.omit(this.bp, ['i', 'collector', 'witnessRecords'])
   }

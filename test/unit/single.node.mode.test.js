@@ -2,7 +2,7 @@ import chai from 'chai'
 
 chai.should()
 
-import { W3Network, W3Node } from '../../src/w3/poc/index.js'
+import { W3Swarm, W3Node } from '../../src/w3/poc/index.js'
 import { util } from '../../src/w3/util.js'
 
 import Debug from 'debug'
@@ -11,7 +11,7 @@ import { BlockProposal } from '../../src/w3/core/entities/block-proposal.js'
 const debug = Debug('w3:test')
 
 describe('Single Node Network Mode', () => {
-  let w3 = new W3Network({ SINGLE_NODE_MODE: true, TX_COUNT: 5 })
+  let w3 = new W3Swarm({ SINGLE_NODE_MODE: true, TX_COUNT: 5 })
 
   before(async function () {
     this.timeout(0)
@@ -28,7 +28,7 @@ describe('Single Node Network Mode', () => {
       w3.showWitnessesStatistic()
       w3.nodes.should.have.length(1)
       w3.nodes[0].chain.blocks.should.have.length(2) // 2 blocks are appended to the chain
-      w3.nodes[0].txPool.txs.forEach(({state}) => state.should.equal('chain'))
+      w3.nodes[0].localFacts.txPool.forEach(({state}) => state.should.equal('chain'))
     })
 
     it('drop a bad tx', async () => {
@@ -37,18 +37,18 @@ describe('Single Node Network Mode', () => {
       w3.showWitnessesStatistic()
       w3.nodes.should.have.length(1)
       w3.nodes[0].chain.blocks.should.have.length(1) // only 1 blocks are appended to the chain
-      w3.nodes[0].txPool.txs.should.have.length(9)
-      w3.nodes[0].txPool.txs.filter(({state}) => state === 'chain').should.have.length(5)
-      w3.nodes[0].txPool.txs.filter(({state}) => state === 'tx').should.have.length(4)
+      w3.nodes[0].localFacts.txPool.should.have.length(9)
+      w3.nodes[0].localFacts.txPool.filter(({state}) => state === 'chain').should.have.length(5)
+      w3.nodes[0].localFacts.txPool.filter(({state}) => state === 'tx').should.have.length(4)
     })
 
     it('drop a bad bp which has an invalid tx', async () => {
       await w3.sendFakeTxs(10, 100) // only two block to drive the single node mode dev.
       w3.nodes.should.have.length(1)
       w3.nodes[0].chain.blocks.should.have.length(2) // 2 blocks are appended to the chain
-      w3.nodes[0].txPool.txs.forEach(({state}) => state.should.equal('chain'))
+      w3.nodes[0].localFacts.txPool.forEach(({state}) => state.should.equal('chain'))
 
-      const txs = w3.nodes[0].txPool.txs.map(({tx}) => tx).slice(0, 4).concat('bad-tx')
+      const txs = w3.nodes[0].localFacts.txPool.map(({tx}) => tx).slice(0, 4).concat('bad-tx')
       w3.sendFakeBp(new BlockProposal({height: 3, tailHash: w3.nodes[0].chain.tailHash, txs}))
 
     })
@@ -65,20 +65,20 @@ describe('Single Node Network Mode', () => {
 
   })
 
-  describe('add double spending txs, only lower score one added', () => {
+  describe('add double spending txPool, only lower score one added', () => {
 
     it('lower one first, higher one rejected', async () => {
       const [low, high] = await w3.sendFakeDoubleSpendingTxs('lowerScore')
-      await util.wait(100) // wait node received the txs
-      w3.nodes[0].txPool.txs.should.have.length(1)
-      w3.nodes[0].txPool.txs[0].tx.equals(low).should.true
+      await util.wait(100) // wait node received the txPool
+      w3.nodes[0].localFacts.txPool.should.have.length(1)
+      w3.nodes[0].localFacts.txPool[0].tx.equals(low).should.true
     })
 
     it('higher one first, lower one replaced', async () => {
       const [high, low] = await w3.sendFakeDoubleSpendingTxs('higherScore')
-      await util.wait(100) // wait node received the txs
-      w3.nodes[0].txPool.txs.should.have.length(1)
-      w3.nodes[0].txPool.txs[0].tx.equals(low).should.true
+      await util.wait(100) // wait node received the txPool
+      w3.nodes[0].localFacts.txPool.should.have.length(1)
+      w3.nodes[0].localFacts.txPool[0].tx.equals(low).should.true
     })
 
   })
