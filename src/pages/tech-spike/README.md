@@ -1,8 +1,4 @@
-# W3-POC tech-spike
-
-## How to start
-1. run `npm run start` in the root of project directory.
-1. visit `${host}/tech-spike/swarm.html` or `${host}/tech-spike/network.html`
+# W3-POC tech-spike swarm
 
 ## The render logic
 
