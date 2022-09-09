@@ -1,4 +1,4 @@
-import { getRandomIp, getRandomHash } from '../util';
+import { getRandomIp, getRandomHash, sleep } from '../util.js';
 
 const msgTypes = ["tx", "bp", "block", "fork"];
 const chainEvents = ["block on chain", "chain fork"];
@@ -241,9 +241,10 @@ class MessageSimulator {
     const toList = this.parseToList()
     let block;
     if (this.networkObj.type === 'block') block = this.mockBlockInfo();
-    this.sendDepartureMsg(toList, block);
-    this.sendArriveMsg(toList, block);
-    this.sendVerifyMsg(toList);
+    const sessionId = getRandomHash();
+    this.sendDepartureMsg(sessionId, toList, block);
+    this.sendArriveMsg(sessionId, toList, block);
+    this.sendVerifyMsg(sessionId, toList);
   }
 
   mockBlockInfo() {
@@ -269,44 +270,52 @@ class MessageSimulator {
     return list
   }
 
-  sendDepartureMsg(toList, block) {
+  sendDepartureMsg(sessionId, toList, block) {
     for (const to of toList) {
-      const msg = this.createNetworkMsg(to.node.name, block);
+      const msg = this.createNetworkMsg(sessionId, to.node.name, block);
       console.log(msg)
       this.messageHandler.handleNetworkMessage(msg, 'departure');
     }
   }
 
-  sendArriveMsg(toList, block) {
+  sendArriveMsg(sessionId, toList, block) {
+    let max = 0;
     for (const to of toList) {
       if (to.overtime) continue
       to.arriveTime = Math.random() * COMMUNICATE_COST_THRESHOLD + COMMUNICATE_COST
+      max = Math.max(max, to.arriveTime);
       setTimeout(() => {
-        const msg = this.createNetworkMsg(to.node.name, block, false);
+        const msg = this.createNetworkMsg(sessionId, to.node.name, block, false);
         this.messageHandler.handleNetworkMessage(msg, 'arrive');
       }, to.arriveTime)
     }
+    return max;
   }
 
   // valid true need to present?
-  sendVerifyMsg(toList) {
+  sendVerifyMsg(sessionId, toList) {
+    let max = 0;
     for (const to of toList) {
       if (to.overtime) continue
+      to.arriveAndCalcTime = to.arriveTime + Math.random() * CALCULATE_COST_THRESHOLD + CALCULATE_COST
+      max = Math.max(max, to.arriveAndCalcTime);
       setTimeout(() => {
-        const msg = this.createNodeVerifyMsg(to.node.name, to.valid);
+        const msg = this.createNodeVerifyMsg(sessionId, to.node.name, to.valid);
         this.messageHandler.handleNodeVerify(msg);
-      }, to.arriveTime + Math.random() * CALCULATE_COST_THRESHOLD + CALCULATE_COST)
+      }, to.arriveAndCalcTime);
     }
+    return max;
   }
 
-  createNetworkMsg(to, block, isDeparture = true) {
+  createNetworkMsg(sessionId, to, block, isDeparture = true) {
     const msg = {
+      sessionId,
       type: this.networkObj.type,
       data: {},
       from: { address: this.networkObj.from, i: Math.floor(Math.random() * 1000) },
       to: { address: this.nodes.find((node) => node.name === to).id, i: Math.floor(Math.random() * 1000) }
     }
-    if (this.networkObj.type === 'bp') msg.data.round = 1;
+    if (this.networkObj.type === 'bp') msg.data.round = this.networkObj.bpround || 1;
     if (this.networkObj.type === 'block') {
       msg.data = block;
     }
@@ -315,8 +324,9 @@ class MessageSimulator {
     return msg
   }
 
-  createNodeVerifyMsg(to, valid) {
+  createNodeVerifyMsg(sessionId, to, valid) {
     return {
+      sessionId,
       type: this.networkObj.type,
       data: {},
       valid,
@@ -324,9 +334,9 @@ class MessageSimulator {
     }
   }
 
-  sendChainMessage() {
+  sendChainMessage(block) {
     if (this.chainObj.event === 'block on chain') {
-      this.messageHandler.handleBlockOnChain({ data: this.mockBlockInfo() });
+      this.messageHandler.handleBlockOnChain({ data: block || this.mockBlockInfo() });
     } else {
       // TODO fork
       this.messageHandler.handleChainForked({ data: {} });
@@ -363,6 +373,91 @@ class MessageSimulator {
 
   initAutoControl() {
     // TODO auto send msg engine.
+    const container = document.createElement("div");
+    container.classList.add("w3-form");
+    this.initTitle(container, "Autoplay");
+    this.initAutoplayControl(container);
+    document.getElementById("control-simulator").append(container);
+  }
+
+  initAutoplayControl(container) {
+    const btnFormItem = this.createFormItem(container, "");
+    const handler = () => this.autoplay(btnFormItem);
+    const btn = this.createBtn("▶️", handler);
+    btn.classList.add("w3-form-item__control");
+    btnFormItem.append(btn);
+    container.append(btnFormItem);
+  }
+
+  autoplay(btnParent) {
+    const btn = btnParent.getElementsByClassName('w3-form-item__control')[0];
+    if (!this.isPlaying) {
+      this.isPlaying = true;
+      btn.innerText = '⏹';
+      this.play(btn);
+    } else {
+      this.isPlaying = false;
+      btn.innerText = '▶️';
+    }
+  }
+
+  async play(btn) {
+    const txround = 3;
+    const bpround = 2;
+    const type = this.networkObj.type;
+    const from = this.networkObj.from;
+    this.networkObj.type = 'tx';
+    for (let i = 0; i < txround; i++) {
+      if (!this.isPlaying) break;
+      const sessionId = getRandomHash();
+      const index = Math.floor(Math.random() * this.nodes.length);
+      this.networkObj.from = this.nodes[index].id;
+      const toList = this.nodes.filter((node) => (node.id !== this.networkObj.from)).map((node) => ({ node, valid: true, overtime: false }));
+      this.sendDepartureMsg(sessionId, toList);
+      this.sendArriveMsg(sessionId, toList);
+      const maxCost = this.sendVerifyMsg(sessionId, toList);
+      await sleep(maxCost + 2000);
+    }
+
+    this.networkObj.type = 'bp';
+    for (let i = 0; i < bpround; i++) {
+      if (!this.isPlaying) break;
+      this.networkObj.bpround = i + 1;
+      const sessionId = getRandomHash();
+      const index = Math.floor(Math.random() * this.nodes.length);
+      this.networkObj.from = this.nodes[index].id;
+      const toList = this.nodes.filter((node) => (node.id !== this.networkObj.from)).map((node) => ({ node, valid: true, overtime: false }));
+      this.sendDepartureMsg(sessionId, toList);
+      this.sendArriveMsg(sessionId, toList);
+      const maxCost = this.sendVerifyMsg(sessionId, toList);
+      await sleep(maxCost + 2000);
+    }
+
+    let block;
+    this.networkObj.type = 'block';
+    if (this.isPlaying) {
+      const sessionId = getRandomHash();
+      const index = Math.floor(Math.random() * this.nodes.length);
+      this.networkObj.from = this.nodes[index].id;
+      const toList = this.nodes.filter((node) => (node.id !== this.networkObj.from)).map((node) => ({ node, valid: true, overtime: false }));
+      block = this.mockBlockInfo();
+      this.sendDepartureMsg(sessionId, toList, block);
+      this.sendArriveMsg(sessionId, toList, block);
+      const blockCost = this.sendVerifyMsg(sessionId, toList);
+      await sleep(blockCost + 2000);
+    }
+
+    if (this.isPlaying) {
+      const chainType = this.chainObj.event
+      this.chainObj.event = 'block on chain'
+      this.sendChainMessage(block)
+      this.chainObj.event = chainType
+    }
+
+    this.isPlaying = false;
+    btn.innerText = '▶️';
+    this.networkObj.type = type;
+    this.networkObj.from = from;
   }
 }
 

@@ -9,7 +9,7 @@ class SwarmPainter {
     this.nodes = nodes.map((node) => new SwarmNode(node, offsetWidth, offsetHeight, SYMBOL_SIZE, tooltipContainer))
     this.links = this.generateLinks(nodes)
     this.chart = echarts.init(cvsContainer)
-    this.highlightedLines = []
+    // this.highlightedLines = []
   }
 
   generateLinks(nodes) {
@@ -122,7 +122,7 @@ class SwarmPainter {
 
   highlightLines(lines) {
     const dataIndex = this.generateLinesToLinkIndex(lines)
-    this.cacheHighlightedLines(lines)
+    // this.cacheHighlightedLines(lines)
     this.chart.dispatchAction({ type: 'select', dataIndex, dataType: 'edge' })
   }
 
@@ -133,31 +133,31 @@ class SwarmPainter {
   }
 
   downplayLines(lines, msg) {
-    this.unCacheHighlightedLines(lines)
-    this.checkIfDownplayNodes(lines.map((line) => ([line.from, line.to])).flat(), msg)
+    // this.unCacheHighlightedLines(lines)
+    // this.checkIfDownplayNodes(lines.map((line) => ([line.from, line.to])).flat(), msg)
     const dataIndex = this.generateLinesToLinkIndex(lines)
     this.chart.dispatchAction({ type: 'unselect', dataIndex, dataType: 'edge' })
   }
 
-  cacheHighlightedLines(lines) {
-    for (const line of lines) {
-      if (!this.highlightedLines.find((l) => l.from.id === line.from.id && l.to.id === line.to.id)) this.highlightedLines.push(line)
-    }
-  }
+  // cacheHighlightedLines(lines) {
+  //   for (const line of lines) {
+  //     if (!this.highlightedLines.find((l) => l.from.id === line.from.id && l.to.id === line.to.id)) this.highlightedLines.push(line)
+  //   }
+  // }
 
-  unCacheHighlightedLines(lines) {
-    for (const line of lines) {
-      const index = this.highlightedLines.findIndex((l) => l.from.id === line.from.id && l.to.id === line.to.id)
-      if (index > -1) this.highlightedLines.splice(index, 1)
-    }
-  }
+  // unCacheHighlightedLines(lines) {
+  //   for (const line of lines) {
+  //     const index = this.highlightedLines.findIndex((l) => l.from.id === line.from.id && l.to.id === line.to.id)
+  //     if (index > -1) this.highlightedLines.splice(index, 1)
+  //   }
+  // }
 
-  checkIfDownplayNodes(nodes, data) {
-    for (const node of nodes) {
-      const inHighlightedLines = this.highlightedLines.find((l) => l.from.id === node.id || l.to.id === node.id)
-      if (!inHighlightedLines) this.downplayNodes([node], data)
-    }
-  }
+  // checkIfDownplayNodes(nodes, data) {
+  //   for (const node of nodes) {
+  //     const inHighlightedLines = this.highlightedLines.find((l) => l.from.id === node.id || l.to.id === node.id)
+  //     if (!inHighlightedLines) this.downplayNodes([node], data)
+  //   }
+  // }
 }
 
 export default SwarmPainter

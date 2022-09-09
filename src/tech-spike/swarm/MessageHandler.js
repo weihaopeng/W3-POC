@@ -8,6 +8,7 @@ class MessageHandler {
     this.swarmPainter = swarmPainter
     this.bpPainter = bpPainter
     this.nodes = nodes
+    this.departureMap = {}
   }
 
   handleNetworkMessage(msg, action) {
@@ -93,7 +94,11 @@ class MessageHandler {
     const to = this.nodes.find((node) => node.id === msg.to.address)
     this.swarmPainter.highlightNodes([from], msg)
     this.swarmPainter.highlightLines([{ from, to }])
+    const sessionId = msg.sessionId;
+    if (!this.departureMap[sessionId]) this.departureMap[sessionId] = { from: msg.from, to: [] }
+    this.departureMap[sessionId].to.push(JSON.parse(JSON.stringify(msg.to)));
     setTimeout(() => {
+      if (this.departureMap[sessionId].to.length === 0) return
       this.swarmPainter.setSelectedLineColor('#f5222d')
       setTimeout(() => {
         this.swarmPainter.downplayNodes([from], msg)
@@ -106,10 +111,16 @@ class MessageHandler {
   arriveOnSwarm(msg) {
     const from = this.nodes.find((node) => node.id === msg.from.address)
     const to = this.nodes.find((node) => node.id === msg.to.address)
-    this.swarmPainter.highlightNodes([to], msg)
+    this.swarmPainter.highlightNodes([to], msg);
+    const sessionId = msg.sessionId;
+    const index = this.departureMap[sessionId].to.findIndex((node) => node.address === to.id);
+    if (index > -1) this.departureMap[sessionId].to.splice(index, 1);
     setTimeout(() => {
       this.swarmPainter.downplayLines([{ from, to }], msg)
       this.swarmPainter.downplayNodes([to], msg)
+      if (this.departureMap[sessionId].to.length === 0) {
+        this.swarmPainter.downplayNodes([from], msg)
+      }
     }, DELAY_FOR_VIEW)
   }
 }

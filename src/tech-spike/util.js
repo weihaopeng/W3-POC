@@ -30,6 +30,11 @@ export function getRandomHash(length = 20) {
   while(str.length < length) {
     str += ((Math.random() * 16) | 0).toString(16);
   }
-  console.log(str);
   return `0x${str}`;
+}
+
+export function sleep(time) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => resolve('done'), time)
+  });
 }
