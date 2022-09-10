@@ -10,7 +10,7 @@ class W3Network {
   async init(localSwarm) {
     // TODO: @Jian-ru 完成
     this.localSwarm = localSwarm
-    await this.libp2p = 'TODO' //
+    await  (async () => this.libp2p = 'TODO')() //
     this.topics.map(topic => {
       this.listen(topic)
       this.localSwarm.listen(topic, (msg) => {

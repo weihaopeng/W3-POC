@@ -5,57 +5,86 @@ import EventEmitter2 from 'eventemitter2'
 
 const debug = Debug('w3:TxsPool')
 
+/**
+ * LocalFacts in used to verify messages (tx, bp, block, fork) received by a node in its 2-stages-mint process.
+ * If a message is verified, its data will verifyThenUpdateOrAddTx to local facts (pools), and the 2-stage-mint process will proceed,
+ * otherwise, the message will be droped and the process halts.
+ */
 class LocalFacts extends EventEmitter2{
   constructor (txCount) {
     super()
     this.txCount = txCount
     this.txPool = [] // { tx, state } state: tx | bp | block | chain
+    // TODO: all these pools may use in future in
+    this.bpPool = []
+    this.blockPool = []
+    this.forkPool = []
+  }
+
+  init(chain) {
+    this.chain = chain
   }
 
   reset () {
     this.txPool = []
   }
 
-  add (tx, state) {
-    let found = false, replaced = null
+  /**
+   * TODO: using traditional tx verification algorithm verify against local fact
+   * Illegal txPool
+   * 2. txPool with invalid nonce
+   * 3. txPool with invalid value
+   * 4. txPool with invalid fee
+   * 5. txPool with invalid gasPrice
+   * 9. txPool with invalid timestamp
+   *
+   * @return {valid: true | false, txRes: 'added' | 'replaced' | 'rejected' }
+   */
+  verifyThenUpdateOrAddTx (tx, state) {
+    let res = null
     for (let _tx of this.txPool) {
-      if (_tx.tx.equals(tx)) {
-        found = true
-        _tx.state = state
-        break
-      }
-
-      if (_tx.tx.isDoubleSpend(tx)) {
-        found = true
-        const winner = _tx.tx.resolveDoubleSpending(tx)
-        replaced = !_tx.tx.equals(winner)
-        replaced && (_tx.tx = winner)
-        _tx.state = state
-        // if (_tx.state === 'chain') 链上块错误，发送查询消息获取正确块，发送fork消息 // TODO: not implemented
-        // _tx.state 'tx', 'bp', 'block'阶段，直接替换，不需要发送消息，由其它节点自行分辨问题
-
-        // TODO: may also check current chain
-        break
-      }
-
+      if ('updatedState' === (res = this.updateStateWhenTxFound(_tx, tx, state))) break
+      if ( null !== (res = this.resolveDoubleSpendingWhenFound(_tx, tx, state))) break
     }
 
-    found || this.txPool.push({ tx, state })
-    const res = !found ? 'added' : replaced === null ? 'updatedState' : replaced ? 'replaced' : 'rejected'
-    this.emit('tx-added', {tx, state, res})
+    if (res === null ) {
+      res = 'added'
+      this.txPool.push({ tx, state })
+    }
+
+    this.emit('tx-updated-or-added', {tx, state, res})
     return res
   }
 
-  updateTxsState (txs, state) {
-    txs.map(tx => this.updateState(tx, state))
+  updateStateWhenTxFound (_tx, tx, state) {
+    return _tx.tx.equals(tx) ? ((_tx.state = state),  'updatedState') : null
   }
 
-  updateState (tx, state) {
+  resolveDoubleSpendingWhenFound (_tx, tx, state) {
+    let replaced = null
+    if (_tx.tx.isDoubleSpend(tx)) {
+      const winner = _tx.tx.resolveDoubleSpending(tx)
+      replaced = !_tx.tx.equals(winner)
+      replaced && (_tx.tx = winner)
+      _tx.state = state
+      // if (_tx.state === 'chain') 链上块错误，发送查询消息获取正确块，发送fork消息 // TODO: not implemented
+      // _tx.state 'tx', 'bp', 'block'阶段，直接替换，不需要发送消息，由其它节点自行分辨问题
+
+      // TODO: may also check current chain
+    }
+    return replaced === null ? null : replaced ? 'replaced' : 'rejected'
+  }
+
+  updateTxsState (txs, state) {
+    txs.map(tx => this.updateTxState(tx, state))
+  }
+
+  updateTxState (tx, state) {
     const _tx = this.txPool.find(_tx => _tx.tx.equals(tx))
     _tx && (_tx.state = state)
   }
 
-  pickEnoughForBp (txCount = this.txCount) {
+  pickEnoughTxsForBp (txCount = this.txCount) {
     const txs = this.txPool.filter(({ state }) => state === 'tx')
     if (txs.length === txCount) {
       // debug('--- SHOW: this.txPool.length: ', this.txPool.length)
@@ -73,22 +102,7 @@ class LocalFacts extends EventEmitter2{
 
   async verifyAndAddTx (tx, state = 'tx') {
     if (!await tx.verify()) return { valid: false, txRes: 'rejected' }
-    /**
-     * TODO: using traditional tx verification algorithem verify against local fact
-     * Illegal txPool
-     * 2. txPool with invalid nonce
-     * 3. txPool with invalid value
-     * 4. txPool with invalid fee
-     * 5. txPool with invalid gasPrice
-     * 5. txPool with invalid from
-     * 6. txPool with invalid to
-     * 9. txPool with invalid timestamp
-     *
-     * TODO: find double spend txPool add apply the Universal Rule
-     *
-     * results: 1. added, 2. replaced, 3. rejected
-     */
-    const txRes = this.add(tx, state)
+    const txRes = this.verifyThenUpdateOrAddTx(tx, state)
     return { valid: true, txRes}
   }
 
@@ -116,7 +130,7 @@ class LocalFacts extends EventEmitter2{
   async verifyBlockAndAddTxs (block, node) { // TODO: not tested in single node mode
     let valid = await block.verify(node)
     if (!valid) debug('--- FATAL: verifyBlockAndAddTxs: block is invalid, should not happen', block.brief)
-    let { allTxValid } = await this._verifyAndUpdateTxs(block.txs, valid ? 'chain' : 'tx') // valid block add to chain
+    let { allTxValid } = await this._verifyAndUpdateTxs(block.txs, valid ? 'chain' : 'tx') // valid block verifyThenUpdateOrAddTx to chain
     return { valid: valid && allTxValid }
   }
 

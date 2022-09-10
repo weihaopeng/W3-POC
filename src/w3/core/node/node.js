@@ -22,6 +22,7 @@ class Node {
     // const chain = await this.initChain() // TODO bypass in theory test
     // this.chain = await Chain.create(chain)
     this.chain = await Chain.create()
+    this.localFacts.init(this.chain)
   }
 
   reset() {
@@ -70,9 +71,9 @@ class Node {
 
     this.network.listen('fork',  (fork) => this.handleForkWins(fork), this)
 
-    this.localFacts.on('tx-added', async ({tx, state, res}) => {
+    this.localFacts.on('tx-updated-or-added', async ({tx, state, res}) => {
       if (res === 'added') { // updatedState, replaced, rejected means the count of txPool in the pool is not change
-        const txs = this.localFacts.pickEnoughForBp()
+        const txs = this.localFacts.pickEnoughTxsForBp()
         txs && await this.askForWitnessAndMint(txs)
       }
     })
@@ -131,7 +132,7 @@ class Node {
     this.network.recordCollector(tx, this)
     // the tx is not only collected from tx messages, but also colected from bp, block, fork messages containing valid txPool
     // therefore refator the ASF logic to the localFacts's tx-added event handler
-    // const txPool = this.localFacts.pickEnoughForBp()
+    // const txPool = this.localFacts.pickEnoughTxsForBp()
     // txPool && addwait this.askForWitnessAndMint(txPool)
   }
 
@@ -168,7 +169,7 @@ class Node {
 
   async mintBlock (bp) {
     const block = Block.mint(bp, this.chain)
-    if (!this.isSingleNode) this.chain.addBlock(block, this) // add to local chain before broadcast, singleNodeMode will add it in handleNewBlock
+    if (!this.isSingleNode) this.chain.addBlock(block, this) // verifyThenUpdateOrAddTx to local chain before broadcast, singleNodeMode will verifyThenUpdateOrAddTx it in handleNewBlock
     this.localFacts.updateTxsState(block.txs, 'chain')
     this.network.broadcast('block', block, this) //this used in theory test to aviod of react on its own message
   }

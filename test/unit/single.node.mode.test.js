@@ -65,7 +65,7 @@ describe('Single Node Network Mode', () => {
 
   })
 
-  describe('add double spending txPool, only lower score one added', () => {
+  describe('verifyThenUpdateOrAddTx double spending txPool, only lower score one added', () => {
 
     it('lower one first, higher one rejected', async () => {
       const [low, high] = await w3.sendFakeDoubleSpendingTxs('lowerScore')

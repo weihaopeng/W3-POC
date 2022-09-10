@@ -17,7 +17,7 @@ class Chain {
   }
 
   addBlock(block, node) {
-    debug('--- node: %s add block to its chain: ', node.i, block.brief)
+    debug('--- node: %s verifyThenUpdateOrAddTx block to its chain: ', node.i, block.brief)
     this.blocks.push(block)
     debug('--- SHOW chain: %s ', this.superBrief)
   }

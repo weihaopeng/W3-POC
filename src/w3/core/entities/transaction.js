@@ -15,6 +15,22 @@ class Transaction {
     return `${this.i}:(${this.from?.i}#${this.nonce}(${this.value})=>${this.to?.i})`
   }
 
+
+  /**
+   * TODO: using traditional tx verification algorithm verify against local fact
+   * Illegal txPool
+   * 2. txPool with invalid nonce
+   * 3. txPool with invalid value
+   * 4. txPool with invalid fee
+   * 5. txPool with invalid gasPrice
+   * 5. txPool with invalid from
+   * 6. txPool with invalid to
+   * 9. txPool with invalid timestamp
+   *
+   * TODO: find double spend txPool verifyThenUpdateOrAddTx apply the Universal Rule
+   *
+   * results: 1. added, 2. replaced, 3. rejected
+   */
   async verify() {
     const valid = this.to && this.from && typeof this.nonce === 'number' && this.nonce >= 0 && this.value && this.sig && await this.verifySig()
     if (!valid) debug('--- FATAL: tx is invalid', this.brief)
