@@ -21,7 +21,7 @@ const w3Algorithm = {
       // debug('unit8Array', uint8Array)
       this.fitToN(uint8Array, bytes, bits - 1)
       const n = this.bufferToNumber(uint8Array)
-      debug('hash n: ', n)
+      // debug('hash n: ', n)
       return n
     }
 
@@ -53,7 +53,7 @@ const w3Algorithm = {
    */
   isRandomSelected (distanceFn, pointOfInteresting, candidateIdentity, candidatesAmount) {
     const distance = distanceFn(pointOfInteresting, candidateIdentity)
-    // if (pointOfInteresting.witnessRecords) debug('bp.witnessRecords: %O', pointOfInteresting)
+    if (pointOfInteresting.witnessRecords) debug('bp.witnessRecords: %O', pointOfInteresting)
     // debug('--- is random selected %s selected,distance: %s', distance <= candidatesAmount, distance)
     return distance <= candidatesAmount
   },

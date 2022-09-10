@@ -112,7 +112,8 @@ class Node {
   }
 
   isCollector (pks = this.account.publicKeyString) {
-    return this.isSingleNode || this._isCollector(pks)
+    return this._isCollector(pks)
+    // return this.isSingleNode || this._isCollector(pks)
   }
 
   _isCollector (pks) {
@@ -182,7 +183,7 @@ class Node {
   async updateLocalFact (type, data) { // type: tx, bp, block, fork
     // TODO: 根据bp、block、fork消息中的height，来判定当前node是否需要stop(退出ready)
     const node = this
-    const valid = await this.localFacts.verifyAndUpdate(type, data, node)
+    const { valid } = await this.localFacts.verifyAndUpdate(type, data, node)
     this.network.emitW3Event('node.verify', {type, data, node, valid})
     return valid
   }

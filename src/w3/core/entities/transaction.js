@@ -31,13 +31,13 @@ class Transaction {
    *
    * results: 1. added, 2. replaced, 3. rejected
    */
-  async verify() {
-    const valid = this.to && this.from && typeof this.nonce === 'number' && this.nonce >= 0 && this.value && this.sig && await this.verifySig()
+  verify() {
+    const valid = this.to && this.from && typeof this.nonce === 'number' && this.nonce >= 0 && this.value && this.sig && this.verifySig()
     if (!valid) debug('--- FATAL: tx is invalid', this.brief)
     return valid
   }
 
-  async verifySig() {
+  verifySig() {
     return true
   }
 

@@ -2,6 +2,7 @@ import { Transaction } from './transaction.js'
 
 import Debug from 'debug'
 import _ from 'lodash'
+import { Account } from './account.js'
 
 const debug = Debug('w3:bp')
 
@@ -23,7 +24,7 @@ class BlockProposal {
   }
 
   async verify (node) {
-    let valid = typeof this.height === 'number' && this.txs?.length === node.network.config.TX_COUNT
+    let valid = Account.isValidPublicKeyString(this.collector) && typeof this.height === 'number' && this.txs?.length === node.network.config.TX_COUNT
       && (this.height === 1 || this.tailHash === node.chain.tailHash) // height bigger than 1, must have tailHash // TODO: tailHash should eqls node.
       && node.chain.height + 1 === this.height
     if (!valid) return !!debug('--- bp height invalid, node.chain.height: %s, bp height: %s ', node.chain.height, this.height)
@@ -49,14 +50,14 @@ class BlockProposal {
   }
 
   verifyWitnessRecord (i, wr, asker, node) {
-    if (wr.asker !== asker) return false
+    if (!Account.isValidPublicKeyString(asker) || wr.asker !== asker) return false
 
     const bpAskForWitness = this.getBpAskForWitness(i, wr)
     if (!bpAskForWitness.verifySig(wr.asker, wr.askerSig)) return false
 
     if (!wr.witness) return true // last record may not witnessed yet
 
-    const isValidWitness = node.isWitness(bpAskForWitness, wr.witness)
+    const isValidWitness = Account.isValidPublicKeyString(wr.witness) && node.isWitness(bpAskForWitness, wr.witness)
     if (!isValidWitness) {
       debug('--- FATAL: not valid witness: %s', wr.witness)
       // node.network.debug.invalidWitness.push({ node: wr.witness, bp: bpAskForWitness })

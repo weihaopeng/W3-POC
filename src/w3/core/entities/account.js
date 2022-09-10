@@ -11,6 +11,10 @@ const debug = Debug('w3:account')
 
 class Account {
   static index = 0 // TODO: currently only used for theory test
+  static isValidPublicKeyString(pkString) {
+    return pkString?.length === 130 && pkString.startsWith('0x')
+  }
+
   constructor ({i, address, publicKey, privateKey, addressString, publicKeyString, privateKeyString }) {
     Object.assign(this, { address, publicKey, privateKey, addressString, publicKeyString, privateKeyString })
     this.i = i !== undefined ? i : this.constructor.index++ // TODO: currently only used for theory test

@@ -14,10 +14,9 @@ class LocalFacts extends EventEmitter2{
   constructor (txCount) {
     super()
     this.txCount = txCount
-    this.txPool = [] // { tx, state } state: tx | bp | block | chain
-    // TODO: all these pools may use in future in
-    this.bpPool = []
-    this.blockPool = []
+    this.txPool = [] // { tx, state: tx | bp | block | chain }
+    this.bpPool = [] // { bp,  valid}
+    this.blockPool = [] // { block, valid }
     this.forkPool = []
   }
 
@@ -27,6 +26,9 @@ class LocalFacts extends EventEmitter2{
 
   reset () {
     this.txPool = []
+    this.bpPool = []
+    this.blockPool = []
+    this.forkPool = []
   }
 
   /**
@@ -101,13 +103,14 @@ class LocalFacts extends EventEmitter2{
   }
 
   async verifyAndAddTx (tx, state = 'tx') {
-    if (!await tx.verify()) return { valid: false, txRes: 'rejected' }
-    const txRes = this.verifyThenUpdateOrAddTx(tx, state)
-    return { valid: true, txRes}
+    let valid = tx?.verify()
+    let txRes = valid ? this.verifyThenUpdateOrAddTx(tx, state) : 'rejected'
+    return { valid, txRes}
   }
 
   async verifyBpAndAddTxs (bp, node) {
-    let valid = await bp.verify(node)
+    let valid = await bp?.verify(node)
+    // this.bpPool.push({ bp, valid}) // TODO: how to use bpPool?
     if (!valid) debug('--- FATAL: verifyBpAndAddTxs: bp is invalid, should not happen', bp.brief)
     let { allTxValid } = await this._verifyAndUpdateTxs(bp.txs, valid ? 'bp' : 'tx')
     return { valid: valid && allTxValid }
@@ -128,7 +131,8 @@ class LocalFacts extends EventEmitter2{
   }
 
   async verifyBlockAndAddTxs (block, node) { // TODO: not tested in single node mode
-    let valid = await block.verify(node)
+    let valid = await block?.verify(node)
+    // this.blockPool.push({ block, valid}) // TODO: how to use blockPool?
     if (!valid) debug('--- FATAL: verifyBlockAndAddTxs: block is invalid, should not happen', block.brief)
     let { allTxValid } = await this._verifyAndUpdateTxs(block.txs, valid ? 'chain' : 'tx') // valid block verifyThenUpdateOrAddTx to chain
     return { valid: valid && allTxValid }

@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events'
 import _ from 'lodash'
 import { util } from '../util.js'
-import { getEthereumAccount, W3Node } from './w3.node.js'
+import { W3Node } from './w3.node.js'
 
 import EventEmitter2 from 'eventemitter2'
 import { Transaction } from '../core/entities/transaction.js'
@@ -108,13 +108,13 @@ class W3Swarm extends EventEmitter2 {
   }
 
   createFakeTx (i, bad = false) {
-    const [from, to] = [getEthereumAccount(), getEthereumAccount()]
+    const [from, to] = [util.getEthereumAccount(), util.getEthereumAccount()]
     return  Transaction.createFake({ i, from, to, value: 10000 * Math.random(), nonce: bad ? -1 : null })
   }
 
   createFakeDoubleSpendingTxs (first, i) {
-    const from = getEthereumAccount()
-    let [low, high] = [getEthereumAccount(), getEthereumAccount()].sort((a, b) => a.compareTo(b))
+    const from = util.getEthereumAccount()
+    let [low, high] = [util.getEthereumAccount(), util.getEthereumAccount()].sort((a, b) => a.compareTo(b))
     low =  Transaction.createFake({ i, from, to: low, nonce: 1,  value: 10000 * Math.random() })
     high =  Transaction.createFake({ i: i + 1, from, to: high, nonce: 1, value: 10000 * Math.random() })
     return first === 'lowerScore' ? [low, high] : [high, low]
@@ -122,6 +122,10 @@ class W3Swarm extends EventEmitter2 {
 
   sendFakeBp (bp) {
     this.broadcast('bp', bp,  _.sample(this.nodes))
+  }
+
+  sendFakeBlock (block) {
+    this.broadcast('block', block,  _.sample(this.nodes))
   }
 
   recordCollector (tx, node) {

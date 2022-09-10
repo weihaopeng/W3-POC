@@ -2,15 +2,17 @@ import chai from 'chai'
 
 chai.should()
 
-import { W3Swarm, W3Node } from '../../src/w3/poc/index.js'
+import { W3Swarm, W3Node, w3Algorithm } from '../../src/w3/poc/index.js'
 import { util } from '../../src/w3/util.js'
 
 import Debug from 'debug'
 import { BlockProposal } from '../../src/w3/core/entities/block-proposal.js'
+import { Account } from '../../src/w3/core/entities/account.js'
+import { Block } from '../../src/w3/core/entities/block.js'
 
 const debug = Debug('w3:test')
 
-describe('Single Node Network Mode', () => {
+describe('Single Node Network Mode @issue#2', () => {
   let w3 = new W3Swarm({ SINGLE_NODE_MODE: true, TX_COUNT: 5 })
 
   before(async function () {
@@ -21,14 +23,14 @@ describe('Single Node Network Mode', () => {
   afterEach(() => w3.reset())
   after(() => w3.destroy())
 
-  describe('Simple test', () => {
+  describe('normal createion & bad tx ', () => {
     it('normal creation of blocks', async () => {
       await w3.sendFakeTxs(10, 100) // only two block to drive the single node mode dev.
       w3.showCollectorsStatistic()
       w3.showWitnessesStatistic()
       w3.nodes.should.have.length(1)
       w3.nodes[0].chain.blocks.should.have.length(2) // 2 blocks are appended to the chain
-      w3.nodes[0].localFacts.txPool.forEach(({state}) => state.should.equal('chain'))
+      w3.nodes[0].localFacts.txPool.forEach(({ state }) => state.should.equal('chain'))
     })
 
     it('drop a bad tx', async () => {
@@ -38,31 +40,117 @@ describe('Single Node Network Mode', () => {
       w3.nodes.should.have.length(1)
       w3.nodes[0].chain.blocks.should.have.length(1) // only 1 blocks are appended to the chain
       w3.nodes[0].localFacts.txPool.should.have.length(9)
-      w3.nodes[0].localFacts.txPool.filter(({state}) => state === 'chain').should.have.length(5)
-      w3.nodes[0].localFacts.txPool.filter(({state}) => state === 'tx').should.have.length(4)
+      w3.nodes[0].localFacts.txPool.filter(({ state }) => state === 'chain').should.have.length(5)
+      w3.nodes[0].localFacts.txPool.filter(({ state }) => state === 'tx').should.have.length(4)
     })
 
+  })
+
+  describe('bad bp message', () => {
     it('drop a bad bp which has an invalid tx', async () => {
-      await w3.sendFakeTxs(10, 100) // only two block to drive the single node mode dev.
-      w3.nodes.should.have.length(1)
-      w3.nodes[0].chain.blocks.should.have.length(2) // 2 blocks are appended to the chain
-      w3.nodes[0].localFacts.txPool.forEach(({state}) => state.should.equal('chain'))
-
-      const txs = w3.nodes[0].localFacts.txPool.map(({tx}) => tx).slice(0, 4).concat('bad-tx')
-      w3.sendFakeBp(new BlockProposal({height: 3, tailHash: w3.nodes[0].chain.tailHash, txs}))
-
+      w3.sendFakeBp(new BlockProposal({
+        height: 3,
+        tailHash: w3.nodes[0].chain.tailHash,
+        txs: [1, 2, 3, 4].map(i => w3.createFakeTx(i)).concat('bad-tx')
+      }))
+      await util.wait(100)
+      w3.nodes[0].localFacts.txPool.should.have.length(4)
     })
 
-    it('drop a bad bp which has an invalid collector', async () => {})
+    it('drop a bad bp which has an invalid collector', async () => {
+      await w3.sendFakeBp(new BlockProposal({
+        height: 1,
+        collector: 'illPublicKeyString',
+        tailHash: 'fakeHash',
+        txs: [1, 2, 3, 4, 5].map(i => w3.createFakeTx(i))
+      }))
+      await util.wait(100)
+      /**
+       * Although the bp droped, which can be seen from the debug log, the txs in the bp are still in the txPool, and when
+       * there are enough txs in the txPool, a new legitimate bp and then a new block will be created.
+       */
+      w3.nodes[0].localFacts.txPool.should.have.length(5) // 5 txs are in the pool
+      w3.nodes[0].chain.height.should.equals(1)
+    })
 
-    it('drop a bad bp which has an invalid witness', async () => {})
+    it('drop a bad bp which has an invalid witness', async () => {
+      await w3.sendFakeBp(new BlockProposal({
+        height: 1,
+        collector: util.getEthereumAccount().publicKeyString,
+        tailHash: 'fakeHash',
+        txs: [1, 2, 3, 4, 5].map(i => w3.createFakeTx(i)),
+        witnessRecords: [
+          { asker: 'bad-witness', witness: 'bad-witness', signature: 'bad-witness' }
+        ]
+      }))
+      await util.wait(100) // wait for bp to be processed
+      /**
+       * Although the bp droped, which can be seen from the debug log, the txs in the bp are still in the txPool, and when
+       * there are enough txs in the txPool, a new legitimate bp and then a new block will be created.
+       */
+      w3.nodes[0].localFacts.txPool.should.have.length(5) // 5 txs are in the pool
+      w3.nodes[0].chain.height.should.equals(1)
 
-    it('drop a bad block which has an invalid tx', async () => {})
+    })
+  })
 
-    it('drop a bad block which has an invalid collector', async () => {})
+  describe('bad block message', () => {
+    it('drop a bad block which has an invalid tx', async () => {
+      w3.sendFakeBlock(new Block({
+        preHash: 'fakeHash',
+        height: 1,
+        bp: new BlockProposal({
+          height: 3,
+          tailHash: w3.nodes[0].chain.tailHash,
+          txs: [1, 2, 3, 4].map(i => w3.createFakeTx(i)).concat('bad-tx')
+        })
+      }))
+      await util.wait(100)
+      w3.nodes[0].localFacts.txPool.should.have.length(4)
+      w3.nodes[0].chain.height.should.equals(0)
+    })
 
-    it('drop a bad block which has an invalid witness', async () => {})
+    it('drop a bad block which has an invalid collector', async () => {
+      w3.sendFakeBlock(new Block({
+        preHash: 'fakeHash',
+        height: 1,
+        bp: new BlockProposal({
+          height: 3,
+          tailHash: w3.nodes[0].chain.tailHash,
+          txs: [1, 2, 3, 4, 5].map(i => w3.createFakeTx(i))
+        })
+      }))
+      await util.wait(100)
+      /**
+       * Although the bp droped, which can be seen from the debug log, the txs in the bp are still in the txPool, and when
+       * there are enough txs in the txPool, a new legitimate bp and then a new block will be created.
+       */
+      w3.nodes[0].localFacts.txPool.should.have.length(5) // 5 txs are in the pool
+      w3.nodes[0].chain.height.should.equals(1)
+    })
 
+    it('drop a bad block which has an invalid witness', async () => {
+      w3.sendFakeBlock(new Block({
+        preHash: 'fakeHash',
+        height: 1,
+        bp: new BlockProposal({
+          height: 3,
+          tailHash: w3.nodes[0].chain.tailHash,
+          txs: [1, 2, 3, 4, 5].map(i => w3.createFakeTx(i)),
+          witnessRecords: [
+            { asker: 'bad-witness', witness: 'bad-witness', signature: 'bad-witness' }
+          ]
+        })
+      }))
+      await util.wait(100)
+      /**
+       * Although the bp droped, which can be seen from the debug log, the txs in the bp are still in the txPool, and when
+       * there are enough txs in the txPool, a new legitimate bp and then a new block will be created.
+       */
+      w3.nodes[0].localFacts.txPool.should.have.length(5) // 5 txs are in the pool
+      w3.nodes[0].chain.height.should.equals(1)
+
+    })
   })
 
   describe('verifyThenUpdateOrAddTx double spending txPool, only lower score one added', () => {
@@ -82,9 +170,5 @@ describe('Single Node Network Mode', () => {
     })
 
   })
-
-
-  // TODO:
-  //  1.
 })
 
