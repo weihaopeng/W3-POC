@@ -10,13 +10,13 @@ const debug = Debug('w3:peer:fsm')
 const fsm = {
   init: 'pending',
   transitions: [
-    { name: 'start', from: 'pending', to: 'connected' },
-    { name: 'disconnect', from: ['connected', 'ready'], to: 'disconnected' },
-    { name: 'connect', from: 'disconnected', to: 'connected' },
-    { name: 'withLatencyThreshold', from: 'connected', to: 'ready' },
-    { name: 'overLatencyThreshold', from: 'ready', to: 'connected' },
+    { name: 'connect', from: ['pending', 'disconnected'], to: 'connected' }, // libp2p.connect & start
+    { name: 'disconnect', from: ['connected', 'ready'], to: 'disconnected' }, //
+    { name: 'start', from: 'connected', to: 'ready' }, // latency <= threshold && chain.height + 1 >= block.height
+    { name: 'stop', from: 'ready', to: 'connected' },  // latency >  threshold || chain.height + 1 <  block.height
+
     { name: 'goto', from: '*', to: function (s) {
-        debug('--- goto: %s, this: %o', s, this)
+        // debug('--- goto: %s, this: %o', s, this)
         return s
       }
     }

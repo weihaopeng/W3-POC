@@ -2,28 +2,30 @@ import chai from 'chai'
 chai.should()
 import { FSM } from '../../lib/fsm/index.js'
 const { checkStateRoute } = FSM
+
 import Debug from 'debug'
+Debug.enable('w3*,fsm*')
 const debug = Debug('w3:test:peer.fsm')
 
 import { createFsm } from '../../src/w3/core/node/node-fsm.js'
 
-describe('Peer Status test', () => {
-  class Peer  {
+describe('Node FSM test', () => {
+  class Node  {
     constructor (i) {
       this.i =i
       createFsm(this)
     }
   }
-  const peer = new Peer(1)
+  const node = new Node(1)
 
   before(async () => {})
 
-  afterEach(() => peer.goto('none'))
+  afterEach(() => node.goto('none'))
 
   describe('check valid routes', () => {
     it('normal initial & serve', async () => {
-      await checkStateRoute(peer, `pending -> connected -> ready -> disconnected -> connected `)
-      await checkStateRoute(peer, `pending -> connected -> disconnected -> connected -> ready  `)
+      await checkStateRoute(node, `pending -> connected -> ready -> disconnected -> connected `)
+      await checkStateRoute(node, `pending -> connected -> disconnected -> connected -> ready  `)
     })
 
 
@@ -31,7 +33,7 @@ describe('Peer Status test', () => {
 
   describe('check invalid routes ', () => {
     it('wrong routes', async () => {
-      await checkStateRoute(peer, `pending -> disconnected `, true)
+      await checkStateRoute(node, `pending -> disconnected `, true)
     })
 
   })
