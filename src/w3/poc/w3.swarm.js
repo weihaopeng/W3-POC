@@ -42,9 +42,9 @@ class W3Swarm extends EventEmitter2 {
     // }
   }
 
-  reset() {
+  reset(height=0) {
     this.config.W3_EVENTS_ON && this.events.removeAllListeners()
-    this.nodes.forEach(node => node.reset())
+    this.nodes.forEach(node => node.reset(height))
   }
 
   destroy () {
@@ -61,7 +61,7 @@ class W3Swarm extends EventEmitter2 {
       const arrivalRatio = this.config.MSG_ARRIVAL_RATIO
       // simulate the network jitter, latency may randomly as Gauss distribution
       const latency = util.gaussRandom(this.config.LATENCY_LOWER_BOUND, this.config.LATENCY_UPPER_BOUND)
-      // debug('***** arrivalRatio: %s, latency: %s', arrivalRatio, latency)
+      debug('***** arrivalRatio: %s, latency: %s', arrivalRatio, latency)
 
       if (Math.random() < arrivalRatio && target !== origin) {
         setTimeout(() => this._listenCb(cb, data, origin, target, event), latency)
@@ -81,11 +81,13 @@ class W3Swarm extends EventEmitter2 {
 
   async sendFakeTxs (n, tps = 1, badTx= 0) { // transaction per second, is the lamda of the Poisson Distribution
     this.fakeTxs = n
+    const possionLatencies = new Array(n).fill(0).map(() => util.exponentialRandom(tps / 1000))
+    debug('*********** tps: %s, avg possionLatencies: %s', tps, possionLatencies.reduce((a, b) => a + b) / possionLatencies.length)
     const badIndexs = _.sampleSize([...new Array(n)].map((_, i) => i), badTx)
     for (let i = 0; i < n; i++) {
-      const latency = util.exponentialRandom(tps / 1000)
-      debug('--- sendFakeTx latency: %s ms', latency)
-      await util.wait(latency)
+      const possionLatency = util.exponentialRandom(tps / 1000)
+      debug('--- sendFakeTx latency: %s ms', possionLatency)
+      await util.wait(possionLatency)
       this.sendFakeTx(i, badIndexs.includes(i))
     }
     await util.wait(2 * this.config.LATENCY_UPPER_BOUND) // wait for all txPool to be collected

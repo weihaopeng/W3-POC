@@ -7,6 +7,7 @@ import { BlockProposal } from '../entities/block-proposal.js'
 
 import Debug from 'debug'
 import _ from 'lodash'
+import { Epoch } from './epoch.js'
 const debug = Debug('w3:node')
 
 class Node {
@@ -19,7 +20,8 @@ class Node {
     this.startAnswerQuery()
   }
 
-  reset() {
+  reset(height) {
+    this.epoch.reset(height)
     this.localFacts.reset()
     this.chain.reset()
   }
@@ -35,6 +37,7 @@ class Node {
 
     // local swarm netwrok, never disconnected
     this.chain = await Chain.create()
+    this.epoch = new Epoch(this.chain.height)
     this.localFacts.init(this.chain)
   }
 
@@ -78,8 +81,8 @@ class Node {
 
     this.localFacts.on('tx-updated-or-added', async ({tx, state, res}) => {
       if (res === 'added') { // updatedState, replaced, rejected means the count of txPool in the pool is not change
-        const txs = this.localFacts.pickEnoughTxsForBp()
-        txs && await this.askForWitnessAndMint(txs)
+        const txs = this.epoch.canAskForWitness() && this.localFacts.pickEnoughTxsForBp()
+        txs && (this.epoch.afw = true) && await this.askForWitnessAndMint(txs)
       }
     })
   }
@@ -94,7 +97,11 @@ class Node {
   async handleWitness (bp) {
     bp = new BlockProposal(bp)
     const isValid = await this.updateLocalFact('bp', bp)
-    isValid && this.isWitness(bp) && await this.witnessAndMint(bp)
+    if (isValid) {
+      if (!this.epoch.canWitness(bp.height))
+        return debug('--- FATAL: receive invalid bp height: %s, not for this epoch %s', bp.height, this.epoch.height, bp.brief)
+      this.isWitness(bp) && await this.witnessAndMint(bp)
+    }
   }
 
   async handleNewBlock (block, origin) {
@@ -102,7 +109,10 @@ class Node {
     const isValid = await this.updateLocalFact('block', block)
     if (!isValid) debug('--- FATAL: receive invalid block', block.brief)
     // TODO: 按 design/handle-block.png 算法处理
-    isValid && ((this === origin && !this.isSingleNode) || this.chain.addBlock(block, this))
+    if (isValid && (this !== origin || this.isSingleNode)) {
+      this.chain.addBlock(block, this)
+      this.epoch.nextEpoch(this.network.config.LATENCY_UPPER_BOUND)
+    }
   }
 
   async handleForkWins (fork) { // { blocks }

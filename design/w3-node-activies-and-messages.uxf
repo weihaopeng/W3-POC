@@ -4,7 +4,7 @@
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>530</x>
+      <x>640</x>
       <y>840</y>
       <w>90</w>
       <h>40</h>
@@ -16,19 +16,19 @@ mint block</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>60</x>
+      <x>170</x>
       <y>640</y>
       <w>1040</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>更新事实
-update facts of  txPool, bps, blocks, chain</panel_attributes>
+update facts of  txs, bps, blocks, chain</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>480</x>
+      <x>590</x>
       <y>570</y>
       <w>250</w>
       <h>90</h>
@@ -40,7 +40,7 @@ recieve msg: tx, bp , block, fork</panel_attributes>
   <element>
     <id>UMLSpecialState</id>
     <coordinates>
-      <x>80</x>
+      <x>190</x>
       <y>460</y>
       <w>20</w>
       <h>20</h>
@@ -51,7 +51,7 @@ recieve msg: tx, bp , block, fork</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>250</x>
+      <x>360</x>
       <y>750</y>
       <w>120</w>
       <h>40</h>
@@ -63,7 +63,7 @@ collect tx</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>400</x>
+      <x>510</x>
       <y>750</y>
       <w>220</w>
       <h>40</h>
@@ -75,7 +75,7 @@ witness bp</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>650</x>
+      <x>760</x>
       <y>750</y>
       <w>120</w>
       <h>40</h>
@@ -87,7 +87,7 @@ append block</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>800</x>
+      <x>910</x>
       <y>750</y>
       <w>230</w>
       <h>40</h>
@@ -99,39 +99,41 @@ change fork</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>270</x>
+      <x>380</x>
       <y>670</y>
       <w>110</w>
       <h>100</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-tx valid
+tx valid 
 &amp; isCollector</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>270</x>
+      <x>380</x>
       <y>780</y>
       <w>110</w>
       <h>80</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-enough txPool</panel_attributes>
+can AFW
+enough txs
+fg=blue</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;60.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>80</x>
+      <x>190</x>
       <y>680</y>
       <w>170</w>
       <h>320</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-relay
-valid &amp; effective msg:
+relay 
+valid &amp; effective msg: 
 tx, bp, block, fork
 </panel_attributes>
     <additional_attributes>10.0;10.0;10.0;300.0</additional_attributes>
@@ -139,20 +141,20 @@ tx, bp, block, fork
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>420</x>
+      <x>530</x>
       <y>670</y>
       <w>110</w>
       <h>100</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-bp valid
+bp valid 
 &amp; isWitness</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>700</x>
+      <x>810</x>
       <y>670</y>
       <w>100</w>
       <h>100</h>
@@ -164,7 +166,7 @@ block valid </panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>420</x>
+      <x>530</x>
       <y>780</y>
       <w>120</w>
       <h>80</h>
@@ -176,7 +178,7 @@ block valid </panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>560</x>
+      <x>670</x>
       <y>780</y>
       <w>120</w>
       <h>80</h>
@@ -188,7 +190,7 @@ block valid </panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>560</x>
+      <x>670</x>
       <y>870</y>
       <w>100</w>
       <h>130</h>
@@ -200,7 +202,7 @@ send block</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>810</x>
+      <x>920</x>
       <y>670</y>
       <w>120</w>
       <h>100</h>
@@ -213,7 +215,7 @@ fork detected</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>950</x>
+      <x>1060</x>
       <y>670</y>
       <w>120</w>
       <h>100</h>
@@ -226,20 +228,20 @@ fork detected</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1060</x>
+      <x>1170</x>
       <y>670</y>
       <w>110</w>
       <h>330</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-HARD_FORK
+HARD_FORK 
 detected</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;310.0</additional_attributes>
   </element>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>60</x>
+      <x>170</x>
       <y>540</y>
       <w>860</w>
       <h>40</h>
@@ -252,7 +254,7 @@ fg=white</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>250</x>
+      <x>360</x>
       <y>840</y>
       <w>250</w>
       <h>40</h>
@@ -264,20 +266,20 @@ ask for witness</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>350</x>
+      <x>460</x>
       <y>870</y>
       <w>100</w>
       <h>130</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-send bp
+send bp 
 (new/next)</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;110.0</additional_attributes>
   </element>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>40</x>
+      <x>150</x>
       <y>980</y>
       <w>1080</w>
       <h>40</h>
@@ -289,7 +291,7 @@ fg=gray</panel_attributes>
   <element>
     <id>UMLSpecialState</id>
     <coordinates>
-      <x>1100</x>
+      <x>1210</x>
       <y>550</y>
       <w>20</w>
       <h>20</h>
@@ -300,19 +302,19 @@ fg=gray</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>80</x>
+      <x>190</x>
       <y>470</y>
       <w>400</w>
       <h>90</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-initialize &amp; start (join w3-network, w3Node.ready === true)</panel_attributes>
+init &amp; start (join w3-network, w3Node.ready === true)</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;70.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>910</x>
+      <x>1020</x>
       <y>540</y>
       <w>210</w>
       <h>50</h>
@@ -325,7 +327,7 @@ stop | crash
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>880</x>
+      <x>990</x>
       <y>780</y>
       <w>90</w>
       <h>220</h>
@@ -337,7 +339,7 @@ send fork</panel_attributes>
   <element>
     <id>Text</id>
     <coordinates>
-      <x>480</x>
+      <x>590</x>
       <y>430</y>
       <w>370</w>
       <h>30</h>
@@ -349,7 +351,7 @@ style=wordwrap</panel_attributes>
   <element>
     <id>Text</id>
     <coordinates>
-      <x>850</x>
+      <x>960</x>
       <y>460</y>
       <w>80</w>
       <h>30</h>
@@ -363,7 +365,7 @@ group=1</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>910</x>
+      <x>1020</x>
       <y>460</y>
       <w>110</w>
       <h>40</h>
@@ -377,7 +379,7 @@ group=1</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1020</x>
+      <x>1130</x>
       <y>460</y>
       <w>110</w>
       <h>40</h>
@@ -391,7 +393,7 @@ group=1</panel_attributes>
   <element>
     <id>UMLSpecialState</id>
     <coordinates>
-      <x>10</x>
+      <x>120</x>
       <y>100</y>
       <w>20</w>
       <h>20</h>
@@ -402,7 +404,7 @@ group=1</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>160</x>
+      <x>270</x>
       <y>90</y>
       <w>90</w>
       <h>40</h>
@@ -413,7 +415,7 @@ group=1</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>470</x>
+      <x>580</x>
       <y>250</y>
       <w>220</w>
       <h>40</h>
@@ -424,7 +426,7 @@ group=1</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>890</x>
+      <x>1000</x>
       <y>90</y>
       <w>170</w>
       <h>40</h>
@@ -437,7 +439,7 @@ fg=white</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>400</x>
+      <x>510</x>
       <y>90</y>
       <w>280</w>
       <h>40</h>
@@ -448,19 +450,19 @@ fg=white</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>20</x>
+      <x>130</x>
       <y>90</y>
       <w>160</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-initialize</panel_attributes>
+init</panel_attributes>
     <additional_attributes>10.0;20.0;140.0;20.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>240</x>
+      <x>350</x>
       <y>90</y>
       <w>180</w>
       <h>60</h>
@@ -474,7 +476,7 @@ libp2p.start()
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>480</x>
+      <x>590</x>
       <y>120</y>
       <w>100</w>
       <h>150</h>
@@ -487,7 +489,7 @@ disconnect
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>640</x>
+      <x>750</x>
       <y>120</y>
       <w>80</w>
       <h>150</h>
@@ -500,7 +502,7 @@ connect
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>670</x>
+      <x>780</x>
       <y>90</y>
       <w>240</w>
       <h>60</h>
@@ -514,7 +516,7 @@ latency &lt;= threshold
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>530</x>
+      <x>640</x>
       <y>40</y>
       <w>460</w>
       <h>70</h>
@@ -528,7 +530,7 @@ latency &gt; threshold || chain.height + 1 &lt; block.height
   <element>
     <id>UMLSpecialState</id>
     <coordinates>
-      <x>1020</x>
+      <x>1130</x>
       <y>350</y>
       <w>20</w>
       <h>20</h>
@@ -539,7 +541,7 @@ latency &gt; threshold || chain.height + 1 &lt; block.height
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>190</x>
+      <x>300</x>
       <y>120</y>
       <w>850</w>
       <h>260</h>
@@ -562,7 +564,7 @@ fg=gray</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>420</x>
+      <x>530</x>
       <y>120</y>
       <w>620</w>
       <h>260</h>
@@ -585,7 +587,7 @@ fg=gray</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>570</x>
+      <x>680</x>
       <y>280</y>
       <w>470</w>
       <h>100</h>
@@ -598,7 +600,7 @@ fg=gray</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1020</x>
+      <x>1130</x>
       <y>120</y>
       <w>80</w>
       <h>250</h>
@@ -621,7 +623,7 @@ fg=gray</panel_attributes>
   <element>
     <id>Text</id>
     <coordinates>
-      <x>530</x>
+      <x>640</x>
       <y>0</y>
       <w>240</w>
       <h>30</h>
@@ -633,7 +635,7 @@ style=wordwrap</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>680</x>
+      <x>790</x>
       <y>120</y>
       <w>340</w>
       <h>170</h>
@@ -646,188 +648,501 @@ disconnect
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>60</x>
+      <x>170</x>
       <y>1210</y>
       <w>1000</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>收集
-collect tx
-group=2</panel_attributes>
+collect tx</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>180</x>
-      <y>1360</y>
-      <w>130</w>
+      <x>300</x>
+      <y>1380</y>
+      <w>120</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>请求见证
-Ask For Witness
-group=2</panel_attributes>
+Ask For Witness</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>320</x>
-      <y>1360</y>
+      <x>430</x>
+      <y>1380</y>
       <w>150</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>见证 / &amp; 铸块
-witness &amp; mint
-group=2</panel_attributes>
+witness &amp; mint</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>480</x>
-      <y>1360</y>
-      <w>130</w>
+      <x>590</x>
+      <y>1380</y>
+      <w>110</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>上链
-append block
-group=2</panel_attributes>
+append block</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>170</x>
+      <x>280</x>
       <y>1270</y>
       <w>460</w>
       <h>50</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-can't AFW
+can't AFW 
 bp.height will be wrong
-fg=gray
-group=2</panel_attributes>
+fg=gray</panel_attributes>
     <additional_attributes>10.0;20.0;440.0;20.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>80</x>
+      <x>190</x>
       <y>1150</y>
       <w>130</w>
       <h>80</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-chain.height=1
-group=2</panel_attributes>
+chain.height=1</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;60.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>610</x>
+      <x>710</x>
       <y>1150</y>
       <w>130</w>
       <h>80</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-chain.height=2
-group=2</panel_attributes>
+chain.height=2</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;60.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>80</x>
+      <x>190</x>
       <y>1270</y>
       <w>120</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-can  AFW
-fg=blue
-group=2</panel_attributes>
+can AFW
+fg=blue</panel_attributes>
     <additional_attributes>10.0;20.0;100.0;20.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>690</x>
+      <x>800</x>
       <y>1270</y>
       <w>390</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-can't AFW
-fg=gray
-group=2</panel_attributes>
+can't AFW 
+fg=gray</panel_attributes>
     <additional_attributes>10.0;20.0;370.0;20.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>600</x>
+      <x>710</x>
       <y>1270</y>
       <w>120</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-can  AFW
-fg=blue
-group=2</panel_attributes>
+can AFW
+fg=blue</panel_attributes>
     <additional_attributes>10.0;20.0;100.0;20.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>300</x>
-      <y>1390</y>
+      <x>410</x>
+      <y>1410</y>
       <w>110</w>
       <h>80</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-bp.height=2
-group=2</panel_attributes>
+bp.height=2</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;60.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>470</x>
+      <x>580</x>
       <y>1300</y>
       <w>130</w>
-      <h>90</h>
+      <h>110</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-block.height=2
-group=2</panel_attributes>
-    <additional_attributes>10.0;70.0;10.0;10.0</additional_attributes>
+
+
+block.height=2</panel_attributes>
+    <additional_attributes>10.0;90.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Text</id>
     <coordinates>
-      <x>460</x>
-      <y>1110</y>
+      <x>570</x>
+      <y>1070</y>
       <w>300</w>
       <h>30</h>
     </coordinates>
     <panel_attributes>* A Node Can AFW Only Once in an Epoch *
-style=wordwrap
-group=2</panel_attributes>
+style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>80</x>
+      <x>190</x>
       <y>1150</y>
-      <w>560</w>
+      <w>550</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=&lt;-&gt;
-epoch 1
-group=2</panel_attributes>
-    <additional_attributes>10.0;20.0;540.0;20.0</additional_attributes>
+epoch 1</panel_attributes>
+    <additional_attributes>10.0;20.0;530.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>320</x>
+      <y>1660</y>
+      <w>40</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>TX1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>410</x>
+      <y>1660</y>
+      <w>40</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>TX2</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>500</x>
+      <y>1660</y>
+      <w>40</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>TX3</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>310</x>
+      <y>1630</y>
+      <w>560</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m2=time</panel_attributes>
+    <additional_attributes>10.0;10.0;540.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>360</x>
+      <y>1740</y>
+      <w>40</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>TX1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>470</x>
+      <y>1740</y>
+      <w>40</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>TX2</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>570</x>
+      <y>1740</y>
+      <w>40</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>TX3</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>340</x>
+      <y>1820</y>
+      <w>40</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>TX1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>450</x>
+      <y>1820</y>
+      <w>40</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>TX2</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>610</x>
+      <y>1820</y>
+      <w>40</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>TX3</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>160</x>
+      <y>1660</y>
+      <w>130</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*Node 1 (Sender) *
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>160</x>
+      <y>1740</y>
+      <w>140</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*Node 2 (Receiver) *
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>160</x>
+      <y>1820</y>
+      <w>140</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*Node 3 (Receiver) *
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>530</x>
+      <y>1580</y>
+      <w>30</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=.</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;60.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>660</x>
+      <y>1580</y>
+      <w>30</w>
+      <h>330</h>
+    </coordinates>
+    <panel_attributes>lt=.</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;310.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>530</x>
+      <y>1590</y>
+      <w>160</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-&gt;
+latency
+upperbound</panel_attributes>
+    <additional_attributes>10.0;20.0;140.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>600</x>
+      <y>1730</y>
+      <w>160</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-&gt;
+latency
+upperbound</panel_attributes>
+    <additional_attributes>10.0;20.0;140.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>640</x>
+      <y>1810</y>
+      <w>160</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-&gt;
+latency
+upperbound</panel_attributes>
+    <additional_attributes>10.0;20.0;140.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>160</x>
+      <y>1580</y>
+      <w>160</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*TX_COUNT === 3 *
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>580</x>
+      <y>1310</y>
+      <w>160</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-&gt;
+latency
+upperbound</panel_attributes>
+    <additional_attributes>10.0;20.0;140.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1160</x>
+      <y>1150</y>
+      <w>130</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+chain.height=3</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;60.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>710</x>
+      <y>1150</y>
+      <w>480</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-&gt;
+epoch 2</panel_attributes>
+    <additional_attributes>10.0;20.0;460.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>570</x>
+      <y>1510</y>
+      <w>300</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>* Node Receival Time Difference *
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>730</x>
+      <y>1690</y>
+      <w>160</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>lt=.
+ANRT
+be confident
+All Nodes Recieved
+
+</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>770</x>
+      <y>1770</y>
+      <w>160</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>lt=.
+ANRT
+be confident
+All Nodes Recieved
+
+</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>960</x>
+      <y>1680</y>
+      <w>320</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>* ANRT (All Node Recieved Timepiont) *
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>960</x>
+      <y>1710</y>
+      <w>360</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>| N1.ANRT - N2.ANRT | &lt; latency upperbound
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
   </element>
 </diagram>

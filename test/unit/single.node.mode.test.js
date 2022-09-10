@@ -13,7 +13,7 @@ import { Block } from '../../src/w3/core/entities/block.js'
 const debug = Debug('w3:test')
 
 describe('Single Node Network Mode @issue#2', () => {
-  let w3 = new W3Swarm({ SINGLE_NODE_MODE: true, TX_COUNT: 5 })
+  let w3 = new W3Swarm({ SINGLE_NODE_MODE: true, TX_COUNT: 5, LATENCY_UPPER_BOUND: 0 })
 
   before(async function () {
     this.timeout(0)
