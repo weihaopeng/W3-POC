@@ -18,7 +18,7 @@ describe('Key points of Protocol', () => {
   //
   // before(async function () {
   //   this.timeout(0)
-  //   await w3.init()
+  //   await w3.initialize()
   // })
   //
   // after(() => w3.destroy())

@@ -20,17 +20,7 @@ const fsm = {
         return s
       }
     }
-  ],
-
-  methods: {
-    onEnterReady () {
-      debug('--- Peer %s is ready', this.i)
-    },
-
-    onLeaveReady () {
-      debug('--- Peer %s is not ready', this.i)
-    }
-  }
+  ]
 }
 
 const createFsm = FSM.createFactory(fsm )

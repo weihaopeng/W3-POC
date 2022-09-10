@@ -1,21 +1,25 @@
 import chai from 'chai'
+
 chai.should()
 import { FSM } from '../../lib/fsm/index.js'
+
 const { checkStateRoute } = FSM
 
 import Debug from 'debug'
+
 Debug.enable('w3*,fsm*')
 const debug = Debug('w3:test:peer.fsm')
 
 import { createFsm } from '../../src/w3/core/node/node-fsm.js'
 
 describe('Node FSM test', () => {
-  class Node  {
+  class Node {
     constructor (i) {
-      this.i =i
+      this.i = i
       createFsm(this)
     }
   }
+
   const node = new Node(1)
 
   before(async () => {})
@@ -27,7 +31,6 @@ describe('Node FSM test', () => {
       await checkStateRoute(node, `pending -> connected -> ready -> disconnected -> connected `)
       await checkStateRoute(node, `pending -> connected -> disconnected -> connected -> ready  `)
     })
-
 
   })
 

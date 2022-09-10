@@ -27,10 +27,13 @@ class W3Swarm extends EventEmitter2 {
   async init (nodesAmount = this.config.NODES_AMOUNT, network) {
     nodesAmount = this.config.SINGLE_NODE_MODE? 1 : nodesAmount
     this.nodes = [...new Array(nodesAmount)].map(i => new W3Node(this, this.config.SINGLE_NODE_MODE))
-    await Promise.all(this.nodes.map(node => node.start()))
+
     this.config.W3_EVENTS_ON && (this.events = new EventEmitter2({ wildcard: true }))
     this.distanceFn = w3Algorithm.NHashDistance(nodesAmount)
-    this.initPreBlockValue = 'genuesis' + Math.floor(Math.random() * nodesAmount) // TODO: use a better way to init preBlockValue
+    this.initPreBlockValue = 'genuesis' + Math.floor(Math.random() * nodesAmount) // TODO: use a better way to initialize preBlockValue
+
+    // TODO：add network connect/disconnect start/stop observer
+    await Promise.all(this.nodes.map(node => node.connect()))
 
     // TODO: wire the network @Jian-ru
     // if (network) {

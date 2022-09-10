@@ -16,13 +16,7 @@ class Node {
     this.network = network
     this.localFacts = new LocalFacts(this.network.config.TX_COUNT)
     this.isSingleNode = isSingleNode // is the only node in the network, used to separate the concern of two-stages-mint and the collaborations among nodes.
-  }
-
-  async init () {
-    // const chain = await this.initChain() // TODO bypass in theory test
-    // this.chain = await Chain.create(chain)
-    this.chain = await Chain.create()
-    this.localFacts.init(this.chain)
+    this.startAnswerQuery()
   }
 
   reset() {
@@ -34,9 +28,14 @@ class Node {
     // abstract, may use to release resources
   }
 
-  async initChain () {
-    const chain = await this.network.queryPeers?.({})
-    return chain ? chain : new Promise((r, j) => setTimeout(() => r(this.initChain()), this.network.config.INIT_CHAIN_INTERVAL))
+  async syncChain () {
+    // TODO: sync chain info from network
+    // const chain = await this.network.queryPeers?.({})
+    // return chain ? chain : new Promise((r, j) => setTimeout(() => r(this.initChain()), this.network.config.INIT_CHAIN_INTERVAL))
+
+    // local swarm netwrok, never disconnected
+    this.chain = await Chain.create()
+    this.localFacts.init(this.chain)
   }
 
   async boot () { //
@@ -45,13 +44,19 @@ class Node {
     // this.network.broadcast('block', block, this) //this used in theory test to aviod of react on its own message
   }
 
-  async start () {
-    debug('--- starting: %s', this.account.i)
-    await this.init()
-    this.startAnswerQuery()
-    this.startTwoStagesBlockGeneration()
-    debug('--- started: %s', this.account.i)
+  onConnected() {
+    this.syncChain().then(() => this.start())
   }
+
+  onReady () {
+    this.startTwoStagesBlockGeneration()
+  }
+
+  onLeaveReady() {
+    this.stopTwoStagesBlockGeneration()
+
+  }
+
 
   startAnswerQuery () { // answers only by adjacent peers
     this.network.listen('query', async (msg, ack) => {
@@ -186,6 +191,10 @@ class Node {
     const { valid } = await this.localFacts.verifyAndUpdate(type, data, node)
     this.network.emitW3Event('node.verify', {type, data, node, valid})
     return valid
+  }
+
+  stopTwoStagesBlockGeneration () {
+    // TODO:
   }
 }
 

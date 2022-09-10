@@ -53,7 +53,7 @@ const w3Algorithm = {
    */
   isRandomSelected (distanceFn, pointOfInteresting, candidateIdentity, candidatesAmount) {
     const distance = distanceFn(pointOfInteresting, candidateIdentity)
-    if (pointOfInteresting.witnessRecords) debug('bp.witnessRecords: %O', pointOfInteresting)
+    // if (pointOfInteresting.witnessRecords) debug('bp.witnessRecords: %O', pointOfInteresting)
     // debug('--- is random selected %s selected,distance: %s', distance <= candidatesAmount, distance)
     return distance <= candidatesAmount
   },
