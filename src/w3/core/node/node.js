@@ -36,8 +36,8 @@ class Node {
     // return chain ? chain : new Promise((r, j) => setTimeout(() => r(this.initChain()), this.network.config.INIT_CHAIN_INTERVAL))
 
     // local swarm netwrok, never disconnected
-    this.chain = await Chain.create()
-    this.epoch = new Epoch(this.chain.height)
+    this.chain = await Chain.create(this)
+    this.epoch = new Epoch(this)
     this.localFacts.init(this.chain)
   }
 
@@ -81,10 +81,14 @@ class Node {
 
     this.localFacts.on('tx-updated-or-added', async ({tx, state, res}) => {
       if (res === 'added') { // updatedState, replaced, rejected means the count of txPool in the pool is not change
-        const txs = this.epoch.canAskForWitness() && this.localFacts.pickEnoughTxsForBp()
-        txs && (this.epoch.afw = true) && await this.askForWitnessAndMint(txs)
+        await this.askForWitnessAndMintWhenProper()
       }
     })
+  }
+
+  async askForWitnessAndMintWhenProper () {
+    const txs = this.epoch.canAskForWitness() && this.localFacts.pickEnoughTxsForBp()
+    txs && (this.epoch.afw = true) && await this.askForWitnessAndMint(txs)
   }
 
   async handleTx (tx) {
@@ -111,7 +115,6 @@ class Node {
     // TODO: 按 design/handle-block.png 算法处理
     if (isValid && (this !== origin || this.isSingleNode)) {
       this.chain.addBlock(block, this)
-      this.epoch.nextEpoch(this.network.config.LATENCY_UPPER_BOUND)
     }
   }
 
@@ -186,7 +189,6 @@ class Node {
   async mintBlock (bp) {
     const block = Block.mint(bp, this.chain)
     if (!this.isSingleNode) this.chain.addBlock(block, this) // verifyThenUpdateOrAddTx to local chain before broadcast, singleNodeMode will verifyThenUpdateOrAddTx it in handleNewBlock
-    this.localFacts.updateTxsState(block.txs, 'chain')
     this.network.broadcast('block', block, this) //this used in theory test to aviod of react on its own message
   }
 

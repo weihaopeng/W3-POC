@@ -1,11 +1,14 @@
 class Epoch {
-  constructor(height) {
-    this.height = height
+  constructor(node) {
+    this.node = node
     this.afw = false
   }
 
+  get height () {
+    return  this.node.chain.height
+  }
+
   reset(height) {
-    this.height =height
     this.afw = false
   }
 
@@ -20,7 +23,7 @@ class Epoch {
   nextEpoch(latencyUpperbound) {
     setTimeout(() => {
       this.afw = false
-      this.height++
+      this.node.askForWitnessAndMintWhenProper()
     }, latencyUpperbound)
   }
 }

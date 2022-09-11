@@ -10,7 +10,7 @@ class BlockProposal {
   static index = 0 // TODO: currently only used for theory test
   constructor ({i, height, tailHash, txs, collector, witnessRecords = [] }) {
     txs = txs.map(tx => tx instanceof Transaction ? tx : new Transaction(tx))
-    Object.assign(this, { height, tailHash, collector, txs, witnessRecords })
+    Object.assign(this, { height, tailHash, collector, txs, witnessRecords: [...witnessRecords] })
     this.i = i !== undefined ? i : this.constructor.index++  // TODO: currently only used for theory test
   }
 
@@ -18,9 +18,9 @@ class BlockProposal {
     this.witnessRecords.push({ asker: publicKeyString, askerSig: this.sig(privateKey) })
   }
 
-  async witness ({ publicKeyString, privateKey }) {
-    const afw = this.witnessRecords.find(record => !record.witness)
-    Object.assign(afw, { witness: publicKeyString, witnessSig: this.sig(privateKey) })
+  async witness ({ publicKeyString, privateKey }, node) {
+    const i = this.witnessRecords.findIndex(record => !record.witness)
+    this.witnessRecords[i] = {...this.witnessRecords[i], witness: publicKeyString, witnessSig: this.sig(privateKey) }
   }
 
   async verify (node) {

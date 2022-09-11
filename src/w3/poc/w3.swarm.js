@@ -61,7 +61,7 @@ class W3Swarm extends EventEmitter2 {
       const arrivalRatio = this.config.MSG_ARRIVAL_RATIO
       // simulate the network jitter, latency may randomly as Gauss distribution
       const latency = util.gaussRandom(this.config.LATENCY_LOWER_BOUND, this.config.LATENCY_UPPER_BOUND)
-      debug('***** arrivalRatio: %s, latency: %s', arrivalRatio, latency)
+      // debug('***** arrivalRatio: %s, latency: %s', arrivalRatio, latency)
 
       if (Math.random() < arrivalRatio && target !== origin) {
         setTimeout(() => this._listenCb(cb, data, origin, target, event), latency)

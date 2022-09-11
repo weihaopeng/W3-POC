@@ -3,22 +3,25 @@ const debug = Debug('w3:chain')
 
 class Chain {
 
-  static async create (data) {
+  static async create (node, blocks) {
     // mint a chain instance by local stored data and chain data given.
-    return new this(data)
+    return new this(node, blocks)
   }
 
-  constructor () {
-    this.blocks = []
+  constructor (node, blocks = [] ) {
+    this.node = node
+    this.blocks = blocks
   }
 
   reset () {
     this.blocks = []
   }
 
-  addBlock(block, node) {
-    debug('--- node: %s verifyThenUpdateOrAddTx block to its chain: ', node.i, block.brief)
+  addBlock(block) {
+    debug('--- node: %s verifyThenUpdateOrAddTx block to its chain: ', this.node.i, block.brief)
     this.blocks.push(block)
+    this.node.localFacts.updateTxsState(block.txs, 'chain')
+    this.node.epoch.nextEpoch(this.node.network.config.LATENCY_UPPER_BOUND)
     debug('--- SHOW chain: %s ', this.superBrief)
   }
 
@@ -38,6 +41,9 @@ class Chain {
     return `height: ${this.height}, ${this.blocks.map(b => b.superBrief).join(' -> ')}`
   }
 
+  equals(other) {
+    return this.tailHash === other.tailHash
+  }
 }
 
 export { Chain }

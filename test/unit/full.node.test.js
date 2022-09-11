@@ -19,7 +19,8 @@ describe('Full(Normal) Network Mode @issue#2', () => {
   after(() => w3.destroy())
 
   it('work normal to create blocks', async () => {
-    await w3.sendFakeTxs(100, 100)
+    await w3.sendFakeTxs(6, 100)
+    await util.wait(100)
     w3.showCollectorsStatistic()
     w3.showWitnessesStatistic()
     w3.nodes.should.have.length(8)
@@ -27,6 +28,7 @@ describe('Full(Normal) Network Mode @issue#2', () => {
     // w3.nodes[0].chain.blocks.should.have.length(2) // 2 blocks are appended to the chain
     const heights = w3.nodes.map(node => node.chain.height)
     debug('--- heights: %o', heights)
+    w3.nodes.map(({ chain }) => debug(chain.superBrief))
   }).timeout(0)
 })
 

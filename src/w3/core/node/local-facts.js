@@ -10,7 +10,7 @@ const debug = Debug('w3:TxsPool')
  * If a message is verified, its data will verifyThenUpdateOrAddTx to local facts (pools), and the 2-stage-mint process will proceed,
  * otherwise, the message will be droped and the process halts.
  */
-class LocalFacts extends EventEmitter2{
+class LocalFacts extends EventEmitter2 {
   constructor (txCount) {
     super()
     this.txCount = txCount
@@ -20,7 +20,12 @@ class LocalFacts extends EventEmitter2{
     this.forkPool = []
   }
 
-  init(chain) {
+  compareTxState (s1, s2) {
+    const states = ['tx', 'bp', 'block', 'chain']
+    return states.indexOf(s1) - states.indexOf(s2)
+  }
+
+  init (chain) {
     this.chain = chain
   }
 
@@ -46,20 +51,26 @@ class LocalFacts extends EventEmitter2{
     let res = null
     for (let _tx of this.txPool) {
       if ('updatedState' === (res = this.updateStateWhenTxFound(_tx, tx, state))) break
-      if ( null !== (res = this.resolveDoubleSpendingWhenFound(_tx, tx, state))) break
+      if (null !== (res = this.resolveDoubleSpendingWhenFound(_tx, tx, state))) break
     }
 
-    if (res === null ) {
+    if (res === null) {
       res = 'added'
       this.txPool.push({ tx, state })
     }
 
-    this.emit('tx-updated-or-added', {tx, state, res})
+    this.emit('tx-updated-or-added', { tx, state, res })
     return res
   }
 
   updateStateWhenTxFound (_tx, tx, state) {
-    return _tx.tx.equals(tx) ? ((_tx.state = state),  'updatedState') : null
+    // return _tx.tx.equals(tx) ? ((_tx.state = state), 'updatedState') : null
+    if (_tx.tx.equals(tx)) {
+      this.compareTxState(_tx.state, state) < 0 && (_tx.state = state)
+      return 'updatedState'
+    } else {
+      return null
+    }
   }
 
   resolveDoubleSpendingWhenFound (_tx, tx, state) {
@@ -87,15 +98,16 @@ class LocalFacts extends EventEmitter2{
   }
 
   pickEnoughTxsForBp (txCount = this.txCount) {
-    const txs = this.txPool.filter(({ state }) => state === 'tx')
-    if (txs.length === txCount) {
+    let txs = this.txPool.filter(({ state }) => state === 'tx')
+    if (txs.length >= txCount) {
       // debug('--- SHOW: this.txPool.length: ', this.txPool.length)
+      txs = txs.slice(0, txCount)
       txs.map(tx => tx.state = 'bp')
       return txs.map(({ tx }) => tx).sort(Transaction.sort)
     }
   }
 
-  async verifyAndUpdate(type, data, node) {
+  async verifyAndUpdate (type, data, node) {
     return type === 'tx' ? this.verifyAndAddTx(data) :
       type === 'bp' ? this.verifyBpAndAddTxs(data, node) :
         type === 'block' ? this.verifyBlockAndAddTxs(data, node) :
@@ -105,7 +117,7 @@ class LocalFacts extends EventEmitter2{
   async verifyAndAddTx (tx, state = 'tx') {
     let valid = tx?.verify()
     let txRes = valid ? this.verifyThenUpdateOrAddTx(tx, state) : 'rejected'
-    return { valid, txRes}
+    return { valid, txRes }
   }
 
   async verifyBpAndAddTxs (bp, node) {
