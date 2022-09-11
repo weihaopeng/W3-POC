@@ -11,4 +11,6 @@ dist
 
 # temp
 ~*
-/.npmrc
+.npmrc
+
+test/results

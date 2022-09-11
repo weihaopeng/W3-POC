@@ -18,7 +18,6 @@ class Node {
     this.localFacts = new LocalFacts(this.network.config.TX_COUNT)
     this.isSingleNode = isSingleNode // is the only node in the network, used to separate the concern of two-stages-mint and the collaborations among nodes.
     this.startAnswerQuery()
-    this.debug = {blocks: [], bps: []}
   }
 
   reset(height) {
@@ -38,7 +37,7 @@ class Node {
 
     // local swarm netwrok, never disconnected
     this.chain = await Chain.create(this)
-    this.epoch = new Epoch(this)
+    this.epoch = Epoch.create(this)
     this.localFacts.init(this.chain)
   }
 
@@ -112,7 +111,6 @@ class Node {
   }
 
   async handleNewBlock (block, origin) {
-    this.debug.blocks.push(block)
     block = new Block(block)
     const isValid = await this.updateLocalFact('block', block)
     if (!isValid) debug('--- FATAL: receive invalid block', block.brief)
@@ -191,8 +189,7 @@ class Node {
   async mintBlock (bp) {
     const block = Block.mint(bp, this.epoch.tailHash)
 
-    this.debug.blocks.push(block)
-    debug('--- WARN: node %s mint block %s ', this.i, block.superBrief)
+    // debug('--- WARN: node %s mint block %s ', this.i, block.superBrief)
 
     if (!this.isSingleNode) this.chain.addOrReplaceBlock(block, 'mintBlock')// verifyThenUpdateOrAddTx to local chain before broadcast, singleNodeMode will verifyThenUpdateOrAddTx it in handleNewBlock
     this.network.broadcast('block', block, this) //this used in theory test to aviod of react on its own message

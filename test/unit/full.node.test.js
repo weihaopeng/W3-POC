@@ -1,52 +1,56 @@
 import chai from 'chai'
+import chaiString from 'chai-string'
+import fs from 'fs-extra'
 
-chai.should()
+
+chai.use(chaiString)
+const should = chai.should()
 
 import { W3Swarm, W3Node } from '../../src/w3/poc/index.js'
 import { util } from '../../src/w3/util.js'
 
 import Debug from 'debug'
-
+Debug.enable('w3:test')
 const debug = Debug('w3:test')
 describe('Full(Normal) Network Mode @issue#2', () => {
-  let w3 = new W3Swarm({TX_COUNT: 5, NODES_AMOUNT: 8})
+  let NODES_AMOUNT = 8, w3 = new W3Swarm({TX_COUNT: 5, NODES_AMOUNT})
 
   before(async function () {
     this.timeout(0)
+    await fs.remove('./test/results')
     await w3.init()
   })
 
   after(() => w3.destroy())
 
   it('work normal to create blocks', async () => {
-    await w3.sendFakeTxs(100, 100)
-    await util.wait(100)
+    await w3.sendFakeTxs(1000, 100)
+    // await util.wait(1000)
     w3.showCollectorsStatistic()
     w3.showWitnessesStatistic()
-    w3.nodes.should.have.length(8)
+    w3.nodes.should.have.length(NODES_AMOUNT)
     // TODO: pass the test~!
     // w3.nodes[0].chain.blocks.should.have.length(2) // 2 blocks are appended to the chain
     const heights = w3.nodes.map(node => node.chain.height)
     debug('--- heights: %o', heights)
-    const chains = w3.nodes.map(node => ({node: node.i, chain: node.chain.superBrief}))
-    const chain = chains[0].chain
-    chains.forEach(c => { // 各个节点的chain可能最后一个block不一样（有可能还未完成），但是前面的block都是一样的
-      if (c.chain.length > chain.length) {
-        c.chain.startsWith(chain).should.equals(true)
-      } else {
-        chain.startsWith(c.chain).should.equals(true)
-      }
+
+    const chains = w3.nodes.map(node => {
+      node.chain.blocks.splice(-1, 1) // remove the last block which may be replaced in the last epoch, which is still runing now.
+      return {node: node.i, chain: node.chain.superBrief.replace(/^height.+,/, '').replace(/ -> /g, ' -> \n')}
     })
+    const chain = chains[0].chain
     debug('--- final chains: %O', chains)
-    // w3.nodes.map((node) => debug(node.debug.blocks.length))
-    // w3.nodes.map((node) => {
-    //   node.debug.blocks.should.have.length(w3.nodes[0].debug.blocks.length)
-    // })
-    //
-    // const blockOnChainDebug = w3.nodes.map(node => node.chain.debug.blocks)
-    // w3.nodes.map((node) => {
-    //   node.chain.
-    // })
+
+    for (let c of chains) {
+      const valid = (c.chain.length > chain.length && c.chain.startsWith(chain)) || chain.startsWith(c.chain)
+      if (!valid) {
+        await fs.ensureFile(`./test/results/${c.node}.chain`)
+        await fs.ensureFile(`./test/results/0.chain`)
+        await fs.writeFile(`./test/results/${c.node}.chain`, c.chain)
+        await fs.writeFile(`./test/results/0.chain`, chain)
+        should.fail(`node ${c.node} chain is not the same as node 0 chain`)
+      }
+    }
     debug('end')
   }).timeout(0)
 })
