@@ -1,5 +1,7 @@
 // [Reference]
 // - https://github.com/libp2p/js-libp2p/blob/master/examples/webrtc-direct/listener.js
+// [Note]
+// - this server code has been distributed at server 3.112.126.56
 
 import { createLibp2p } from 'libp2p'
 import { WebRTCDirect } from '@libp2p/webrtc-direct'

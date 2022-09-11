@@ -17,7 +17,8 @@ async function run() {
     peerDiscovery: [
       new Bootstrap({
         list: [
-          `/ip4/127.0.0.1/tcp/9090/http/p2p-webrtc-direct/p2p/12D3KooWCuo3MdXfMgaqpLC5Houi1TRoFqgK9aoxok4NK5udMu8m`
+          // `/ip4/127.0.0.1/tcp/9090/http/p2p-webrtc-direct/p2p/12D3KooWCuo3MdXfMgaqpLC5Houi1TRoFqgK9aoxok4NK5udMu8m`
+          `/ip4/3.112.126.56/tcp/9090/http/p2p-webrtc-direct/p2p/12D3KooWCuo3MdXfMgaqpLC5Houi1TRoFqgK9aoxok4NK5udMu8m`
         ]
       })
     ]
