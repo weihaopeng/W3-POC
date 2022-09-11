@@ -19,8 +19,8 @@ describe('Full(Normal) Network Mode @issue#2', () => {
   after(() => w3.destroy())
 
   it('work normal to create blocks', async () => {
-    await w3.sendFakeTxs(6, 100)
-    await util.wait(100)
+    await w3.sendFakeTxs(10, 100)
+    await util.wait(10000)
     w3.showCollectorsStatistic()
     w3.showWitnessesStatistic()
     w3.nodes.should.have.length(8)

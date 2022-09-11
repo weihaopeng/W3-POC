@@ -84,11 +84,13 @@ class Node {
         await this.askForWitnessAndMintWhenProper()
       }
     })
+
   }
 
   async askForWitnessAndMintWhenProper () {
     const txs = this.epoch.canAskForWitness() && this.localFacts.pickEnoughTxsForBp()
-    txs && (this.epoch.afw = true) && await this.askForWitnessAndMint(txs)
+    txs && this.epoch.goNextEpochAfterTwoStageMint()
+    txs && this.isCollector() && (this.epoch.afw = true) && await this.askForWitnessAndMint(txs)
   }
 
   async handleTx (tx) {
@@ -114,7 +116,7 @@ class Node {
     if (!isValid) debug('--- FATAL: receive invalid block', block.brief)
     // TODO: 按 design/handle-block.png 算法处理
     if (isValid && (this !== origin || this.isSingleNode)) {
-      this.chain.addBlock(block, this)
+      this.chain.addOrReplaceBlock(block)
     }
   }
 
@@ -151,12 +153,10 @@ class Node {
     this.network.recordCollector(tx, this)
     // the tx is not only collected from tx messages, but also colected from bp, block, fork messages containing valid txPool
     // therefore refator the ASF logic to the localFacts's tx-added event handler
-    // const txPool = this.localFacts.pickEnoughTxsForBp()
-    // txPool && addwait this.askForWitnessAndMint(txPool)
   }
 
   async witnessAndMint (bp) {
-    debug('--- node %s witness bp %s ', this.account.publicKeyString, bp.brief)
+    debug('--- node %s witness bp %s ', this.i, bp.brief)
     this.network.recordWitness(bp, this)
     // this.network.debug.witnesses.push({bp, node: this})
     await bp.witness(this.account)
@@ -187,9 +187,13 @@ class Node {
   }
 
   async mintBlock (bp) {
-    const block = Block.mint(bp, this.chain)
-    if (!this.isSingleNode) this.chain.addBlock(block, this) // verifyThenUpdateOrAddTx to local chain before broadcast, singleNodeMode will verifyThenUpdateOrAddTx it in handleNewBlock
+    const block = Block.mint(bp, this.epoch.tailHash)
+    if (!this.isSingleNode) this.chain.addOrReplaceBlock(block)// verifyThenUpdateOrAddTx to local chain before broadcast, singleNodeMode will verifyThenUpdateOrAddTx it in handleNewBlock
     this.network.broadcast('block', block, this) //this used in theory test to aviod of react on its own message
+  }
+
+  addOrReplaceBlock (block) {
+    this.epoch.isBlockAdded ? this.chain.replaceIfSmall(block) : this.chain.addOrReplaceBlock(block)
   }
 
   async query (query) {

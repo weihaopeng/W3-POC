@@ -22,7 +22,7 @@ class W3Node extends Node {
   }
 
   _isCollector (publicKeyString) {
-    const preBlock = this.chain.tailHash || this.network.initPreBlockValue // !CAUSION: everty node should have the same preBlockValue
+    const preBlock = this.epoch.tailHash || this.network.initPreBlockValue // !CAUSION: everty node should have the same preBlockValue
     return w3Algorithm.isRandomSelected(this.network.distanceFn, preBlock, publicKeyString, this.network.config.COLLECTORS_AMOUNT)
   }
 

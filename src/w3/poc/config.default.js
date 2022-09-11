@@ -8,15 +8,16 @@ const config = {
   ], // events consumed by w3
 
   NODES_AMOUNT: 2**8,
-  COLLECTORS_AMOUNT: 5,
-  WITNESSES_AMOUNT: 5,
-  WITNESS_ROUNDS_AMOUNT: 3,
+  COLLECTORS_AMOUNT: 2,
+  WITNESSES_AMOUNT: 2,
+  WITNESS_ROUNDS_AMOUNT: 2,
   TX_COUNT: 100,
   INIT_CHAIN_INTERVAL: 10000, // 10秒
 
   MSG_ARRIVAL_RATIO: 1, // the ratio is always 1 in a P2P network using TCP as transportation protocol,
   LATENCY_LOWER_BOUND: 0,
   LATENCY_UPPER_BOUND: 100, // 100 milliseconds,
+  LOCAL_COMPUTATION_LATENCY: 300, // 100 milliseconds,
 
   /**
    * singleNodeMode true means in single node network mode, when only the node (i === 0) solely collect, witness and mint

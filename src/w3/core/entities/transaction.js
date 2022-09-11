@@ -9,6 +9,7 @@ class Transaction {
 
   constructor ({ i, to, from, nonce, value, sig='sig' }) { // we ignore sig for now
     Object.assign(this, { i, to, from, nonce, value, sig })
+    this.hash = 'hash-' + i // TODO
   }
 
   get brief() {
@@ -41,10 +42,6 @@ class Transaction {
     return true
   }
 
-  addHash() {
-    this.hash = 'hash-' + i // TODO
-  }
-
   static sort (a, b) {
     // return a.i - b.i // TODO only for theory test
     return a.compareTo(b)
@@ -62,6 +59,14 @@ class Transaction {
     return this.from.lt(other.from) ? this : this.from.gt(other.from) ? other :
       this.from.nonce < other.from.nonce ? this : this.from.nonce > other.from.nonce ? other :
         this.resolveDoubleSpending(other)
+  }
+
+  lt(other) {
+    return this.compareTo(other) < 0
+  }
+
+  gt(other) {
+    return this.compareTo(other) > 0
   }
 
   resolveDoubleSpending (other) {

@@ -2,13 +2,15 @@ class Epoch {
   constructor(node) {
     this.node = node
     this.afw = false
+    this.height = this.node.chain.height
+    this.twoStagesMintLatency = 4 * this.node.network.config.LATENCY_UPPER_BOUND     // @see design/w3-node-activies-and-messages.png
+
+    // this.twoStagesMintLatency = 4 * (this.node.network.config.LATENCY_UPPER_BOUND +    // @see design/w3-node-activies-and-messages.png
+    //   this.node.network.config.LOCAL_COMPUTATION_LATENCY)
   }
 
-  get height () {
-    return  this.node.chain.height
-  }
-
-  reset(height) {
+  reset(height=this.node.chain.height) {
+    this.height = height
     this.afw = false
   }
 
@@ -20,11 +22,17 @@ class Epoch {
     return height === this.height + 1
   }
 
-  nextEpoch(latencyUpperbound) {
-    setTimeout(() => {
+  goNextEpochAfterTwoStageMint() { // @see design/w3-node-activies-and-messages.png
+    this.nextEpochTimer || (this.nextEpochTimer = setTimeout(() => {
+      delete this.nextEpochTimer
       this.afw = false
+      this.height = this.node.chain.height
       this.node.askForWitnessAndMintWhenProper()
-    }, latencyUpperbound)
+    }, this.twoStagesMintLatency))
+  }
+
+  get tailHash() {
+    return this.node.chain.getBlockAtHeight(this.height)?.hash
   }
 }
 

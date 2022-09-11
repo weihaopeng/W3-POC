@@ -1,9 +1,9 @@
 import { Transaction } from './transaction.js'
 
-import Debug from 'debug'
 import _ from 'lodash'
 import { Account } from './account.js'
 
+import Debug from 'debug'
 const debug = Debug('w3:bp')
 
 class BlockProposal {
@@ -26,8 +26,8 @@ class BlockProposal {
   async verify (node) {
     let valid = Account.isValidPublicKeyString(this.collector) && typeof this.height === 'number' && this.txs?.length === node.network.config.TX_COUNT
       && (this.height === 1 || this.tailHash === node.chain.tailHash) // height bigger than 1, must have tailHash // TODO: tailHash should eqls node.
-      && node.chain.height + 1 === this.height
-    if (!valid) return !!debug('--- bp height invalid, node.chain.height: %s, bp height: %s ', node.chain.height, this.height)
+      && node.epoch.height + 1 === this.height
+    if (!valid) return !!debug('--- bp height invalid, node.epoch.height: %s, bp height: %s ', node.epoch.height, this.height)
 
 
     valid = valid && node.isCollector(this.collector)

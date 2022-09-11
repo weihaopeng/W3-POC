@@ -1,11 +1,14 @@
 import { BlockProposal } from './block-proposal.js'
-import { w3Algorithm } from '../../poc/w3.algorithm.js'
+import { w3Algorithm } from '../../poc/index.js'
 import _ from 'lodash'
+
+import Debug from 'debug'
+const debug = Debug('w3:bp')
 
 class Block {
   static index = 0 // TODO: currently only used for theory test
-  static mint (blockProposal, chain) {
-    return new this({ preHash: chain.tailHash, bp: blockProposal })
+  static mint (bp, preHash) {
+    return new this({ preHash, bp: bp })
   }
 
   constructor ({ preHash, bp, i, hash }) { // TODO: currently only used for theory test
@@ -17,8 +20,12 @@ class Block {
   }
 
   async verify (node) {
-    return this.preHash && this.bp && this.hash
+    return this.preHash === node.chain.tailHash && this.bp && this.hash
       && this.bp.verify(node)
+  }
+
+  get height() {
+    return this.bp.height
   }
 
   get txs() {
@@ -39,6 +46,24 @@ class Block {
      * by this means the block mint by different nodes with same txPool and prehash will have the same hash.
      */
     return _.omit(this.bp, ['i', 'collector', 'witnessRecords'])
+  }
+
+  lt(block) {
+    if (this.height !== block.height) debug('--- WARN: should only compare block with same height')
+    for (let i = 0; i < this.txs.length; i++) {
+      if (this.txs[i].lt(block.txs[i])) return true
+      if (this.txs[i].gt(block.txs[i])) return false
+    }
+    return false // equals
+  }
+
+  gt(block) {
+    if (this.height !== block.height) debug('--- WARN: should only compare block with same height')
+    for (let i = 0; i < this.txs.length; i++) {
+      if (this.txs[i].gt(block.txs[i])) return true
+      if (this.txs[i].lt(block.txs[i])) return false
+    }
+    return false // equals
   }
 
 }

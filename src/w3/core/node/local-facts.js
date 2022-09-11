@@ -145,7 +145,7 @@ class LocalFacts extends EventEmitter2 {
   async verifyBlockAndAddTxs (block, node) { // TODO: not tested in single node mode
     let valid = await block?.verify(node)
     // this.blockPool.push({ block, valid}) // TODO: how to use blockPool?
-    if (!valid) debug('--- FATAL: verifyBlockAndAddTxs: block is invalid, should not happen', block.brief)
+    // if (!valid) debug('--- FATAL: verifyBlockAndAddTxs: block is invalid, should not happen', block.brief)
     let { allTxValid } = await this._verifyAndUpdateTxs(block.txs, valid ? 'chain' : 'tx') // valid block verifyThenUpdateOrAddTx to chain
     return { valid: valid && allTxValid }
   }
