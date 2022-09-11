@@ -25,7 +25,7 @@ class BlockProposal {
 
   async verify (node) {
     let valid = Account.isValidPublicKeyString(this.collector) && typeof this.height === 'number' && this.txs?.length === node.network.config.TX_COUNT
-      && (this.height === 1 || this.tailHash === node.chain.tailHash) // height bigger than 1, must have tailHash // TODO: tailHash should eqls node.
+      && (this.height === 1 || this.tailHash === node.epoch.tailHash) // height bigger than 1, must have tailHash // TODO: tailHash should eqls node.
       && node.epoch.height + 1 === this.height
     if (!valid) return !!debug('--- bp height invalid, node.epoch.height: %s, bp height: %s ', node.epoch.height, this.height)
 

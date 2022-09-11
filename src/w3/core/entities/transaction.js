@@ -62,11 +62,19 @@ class Transaction {
   }
 
   lt(other) {
-    return this.compareTo(other) < 0
+    return this.i < other.i
+
+    return this.from.lt(other.from) ? true : this.from.gt(other.from) ? false :
+      this.from.nonce < other.from.nonce ? true : this.from.nonce > other.from.nonce ? false :
+      this.to.lt(other.to)
   }
 
   gt(other) {
-    return this.compareTo(other) > 0
+    return this.i > other.i
+
+    return this.from.gt(other.from) ? true : this.from.lt(other.from) ? false :
+      this.from.nonce > other.from.nonce ? true : this.from.nonce < other.from.nonce ? false :
+        this.to.gt(other.to)
   }
 
   resolveDoubleSpending (other) {
@@ -75,7 +83,9 @@ class Transaction {
   }
 
   compareTo(other) {
-    return this.compare(other) === this ? -1 : 1
+    return this.i - other.i
+
+    return this.lt(other) ? -1 : this.gt(other) ? 1 : 0
   }
 
   isDoubleSpend(other) {

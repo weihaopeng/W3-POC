@@ -12,7 +12,7 @@ class Block {
   }
 
   constructor ({ preHash, bp, i, hash }) { // TODO: currently only used for theory test
-    this.preHash = bp.height === 1 ? 'genuesis' : preHash
+    this.preHash = bp.height === 1 ? 'genesis' : preHash
     this.bp = bp instanceof BlockProposal ? bp : new BlockProposal(bp)
     this.i = i !== undefined ? i : this.constructor.index++ // TODO: currently only used for theory test
     // this.hash = hash !== undefined ? hash : 'h' + this.i // make debug easy in theory test
@@ -20,8 +20,8 @@ class Block {
   }
 
   async verify (node) {
-    return this.preHash === node.chain.tailHash && this.bp && this.hash
-      && this.bp.verify(node)
+    return this.preHash === node.epoch.tailHash && this.bp && this.hash
+      && await this.bp.verify(node)
   }
 
   get height() {

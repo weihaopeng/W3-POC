@@ -13,22 +13,33 @@ class Chain {
   constructor (node, blocks = [] ) {
     this.node = node
     this.blocks = blocks
+    this.debug = {blocks: []}
   }
 
   reset () {
     this.blocks = []
   }
 
-  addOrReplaceBlock(block) {
+  addOrReplaceBlock(block, caller) {
     if (block.height === this.height + 1 && block.preHash === this.tailHash) {
       this.blocks.push(block)
       this.node.localFacts.updateTxsState(block.txs, 'chain')
+      this.debug.blocks.push({node: this.node.i, caller, action: 'add', block: block.superBrief, time: Date.now()})
     } else if (block.height === this.height && block.preHash === this.getTailHash(1)) {
-      const tail = this.tail
-      block.lt(tail) && this.blocks.pop() && this.blocks.push(block)
-      const txsNotUsed = _.differenceBy(tail.txs, block.txs, 'hash')
-      this.node.localFacts.updateTxsState(block.txs, 'chain')
-      this.node.localFacts.updateTxsState(txsNotUsed, 'tx')
+      let txOnChain, txUnused, tail = this.tail
+      if (block.lt(tail)) {
+        debug('--- WARN: use block %s to replace tail %s', block.superBrief, tail.superBrief)
+        this.blocks.pop() && this.blocks.push(block)
+        txOnChain = block.txs
+        txUnused = _.differenceBy(tail.txs, block.txs, 'hash')
+        this.debug.blocks.push({node: this.node.i, caller, action: 'lt & replace', block: block.superBrief, time: Date.now()})
+      } else {
+        txOnChain = null // already on chain
+        txUnused = _.differenceBy(block.txs, tail.txs, 'hash')
+        this.debug.blocks.push({node: this.node.i, caller, action: 'not lt', block: block.superBrief, time: Date.now()})
+      }
+      txOnChain && this.node.localFacts.updateTxsState(txOnChain, 'chain')
+      this.node.localFacts.updateTxsState(txUnused, 'tx')
     } else {
       debug('--- WARN: invalid block, should not add to chain, chain height: %s, block height: %s, block: ', this.height, block.height, block.superBrief)
     }
@@ -49,7 +60,7 @@ class Chain {
 
   getTailHash(n=0) {
     const i = this.blocks.length - 1 - n
-    return i >= 0 ? this.blocks[i].hash : 'genuesis'
+    return i >= 0 ? this.blocks[i].hash : 'genesis'
   }
 
   get brief() {

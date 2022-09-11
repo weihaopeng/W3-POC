@@ -3,7 +3,7 @@ class Epoch {
     this.node = node
     this.afw = false
     this.height = this.node.chain.height
-    this.twoStagesMintLatency = 4 * this.node.network.config.LATENCY_UPPER_BOUND     // @see design/w3-node-activies-and-messages.png
+    this.twoStagesMintLatency = 6 * this.node.network.config.LATENCY_UPPER_BOUND     // @see design/w3-node-activies-and-messages.png
 
     // this.twoStagesMintLatency = 4 * (this.node.network.config.LATENCY_UPPER_BOUND +    // @see design/w3-node-activies-and-messages.png
     //   this.node.network.config.LOCAL_COMPUTATION_LATENCY)
@@ -32,7 +32,7 @@ class Epoch {
   }
 
   get tailHash() {
-    return this.node.chain.getBlockAtHeight(this.height)?.hash
+    return this.node.chain.getBlockAtHeight(this.height)?.hash || 'genesis'
   }
 }
 
