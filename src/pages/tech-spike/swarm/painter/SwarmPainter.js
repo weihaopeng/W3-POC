@@ -23,14 +23,14 @@ class SwarmPainter {
     return links
   }
 
-  init() {
+  init(needClear) {
     this.initChart()
     this.setNodesCoordinates()
     window.addEventListener('resize', () => {
       this.chart.resize()
       this.setNodesCoordinates()
     })
-    this.initClearBtn()
+    if (needClear) this.initClearBtn()
   }
 
   initChart() {
@@ -128,7 +128,10 @@ class SwarmPainter {
   highlightNodes(nodes, msg) {
     const dataIndex = nodes.map((node) => this.nodes.findIndex((n) => n.id === node.id))
     this.chart.dispatchAction({ type: 'select', dataIndex })
-    dataIndex.map((i) => this.nodes[i].appendTooltip(msg))
+    dataIndex.map((i) => {
+      if (msg.valid || msg.valid === false) this.nodes[i].changeTooltipToValid(msg)
+      else this.nodes[i].appendTooltip(msg)
+    })
   }
 
   generateLinesToLinkIndex(lines) {

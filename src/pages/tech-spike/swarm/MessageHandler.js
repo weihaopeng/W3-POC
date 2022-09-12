@@ -3,15 +3,15 @@ const TIMEOUT_THRESHOLD = 5000 // 超时判定机制
 
 class MessageHandler {
   constructor({ chainPainter, blockPainter, swarmPainter, bpPainter, nodes }) {
-    this.chainPainter = chainPainter
-    this.blockPainter = blockPainter
+    // this.chainPainter = chainPainter
+    // this.blockPainter = blockPainter
     this.swarmPainter = swarmPainter
-    this.bpPainter = bpPainter
+    // this.bpPainter = bpPainter
     this.nodes = nodes
     this.departureMap = {}
   }
 
-  handleNetworkMessage(msg, action) {
+  handleNetworkMessage(msg, action, autoDownplay) {
     if (action) msg.action = action
     switch (msg.type) {
       case 'tx':
@@ -21,7 +21,7 @@ class MessageHandler {
         this.handleBpOnNetwork(msg)
         break
       case 'block':
-        this.handleBlockOnNetwork(msg)
+        this.handleBlockOnNetwork(msg, autoDownplay)
         break
       case 'fork':
         this.handleForkOnNetwork(msg)
@@ -32,7 +32,7 @@ class MessageHandler {
   }
 
   handleBlockOnChain(msg) {
-    this.chainPainter.append(msg.data)
+    // this.chainPainter.append(msg.data)
   }
 
   handleChainForked(msg) {
@@ -67,9 +67,9 @@ class MessageHandler {
       this.arriveOnSwarm(msg)
       msg.from = this.nodes.find((node) => node.id === msg.from.address)
       msg.to = this.nodes.find((node) => node.id === msg.to.address)
-      if (msg.data.isWitness) {
-        this.bpPainter.append(msg)
-      }
+      // if (msg.data.isWitness) {
+      //   this.bpPainter.append(msg)
+      // }
     } else if (msg.action === 'eliminate') {
       this.arriveOnSwarm(msg)
     } else {
@@ -77,13 +77,13 @@ class MessageHandler {
     }
   }
 
-  handleBlockOnNetwork(msg) {
+  handleBlockOnNetwork(msg, autoDownplay) {
     console.log('get block msg on network', msg)
     if (msg.action === 'arrive') {
-      this.arriveOnSwarm(msg)
+      this.arriveOnSwarm(msg, autoDownplay)
     } else {
       this.departureOnSwarm(msg)
-      this.blockPainter.append(msg.data)
+      // this.blockPainter.append(msg.data)
     }
   }
 
@@ -116,20 +116,22 @@ class MessageHandler {
     }, TIMEOUT_THRESHOLD)
   }
 
-  arriveOnSwarm(msg) {
+  arriveOnSwarm(msg, autoDownplay) {
     const from = this.nodes.find((node) => node.id === msg.from.address)
     const to = this.nodes.find((node) => node.id === msg.to.address)
     this.swarmPainter.highlightNodes([to], msg);
     const sessionId = msg.sessionId;
     const index = this.departureMap[sessionId].to.findIndex((node) => node.address === to.id);
     if (index > -1) this.departureMap[sessionId].to.splice(index, 1);
-    setTimeout(() => {
-      this.swarmPainter.downplayLines([{ from, to }], msg)
-      this.swarmPainter.downplayNodes([to], msg)
-      if (this.departureMap[sessionId].to.length === 0) {
-        this.swarmPainter.downplayNodes([from], msg)
-      }
-    }, DELAY_FOR_VIEW)
+    if (autoDownplay !== false) {
+      setTimeout(() => {
+        this.swarmPainter.downplayLines([{ from, to }], msg)
+        this.swarmPainter.downplayNodes([to], msg)
+        if (this.departureMap[sessionId].to.length === 0) {
+          this.swarmPainter.downplayNodes([from], msg)
+        }
+      }, DELAY_FOR_VIEW)
+    }
   }
 }
 

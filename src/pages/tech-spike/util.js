@@ -25,7 +25,7 @@ export function getRandomIp() {
   return str;
 }
 
-export function getRandomHash(length = 20) {
+export function getRandomHash(length = 100) {
   let str = ""
   while(str.length < length) {
     str += ((Math.random() * 16) | 0).toString(16);

@@ -7,13 +7,6 @@ html, body {
   margin: 0;
   background: #eee;
   overflow: hidden;
-  #main {
-    width: calc(100% - 64px);
-    height: calc(100% - 64px);
-    display: flex;
-    margin: 32px;
-    background: #fff;
-  }
 }
 
 .chain-column, .block-column, .bp-column, .swarm-column {
@@ -27,6 +20,10 @@ html, body {
   width: 300px;
   overflow-y: auto;
   max-height: 75vh;
+}
+
+.bp-column  {
+  width: 340px;
 }
 
 .swarm-column {
@@ -76,7 +73,10 @@ $tooltip-bg-map: (
   @for $i from 0 to length($selectors) {
     $type: nth($selectors, $i + 1);
     &.#{$type} {
-      background-color: map.get($tooltip-bg-map, #{$type});
+      background-color: rgba(map.get($tooltip-bg-map, #{$type}), 0.5);
+      &.valid {
+        background-color: map.get($tooltip-bg-map, #{$type});
+      }
     }
   }
 }
@@ -120,6 +120,13 @@ $tooltip-bg-map: (
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
           }
+          .info-in-tooltip {
+            display: inline-block;
+            max-width: 80px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            vertical-align: middle;
+          }
         }
       }
       &.horizontal {
@@ -154,8 +161,11 @@ $tooltip-bg-map: (
       border-radius: 4px;
       margin: 16px;
       padding: 16px;
-      animation: yellow-fade 2s linear 1;
+      // animation: yellow-fade 2s linear 1;
       position: relative;
+      &.highlight {
+        background-color: #fff1b8;
+      }
     }
     .#{$type}-type {
       margin-right: 8px;
@@ -173,7 +183,7 @@ $tooltip-bg-map: (
 #control-simulator {
   position: absolute;
   bottom: 5vh;
-  left: 100px;
+  left: 600px;
   border: solid 1px #dcdcdc;
   box-shadow: 0 0 4px 0 #000;
   // padding: 8px 16px;
