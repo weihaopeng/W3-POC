@@ -54,7 +54,7 @@ describe('Full(Normal) Network Mode @issue#2', () => {
         await fs.ensureFile(`./test/results/${c.node}.chain`)
         await fs.ensureFile(`./test/results/0.chain`)
       }
-      debug('--- WARN: chains are not valid, see chains above.')
+      should.fail('--- WARN: chains are not valid, see chains above.')
     }
     debug('end')
   }).timeout(0)

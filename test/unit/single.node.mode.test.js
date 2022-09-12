@@ -43,7 +43,7 @@ describe('Single Node Network Mode @issue#2', () => {
       w3.nodes.should.have.length(1)
       w3.nodes[0].chain.blocks.should.have.length(1) // only 1 _blocks are appended to the chain
       // txPool are drained
-      w3.nodes[0].localFacts.txPool.should.have.length(4)
+      w3.nodes[0].localFacts.txPool.should.have.length(9)
       w3.nodes[0].localFacts.txPool.filter(({ state }) => state === 'tx').should.have.length(4)
 
       // w3.nodes[0].localFacts.txPool.should.have.length(9)
