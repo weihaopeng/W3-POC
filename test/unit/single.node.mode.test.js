@@ -57,6 +57,7 @@ describe('Single Node Network Mode @issue#2', () => {
     it('drop a bad bp which has an invalid tx', async () => {
       w3.sendFakeBp(new BlockProposal({
         height: 3,
+        collector: {publicKeyString: util.getEthereumAccount().publicKeyString, i: 0},
         tailHash: w3.nodes[0].chain.tailHash,
         txs: [1, 2, 3, 4].map(i => w3.createFakeTx(i)).concat('bad-tx')
       }))
@@ -67,7 +68,7 @@ describe('Single Node Network Mode @issue#2', () => {
     it('drop a bad bp which has an invalid collector', async () => {
       await w3.sendFakeBp(new BlockProposal({
         height: 1,
-        collector: 'illPublicKeyString',
+        collector: { publicKeyString: 'illPublicKeyString', i: 0 },
         tailHash: 'fakeHash',
         txs: [1, 2, 3, 4, 5].map(i => w3.createFakeTx(i))
       }))
@@ -82,7 +83,7 @@ describe('Single Node Network Mode @issue#2', () => {
     it('drop a bad bp which has an invalid witness', async () => {
       await w3.sendFakeBp(new BlockProposal({
         height: 1,
-        collector: util.getEthereumAccount().publicKeyString,
+        collector: {publicKeyString: util.getEthereumAccount().publicKeyString, i: 0},
         tailHash: 'fakeHash',
         txs: [1, 2, 3, 4, 5].map(i => w3.createFakeTx(i)),
         witnessRecords: [

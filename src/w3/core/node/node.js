@@ -165,7 +165,7 @@ class Node {
     debug('--- node %s witness bp %s ', this.i, bp.brief)
     this.network.recordWitness(bp, this)
     // this.network.debug.witnesses.push({bp, node: this})
-    await bp.witness(this.account)
+    await bp.witness(this)
     this.isNeedMoreRoundOfWitness(bp) ? await this.continueWitnessAndMint(bp) :
       await this.mintBlock(bp)
   }
@@ -178,9 +178,10 @@ class Node {
 
   createBlockProposal (txs) {
     const bp = new BlockProposal({
-      height: this.chain.height + 1, tailHash: this.epoch.tailHash, txs, collector: this.account.publicKeyString
+      // height: this.chain.height + 1, tailHash: this.epoch.tailHash, txs, collector: this.i //  i is better for dev debug
+      height: this.chain.height + 1, tailHash: this.epoch.tailHash, txs, collector: {i: this.i, publicKeyString: this.account.publicKeyString}
     })
-    bp.askForWitness(this.account)
+    bp.askForWitness(this)
     return bp
   }
 
@@ -189,7 +190,7 @@ class Node {
   }
 
   async continueWitnessAndMint (bp) {
-    bp.askForWitness(this.account)
+    bp.askForWitness(this)
     this.network.broadcast('bp', bp, this) //this used in theory test to aviod of react on its own message
   }
 

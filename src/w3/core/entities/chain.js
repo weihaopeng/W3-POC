@@ -97,7 +97,7 @@ class Chain {
   }
 
   get tail () {
-    return this._blocks.slice(-1)[0]
+    return this.blocks.slice(-1)[0]
   }
 
   get tailHash () {

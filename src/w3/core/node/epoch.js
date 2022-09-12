@@ -57,8 +57,9 @@ class Epoch {
     this.height = this.node.chain.height
 
     // release resources
-    Chain.pruneCommonHeadBlocks(this.node.network.config.UNCONFIRMED_BLOCKS_HEIGHT)
-    this.node.localFacts.drainPools()
+    // 注意！这里有问题，drainPools之后，会导致双花判定不准，还有已上链的tx再出现被当做是新的tx，导致重复上链！~！暂停不用，优化时再说。
+    // Chain.pruneCommonHeadBlocks(this.node.network.config.UNCONFIRMED_BLOCKS_HEIGHT)
+    // this.node.localFacts.drainPools()
 
     this.constructor.detectEpochHeightDifference() // use in dev. for observe the epoch height difference
     this.node.askForWitnessAndMintWhenProper()
