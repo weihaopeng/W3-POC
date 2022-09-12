@@ -93,6 +93,8 @@ class Node {
       this.isCollector() && this.epoch.canAskForWitness() && await this.askForWitnessAndMint(txs)
       this.epoch.goNextEpochAfterTwoStageMint()
     }
+
+    // const txs = this.localFacts.pickEnoughTxsForBp()
     // txs && this.epoch.goNextEpochAfterTwoStageMint()
     // txs && this.isCollector() && (this.epoch.afw = true) && await this.askForWitnessAndMint(txs)
   }
@@ -100,7 +102,7 @@ class Node {
   async handleTx (tx) {
     tx = new Transaction(tx)
     const isTxAdded = await this.updateLocalFact('tx', tx)
-    debug('--- isTxAdded: ', isTxAdded)
+    // debug('--- isTxAdded: ', isTxAdded)
     isTxAdded && this.isCollector() && await this.collect(tx)
   }
 
@@ -170,6 +172,7 @@ class Node {
 
   async askForWitnessAndMint (txs) {
     const bp = this.createBlockProposal(txs)
+    this.localFacts.updateTxsState(txs, 'bp')
     this.network.broadcast('bp', bp, this) //this used in theory test to aviod of react on its own message
   }
 

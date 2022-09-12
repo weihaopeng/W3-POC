@@ -106,7 +106,6 @@ class LocalFacts extends EventEmitter2 {
     if (txs.length >= txCount) {
       // debug('--- SHOW: this.txPool.length: ', this.txPool.length)
       txs = txs.slice(0, txCount)
-      txs.map(tx => tx.state = 'bp')
       return txs.map(({ tx }) => tx).sort(Transaction.sort)
     }
   }
