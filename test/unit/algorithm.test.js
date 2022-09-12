@@ -44,6 +44,31 @@ describe('Key points of Protocol', () => {
       distance.should.equal(recalcalutedDistance)
       d1.should.not.equal(distance)
     })
+
+    it('bp changed a little and the distance changes, with simple nhash distance', async () => {
+      /**
+       * 分步原理验证，distanceFn(bp, pk) === distanceFn(bp.clone(), pk)
+       */
+      let distanceFn = w3Algorithm.simpleNHashDistance(128) // nodes amount 1280
+
+      let bp = { id: 'bp', txs: ['1','2']} // fake bp
+      let bpReceived = {...bp}
+      let publicKeyString = '123345566'
+      let distance = distanceFn(bp, publicKeyString)
+      let recalcalutedDistance = distanceFn(bpReceived, publicKeyString)
+      debug('distance: %s, recalcalutedDistance: %s', distance, recalcalutedDistance)
+      distance.should.equal(recalcalutedDistance)
+      const d1 = distance
+
+      bp = { id: 'bp1', txs: ['1','2']} // fake bp
+      bpReceived = {...bp}
+      publicKeyString = '123345566'
+      distance = distanceFn(bp, publicKeyString)
+      recalcalutedDistance = distanceFn(bpReceived, publicKeyString)
+      debug('distance: %s, recalcalutedDistance: %s', distance, recalcalutedDistance)
+      distance.should.equal(recalcalutedDistance)
+      d1.should.not.equal(distance)
+    })
   })
 })
 

@@ -33,7 +33,7 @@ class Epoch {
   }
 
   canAskForWitness() {
-    return this.afw === false
+    return this.height === this.node.chain.height && this.afw === false
   }
 
   canWitness(height) {
@@ -41,22 +41,27 @@ class Epoch {
   }
 
   goNextEpochAfterTwoStageMint() { // @see design/w3-node-activies-and-messages.png
+    this.afw = true
     this.nextEpochTimer || (this.nextEpochTimer = setTimeout(() => {
-      delete this.nextEpochTimer
-      this.afw = false
-      this.height = this.node.chain.height
-
-      // release resources
-      Chain.pruneCommonHeadBlocks(this.node.network.config.UNCONFIRMED_BLOCKS_HEIGHT)
-      this.node.localFacts.drainPools()
-
-      this.constructor.detectEpochHeightDifference() // use in dev. for observe the epoch height difference
-      this.node.askForWitnessAndMintWhenProper()
+      this.proceedNextEpoch()
     }, this.node.network.config.TWO_STAGE_MINT_INTERVAL))
   }
 
   get tailHash() {
     return this.node.chain.getBlockAtHeight(this.height)?.hash || 'genesis'
+  }
+
+  proceedNextEpoch () {
+    delete this.nextEpochTimer
+    this.afw = false
+    this.height = this.node.chain.height
+
+    // release resources
+    Chain.pruneCommonHeadBlocks(this.node.network.config.UNCONFIRMED_BLOCKS_HEIGHT)
+    this.node.localFacts.drainPools()
+
+    this.constructor.detectEpochHeightDifference() // use in dev. for observe the epoch height difference
+    this.node.askForWitnessAndMintWhenProper()
   }
 }
 

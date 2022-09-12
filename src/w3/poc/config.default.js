@@ -19,7 +19,7 @@ const config = {
   LATENCY_UPPER_BOUND: 100, // 100 milliseconds,
   LOCAL_COMPUTATION_LATENCY: 30, // 20 milliseconds,
 
-  TWO_STAGES_MINT_LATENCY: 4 * (100 + 30), // 4 rounds * (latency + local computation latency), // @see design/w3-node-activies-and-messages.png
+  WITNESS_AND_MINT_LATENCY: 4 * (100 + 30), // 4 rounds * (latency + local computation latency), // @see design/w3-node-activies-and-messages.png
   UNCONFIRMED_BLOCKS_HEIGHT: 0, // the height from tail of a chain to the head of unconfirmed _blocks
 
   /**

@@ -88,9 +88,13 @@ class Node {
   }
 
   async askForWitnessAndMintWhenProper () {
-    const txs = this.epoch.canAskForWitness() && this.localFacts.pickEnoughTxsForBp()
-    txs && this.epoch.goNextEpochAfterTwoStageMint()
-    txs && this.isCollector() && (this.epoch.afw = true) && await this.askForWitnessAndMint(txs)
+    const txs = this.localFacts.pickEnoughTxsForBp()
+    if (txs) {
+      this.isCollector() && this.epoch.canAskForWitness() && await this.askForWitnessAndMint(txs)
+      this.epoch.goNextEpochAfterTwoStageMint()
+    }
+    // txs && this.epoch.goNextEpochAfterTwoStageMint()
+    // txs && this.isCollector() && (this.epoch.afw = true) && await this.askForWitnessAndMint(txs)
   }
 
   async handleTx (tx) {

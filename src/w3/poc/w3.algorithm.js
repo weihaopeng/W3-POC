@@ -90,7 +90,7 @@ const w3Algorithm = {
   },
 
   simpleNHashDistance (n) {
-    return (v1, v2) => Math.abs(this.simpleHash(v1) - this.simpleHash(v2)) % n
+    return (v1, v2) => Math.abs(this.simpleHash(JSON.stringify(v1)) - this.simpleHash(JSON.stringify(v2))) % n
   }
 }
 

@@ -11,12 +11,14 @@ import { util } from '../../src/w3/util.js'
 
 import Debug from 'debug'
 import { config } from '../../src/w3/poc/config.default.js'
-Debug.enable('w3:test')
+// Debug.enable('w3:test')
 const debug = Debug('w3:test')
 describe('Full(Normal) Network Mode @issue#2', () => {
-  let NODES_AMOUNT = 16, w3 = new W3Swarm({TX_COUNT: 5, NODES_AMOUNT})
+  let NODES_AMOUNT = 16, TX_COUNT = 5, w3 = new W3Swarm({TX_COUNT, NODES_AMOUNT})
+  const tps = TX_COUNT / (10 * config.WITNESS_AND_MINT_LATENCY / 1000) // @see design/w3-node-activies-and-messages.png
 
-  before(async function () {
+
+    before(async function () {
     this.timeout(0)
     await fs.remove('./test/results')
     await w3.init()
@@ -25,8 +27,8 @@ describe('Full(Normal) Network Mode @issue#2', () => {
   after(() => w3.destroy())
 
   it.skip('work normal to create _blocks', async () => {
-    await w3.sendFakeTxs(100, 100)
-    await util.wait(config.TWO_STAGES_MINT_LATENCY)
+    await w3.sendFakeTxs(Math.ceil(100 * tps), tps)
+    await util.wait(config.WITNESS_AND_MINT_LATENCY)
     // await util.wait(1000)
     w3.showCollectorsStatistic()
     w3.showWitnessesStatistic()

@@ -53,6 +53,7 @@ class Chain {
     if (block.height === this.height + 1 && block.preHash === this.tailHash) {
       this._blocks.push(block)
       this.node.localFacts.updateTxsState(block.txs, 'chain')
+      // this.node.epoch.proceedNextEpoch()
       this.debug.blocks.push({ node: this.node.i, caller, action: 'add', block: block.superBrief, time: Date.now() })
     } else if (block.height === this.height && block.preHash === this.getTailHash(1)) {
       let txOnChain, txUnused, tail = this.tail
