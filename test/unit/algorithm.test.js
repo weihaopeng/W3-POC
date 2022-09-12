@@ -2,11 +2,8 @@ import chai from 'chai'
 
 chai.should()
 
-import { W3Swarm, W3Node } from '../../src/w3/poc/index.js'
-import { util } from '../../src/w3/util.js'
-
 import Debug from 'debug'
-import { w3Algorithm } from '../../src/w3/poc/w3.algorithm.js'
+import { w3Algorithm } from '../../src/w3/poc/index.js'
 
 const debug = Debug('w3:test')
 

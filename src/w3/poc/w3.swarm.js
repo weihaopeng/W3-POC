@@ -10,6 +10,7 @@ import { config as defaultConfig } from './config.default.js'
 import { w3Algorithm } from './w3.algorithm.js'
 
 import Debug from 'debug'
+import { Chain } from '../core/entities/chain.js'
 const debug = Debug('w3:poc:network')
 
 /**
@@ -45,11 +46,13 @@ class W3Swarm extends EventEmitter2 {
   reset(height=0) {
     this.config.W3_EVENTS_ON && this.events.removeAllListeners()
     this.nodes.forEach(node => node.reset(height))
+    Chain.reset()
   }
 
   destroy () {
     this.nodes = null
     this.removeAllListeners()
+    Chain.reset()
   }
 
   listen (event, cb, target) {
@@ -64,6 +67,7 @@ class W3Swarm extends EventEmitter2 {
       // debug('***** arrivalRatio: %s, latency: %s', arrivalRatio, latency)
 
       if (Math.random() < arrivalRatio && target !== origin) {
+        // setTimeout(() => this._listenCb(cb, data, origin, target, event), 0)
         setTimeout(() => this._listenCb(cb, data, origin, target, event), latency)
       }
     })
@@ -81,12 +85,14 @@ class W3Swarm extends EventEmitter2 {
 
   async sendFakeTxs (n, tps = 1, badTx= 0) { // transaction per second, is the lamda of the Poisson Distribution
     this.fakeTxs = n
-    const possionLatencies = new Array(n).fill(0).map(() => util.exponentialRandom(tps / 1000))
-    debug('*********** tps: %s, avg possionLatencies: %s', tps, possionLatencies.reduce((a, b) => a + b) / possionLatencies.length)
+    let time = Date.now()
+    // const possionLatencies = new Array(n).fill(0).map(() => util.exponentialRandom(tps / 1000))
+    // debug('*********** tps: %s, avg possionLatencies: %s', tps, possionLatencies.reduce((a, b) => a + b) / possionLatencies.length)
     const badIndexs = _.sampleSize([...new Array(n)].map((_, i) => i), badTx)
     for (let i = 0; i < n; i++) {
+      i % 100 === 0 && console.log('---node %s send %s fake txs, time used: %s ms', this.nodes[0].i, i, Date.now() - time)
       const possionLatency = util.exponentialRandom(tps / 1000)
-      debug('--- sendFakeTx latency: %s ms', possionLatency)
+      // debug('--- sendFakeTx latency: %s ms', possionLatency)
       await util.wait(possionLatency)
       this.sendFakeTx(i, badIndexs.includes(i))
     }

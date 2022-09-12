@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import { Chain } from '../entities/chain.js'
 
 class Epoch {
   static epoches = []
@@ -24,10 +25,6 @@ class Epoch {
     this.node = node
     this.afw = false
     this.height = this.node.chain.height
-    this.twoStagesMintLatency = 8 * this.node.network.config.LATENCY_UPPER_BOUND     // @see design/w3-node-activies-and-messages.png
-
-    // this.twoStagesMintLatency = 4 * (this.node.network.config.LATENCY_UPPER_BOUND +    // @see design/w3-node-activies-and-messages.png
-    //   this.node.network.config.LOCAL_COMPUTATION_LATENCY)
   }
 
   reset(height=this.node.chain.height) {
@@ -48,9 +45,14 @@ class Epoch {
       delete this.nextEpochTimer
       this.afw = false
       this.height = this.node.chain.height
+
+      // release resources
+      Chain.pruneCommonHeadBlocks(this.node.network.config.UNCONFIRMED_BLOCKS_HEIGHT)
+      this.node.localFacts.drainPools()
+
       this.constructor.detectEpochHeightDifference() // use in dev. for observe the epoch height difference
       this.node.askForWitnessAndMintWhenProper()
-    }, this.twoStagesMintLatency))
+    }, this.node.network.config.TWO_STAGE_MINT_INTERVAL))
   }
 
   get tailHash() {

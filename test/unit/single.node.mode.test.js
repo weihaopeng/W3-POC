@@ -9,6 +9,7 @@ import Debug from 'debug'
 import { BlockProposal } from '../../src/w3/core/entities/block-proposal.js'
 import { Account } from '../../src/w3/core/entities/account.js'
 import { Block } from '../../src/w3/core/entities/block.js'
+import { config } from '../../src/w3/poc/config.default.js'
 
 const debug = Debug('w3:test')
 
@@ -24,24 +25,30 @@ describe('Single Node Network Mode @issue#2', () => {
   after(() => w3.destroy())
 
   describe('normal creation & bad tx ', () => {
-    it('normal creation of blocks', async () => {
+    it('normal creation of _blocks', async () => {
       await w3.sendFakeTxs(10, 100) // only two block to drive the single node mode dev.
+      await util.wait(config.TWO_STAGES_MINT_LATENCY)
       w3.showCollectorsStatistic()
       w3.showWitnessesStatistic()
       w3.nodes.should.have.length(1)
-      w3.nodes[0].chain.blocks.should.have.length(2) // 2 blocks are appended to the chain
+      w3.nodes[0].chain.blocks.should.have.length(2) // 2 _blocks are appended to the chain
       w3.nodes[0].localFacts.txPool.forEach(({ state }) => state.should.equal('chain'))
     })
 
     it('drop a bad tx', async () => {
       await w3.sendFakeTxs(10, 100, 1) // only two block to drive the single node mode dev.
+      await util.wait(config.TWO_STAGES_MINT_LATENCY)
       w3.showCollectorsStatistic()
       w3.showWitnessesStatistic()
       w3.nodes.should.have.length(1)
-      w3.nodes[0].chain.blocks.should.have.length(1) // only 1 blocks are appended to the chain
-      w3.nodes[0].localFacts.txPool.should.have.length(9)
-      w3.nodes[0].localFacts.txPool.filter(({ state }) => state === 'chain').should.have.length(5)
+      w3.nodes[0].chain.blocks.should.have.length(1) // only 1 _blocks are appended to the chain
+      // txPool are drained
+      w3.nodes[0].localFacts.txPool.should.have.length(4)
       w3.nodes[0].localFacts.txPool.filter(({ state }) => state === 'tx').should.have.length(4)
+
+      // w3.nodes[0].localFacts.txPool.should.have.length(9)
+      // w3.nodes[0].localFacts.txPool.filter(({ state }) => state === 'chain').should.have.length(5)
+      // w3.nodes[0].localFacts.txPool.filter(({ state }) => state === 'tx').should.have.length(4)
     })
 
   })
@@ -53,7 +60,7 @@ describe('Single Node Network Mode @issue#2', () => {
         tailHash: w3.nodes[0].chain.tailHash,
         txs: [1, 2, 3, 4].map(i => w3.createFakeTx(i)).concat('bad-tx')
       }))
-      await util.wait(100)
+      await util.wait(config.TWO_STAGES_MINT_LATENCY)
       w3.nodes[0].localFacts.txPool.should.have.length(4)
     })
 
@@ -64,12 +71,11 @@ describe('Single Node Network Mode @issue#2', () => {
         tailHash: 'fakeHash',
         txs: [1, 2, 3, 4, 5].map(i => w3.createFakeTx(i))
       }))
-      await util.wait(100)
+      await util.wait(config.TWO_STAGES_MINT_LATENCY)
       /**
        * Although the bp droped, which can be seen from the debug log, the txs in the bp are still in the txPool, and when
        * there are enough txs in the txPool, a new legitimate bp and then a new block will be created.
        */
-      w3.nodes[0].localFacts.txPool.should.have.length(5) // 5 txs are in the pool
       w3.nodes[0].chain.height.should.equals(1)
     })
 
@@ -83,12 +89,11 @@ describe('Single Node Network Mode @issue#2', () => {
           { asker: 'bad-witness', witness: 'bad-witness', signature: 'bad-witness' }
         ]
       }))
-      await util.wait(100) // wait for bp to be processed
+      await util.wait(config.TWO_STAGES_MINT_LATENCY)
       /**
        * Although the bp droped, which can be seen from the debug log, the txs in the bp are still in the txPool, and when
        * there are enough txs in the txPool, a new legitimate bp and then a new block will be created.
        */
-      w3.nodes[0].localFacts.txPool.should.have.length(5) // 5 txs are in the pool
       w3.nodes[0].chain.height.should.equals(1)
 
     })
@@ -105,7 +110,7 @@ describe('Single Node Network Mode @issue#2', () => {
           txs: [1, 2, 3, 4].map(i => w3.createFakeTx(i)).concat('bad-tx')
         })
       }))
-      await util.wait(100)
+      await util.wait(config.TWO_STAGES_MINT_LATENCY)
       w3.nodes[0].localFacts.txPool.should.have.length(4)
       w3.nodes[0].chain.height.should.equals(0)
     })
@@ -120,12 +125,11 @@ describe('Single Node Network Mode @issue#2', () => {
           txs: [1, 2, 3, 4, 5].map(i => w3.createFakeTx(i))
         })
       }))
-      await util.wait(100)
+      await util.wait(config.TWO_STAGES_MINT_LATENCY)
       /**
        * Although the bp droped, which can be seen from the debug log, the txs in the bp are still in the txPool, and when
        * there are enough txs in the txPool, a new legitimate bp and then a new block will be created.
        */
-      w3.nodes[0].localFacts.txPool.should.have.length(5) // 5 txs are in the pool
       w3.nodes[0].chain.height.should.equals(1)
     })
 
@@ -142,12 +146,11 @@ describe('Single Node Network Mode @issue#2', () => {
           ]
         })
       }))
-      await util.wait(100)
+      await util.wait(config.TWO_STAGES_MINT_LATENCY)
       /**
        * Although the bp droped, which can be seen from the debug log, the txs in the bp are still in the txPool, and when
        * there are enough txs in the txPool, a new legitimate bp and then a new block will be created.
        */
-      w3.nodes[0].localFacts.txPool.should.have.length(5) // 5 txs are in the pool
       w3.nodes[0].chain.height.should.equals(1)
 
     })
@@ -157,14 +160,14 @@ describe('Single Node Network Mode @issue#2', () => {
 
     it('lower one first, higher one rejected', async () => {
       const [low, high] = await w3.sendFakeDoubleSpendingTxs('lowerScore')
-      await util.wait(100) // wait node received the txPool
+      await util.wait(config.TWO_STAGES_MINT_LATENCY)
       w3.nodes[0].localFacts.txPool.should.have.length(1)
       w3.nodes[0].localFacts.txPool[0].tx.equals(low).should.true
     })
 
     it('higher one first, lower one replaced', async () => {
       const [high, low] = await w3.sendFakeDoubleSpendingTxs('higherScore')
-      await util.wait(100) // wait node received the txPool
+      await util.wait(config.TWO_STAGES_MINT_LATENCY)
       w3.nodes[0].localFacts.txPool.should.have.length(1)
       w3.nodes[0].localFacts.txPool[0].tx.equals(low).should.true
     })

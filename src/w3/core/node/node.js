@@ -79,9 +79,9 @@ class Node {
 
     this.network.listen('fork',  (fork) => this.handleForkWins(fork), this)
 
-    this.localFacts.on('tx-updated-or-added', async ({tx, state, res}) => {
+    this.localFacts.on('tx-updated-or-added',  ({tx, state, res}) => {
       if (res === 'added') { // updatedState, replaced, rejected means the count of txPool in the pool is not change
-        await this.askForWitnessAndMintWhenProper()
+         this.askForWitnessAndMintWhenProper()
       }
     })
 
@@ -120,7 +120,7 @@ class Node {
     }
   }
 
-  async handleForkWins (fork) { // { blocks }
+  async handleForkWins (fork) { // { _blocks }
     fork = new Fork(fork)
     const isValid = await this.verifyFork(fork)
     if (!isValid) {

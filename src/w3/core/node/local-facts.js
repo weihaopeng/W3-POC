@@ -36,6 +36,10 @@ class LocalFacts extends EventEmitter2 {
     this.forkPool = []
   }
 
+  drainPools() {
+    this.txPool = this.txPool.filter(({ state }) => state !== 'chain')
+  }
+
   /**
    * TODO: using traditional tx verification algorithm verify against local fact
    * Illegal txPool

@@ -15,8 +15,8 @@ class Block {
     this.preHash = bp.height === 1 ? 'genesis' : preHash
     this.bp = bp instanceof BlockProposal ? bp : new BlockProposal(bp)
     this.i = i !== undefined ? i : this.constructor.index++ // TODO: currently only used for theory test
-    // this.hash = hash !== undefined ? hash : 'h' + this.i // make debug easy in theory test
-    this.hash = w3Algorithm.hash(this)
+    this.hash = hash !== undefined ? hash : 'h-' + bp.superBrief // make debug easy in theory test
+    // this.hash = w3Algorithm.hash(this)
   }
 
   async verify (node) {
@@ -37,7 +37,8 @@ class Block {
   }
 
   get superBrief() {
-    return `[${this.bp.superBrief}]:${this.hash}`
+    // return `[${this.bp.superBrief}]:${this.hash}`
+    return `[${this.bp.superBrief}]`
   }
 
   toJSON() {
@@ -48,23 +49,28 @@ class Block {
     return _.omit(this.bp, ['i', 'collector', 'witnessRecords'])
   }
 
-  lt(block) {
-    if (this.height !== block.height) debug('--- WARN: should only compare block with same height')
+  lt(other) {
+    if (this.height !== other.height) debug('--- WARN: should only compare other with same height')
     for (let i = 0; i < this.txs.length; i++) {
-      if (this.txs[i].lt(block.txs[i])) return true
-      if (this.txs[i].gt(block.txs[i])) return false
+      if (this.txs[i].lt(other.txs[i])) return true
+      if (this.txs[i].gt(other.txs[i])) return false
     }
     return false // equals
   }
 
-  gt(block) {
-    if (this.height !== block.height) debug('--- WARN: should only compare block with same height')
+  gt(other) {
+    if (this.height !== other.height) debug('--- WARN: should only compare other with same height')
     for (let i = 0; i < this.txs.length; i++) {
-      if (this.txs[i].gt(block.txs[i])) return true
-      if (this.txs[i].lt(block.txs[i])) return false
+      if (this.txs[i].gt(other.txs[i])) return true
+      if (this.txs[i].lt(other.txs[i])) return false
     }
     return false // equals
   }
+
+  equals(other) {
+    return this.i === other.i || this.hash === other.hash
+  }
+
 
 }
 

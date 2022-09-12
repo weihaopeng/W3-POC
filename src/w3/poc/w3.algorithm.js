@@ -1,6 +1,7 @@
 import { blake2b } from 'ethereum-cryptography/blake2b.js'
 
 import Debug from 'debug'
+
 const debug = Debug('w3:algorithm')
 
 const w3Algorithm = {
@@ -54,7 +55,7 @@ const w3Algorithm = {
   isRandomSelected (distanceFn, pointOfInteresting, candidateIdentity, candidatesAmount) {
     const distance = distanceFn(pointOfInteresting, candidateIdentity)
     // if (pointOfInteresting.witnessRecords) debug('bp.witnessRecords: %O', pointOfInteresting)
-    // debug('--- is random selected %s selected,distance: %s', distance <= candidatesAmount, distance)
+    // debug('--- is rnodandom selected %s selected,distance: %s', distance <= candidatesAmount, distance)
     return distance <= candidatesAmount
   },
 
@@ -64,11 +65,32 @@ const w3Algorithm = {
       .toString('hex')
   },
 
-  universalRuleTx(txa, txb) {
+  universalRuleTx (txa, txb) {
     return txa.from.lt(txb.from) ? txa : txa.from.gt(txb.from) ? txb :
       txa.from.nonce < txb.from.nonce ? txa : txa.from.nonce > txb.from.nonce ? txb :
         txa.to.lt(txb.to) ? txa : txa.to.gt(txb.to) ? txb :
           txa.value < txb.value ? txa : txb
+  },
+
+  /**
+   * Returns a hash code from a string, simple but not secure
+   * @param  {String} str The string to hash.
+   * @return {Number}    A 32bit integer
+   * @see http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
+   * @thanks http://stackoverflow.com/a/7616484/112731
+   */
+  simpleHash (str) {
+    let hash = 0
+    for (let i = 0, len = str.length; i < len; i++) {
+      let chr = str.charCodeAt(i)
+      hash = (hash << 5) - hash + chr
+      hash |= 0 // Convert to 32bit integer
+    }
+    return hash
+  },
+
+  simpleNHashDistance (n) {
+    return (v1, v2) => Math.abs(this.simpleHash(v1) - this.simpleHash(v2)) % n
   }
 }
 
