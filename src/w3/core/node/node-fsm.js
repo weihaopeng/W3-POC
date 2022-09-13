@@ -5,7 +5,7 @@ import Debug from 'debug'
 const debug = Debug('w3:peer:fsm')
 
 /**
- * @see design/w3-node-activies-and-messages.png
+ * @see design/w3-node-activities-and-messages.png
  */
 const fsm = {
   init: 'pending',

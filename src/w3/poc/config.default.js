@@ -19,8 +19,12 @@ const config = {
   LATENCY_UPPER_BOUND: 100, // 100 milliseconds,
   LOCAL_COMPUTATION_LATENCY: 30, // 20 milliseconds,
 
-  WITNESS_AND_MINT_LATENCY: 4 * (100 + 30), // 4 rounds * (latency + local computation latency), // @see design/w3-node-activies-and-messages.png
+  WITNESS_AND_MINT_LATENCY: 4 * (100 + 30), // 4 rounds * (latency + local computation latency), // @see design/w3-node-activities-and-messages.png
   UNCONFIRMED_BLOCKS_HEIGHT: 0, // the height from tail of a chain to the head of unconfirmed _blocks
+
+  EPOCH_TIME: 17 * (100 + 30), // 17 * (latency + local computation latency), // @see design/w3-node-activities-and-messages.png
+  EPOCH_COLLECTING_TIME: 13 * (100 + 30),
+  EPOCH_WITNESS_AND_MINT_TIME: 4 * (100 + 30),
 
   /**
    * singleNodeMode true means in single node network mode, when only the node (i === 0) solely collect, witness and mint

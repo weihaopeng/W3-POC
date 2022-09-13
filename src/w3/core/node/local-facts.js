@@ -1,8 +1,7 @@
 import { Transaction } from '../entities/transaction.js'
-
-import Debug from 'debug'
 import EventEmitter2 from 'eventemitter2'
 
+import Debug from 'debug'
 const debug = Debug('w3:TxsPool')
 
 /**

@@ -40,7 +40,7 @@ class Epoch {
     return height === this.height + 1
   }
 
-  goNextEpochAfterTwoStageMint() { // @see design/w3-node-activies-and-messages.png
+  goNextEpochAfterTwoStageMint() { // @see design/w3-node-activities-and-messages.png
     this.afw = true
     this.nextEpochTimer || (this.nextEpochTimer = setTimeout(() => {
       this.proceedNextEpoch()
