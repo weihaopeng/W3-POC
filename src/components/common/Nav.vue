@@ -2,9 +2,7 @@
 ALayout
   ALayoutHeader.layout-header
     .logo(@click="goHome")
-      span W
-      span 3
-      span POC Testnet
+      img(:src="Logo")
     AMenu(
       mode="horizontal"
       v-model:selectedKeys="selectedRoute"
@@ -19,9 +17,10 @@ ALayout
     slot
 </template>
 
-<script lang="ts">
+<script>
 import { ref, defineComponent, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import Logo from '@/assets/logo.png'
 
 export default defineComponent({
   name: 'Nav',
@@ -29,7 +28,7 @@ export default defineComponent({
     const route = useRoute()
     const router = useRouter()
 
-    const selectedRoute = ref<string[]>([String(route.name)])
+    const selectedRoute = ref([String(route.name)])
 
     watch(
       () => route.name,
@@ -40,7 +39,7 @@ export default defineComponent({
       }
     )
 
-    const linkToRoute = ({ key }: { key: string }) => {
+    const linkToRoute = ({ key }) => {
       if (key !== String(route.name)) router.push({ name: key })
     }
 
@@ -51,6 +50,7 @@ export default defineComponent({
     return {
       route,
       selectedRoute,
+      Logo,
       goHome,
       linkToRoute
     }
@@ -70,23 +70,16 @@ export default defineComponent({
     height: 90px
     background: #ffffff
     box-shadow: 0px 1px 8px 0px rgba(0,0,0,0.15)
-    padding: 0 30px
+    padding: 0
 
     .logo
       display: inline-block
       font-size: 30px
-      margin-right: 312px
+      margin-right: 282px
       user-select: none
-      // cursor: pointer
-      font-weight: bolder
-      span:first-child
-        background: linear-gradient(180deg,#1acd57 7%, #0093c2 83%)
-        background-clip: text
-        -webkit-background-clip: text
-        color: transparent
-      span:last-child
-        font-weight: normal
-        margin-left: 12px
+      height: 100%
+      img
+        max-height: 100%
 
     .ant-menu
       flex-grow: 1
@@ -116,6 +109,7 @@ export default defineComponent({
 
   &-content
     flex-grow: 1
+    margin: 4px 30px 40px
 
 </style>
   
