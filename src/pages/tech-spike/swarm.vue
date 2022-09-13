@@ -67,6 +67,7 @@
 
       .swarm-cvs-container
         #swarm-node-cvs
+        #swarm-node-container
         #swarm-tooltip-container
         .swarm-tooltip-legend
           div Legend
@@ -193,7 +194,7 @@ export default defineComponent({
     onBeforeMount(() => mockData())
 
     onMounted(() => {
-      swarmPainter.value = new SwarmPainter(document.getElementById('swarm-node-cvs'), document.getElementById('swarm-tooltip-container'), nodes)
+      swarmPainter.value = new SwarmPainter(document.getElementById('swarm-node-cvs'), document.getElementById('swarm-tooltip-container'), document.getElementById('swarm-node-container'), nodes)
       swarmPainter.value.init(!route.query.present)
       messageHandler.value = new MessageHandler({
         swarmPainter: swarmPainter.value,

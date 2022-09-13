@@ -115,13 +115,15 @@ $tooltip-bg-map: (
     width: 100%;
     height: 100%;
   }
-  #swarm-tooltip-container {
+  #swarm-tooltip-container, #swarm-node-container {
     position: absolute;
     top: 20px;
     left: 20px;
     width: calc(100% - 80px);
     height: calc(100% - 80px);
+  }
 
+  #swarm-tooltip-container {
     .swarm-tooltip-wrapper {
       position: absolute;
       display: flex;
@@ -157,6 +159,20 @@ $tooltip-bg-map: (
       }
       &.vertical {
         @include swarm-tooltip-wrapper-layout(vertical)
+      }
+    }
+  }
+  #swarm-node-container {
+    .swarm-node-wrapper {
+      position: absolute;
+      &__content {
+        position: absolute;
+        bottom: calc(100% + 8px);
+        display: flex;
+        flex-direction: column;
+        color: #fff;
+        font-size: 16px;
+        white-space: nowrap;
       }
     }
   }

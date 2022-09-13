@@ -1,4 +1,9 @@
-const TOOLTIP_DISTANCE = 25
+import defaultNodeImg from '@/assets/default-node.png'
+import highlightNodeImg from '@/assets/highlight-node.png'
+import collectorImg from '@/assets/collector.png'
+import witnessImg from '@/assets/witness.png'
+
+const TOOLTIP_DISTANCE = 14
 class SwarmNode {
   /**
    * A node instance with info, tooltip dom controller based on echarts node and its layout.
@@ -9,7 +14,7 @@ class SwarmNode {
    * @param {number} cvsWidth - width of echart canvas width. Use it to calculate tooltip offset.
    * @param {number} cvsHeight 
    */
-  constructor(node, cvsWidth, cvsHeight, cvsSimbolSize, tooltipContainer) {
+  constructor(node, cvsWidth, cvsHeight, cvsSimbolSize, tooltipContainer, nodeContainer) {
     this.id = node.id
     this.name = node.name
     this.cvsWidth = cvsWidth
@@ -17,8 +22,10 @@ class SwarmNode {
     this.cvsSimbolSize = cvsSimbolSize
     this.tooltipGroup = []
     this.tooltipContainer = tooltipContainer
+    this.nodeContainer = nodeContainer
     this.isHorizontal = true
     this.initTooltipWrapper()
+    this.initNodeWrapper()
   }
 
   setCoordinates(x, y, xmin, xmax) {
@@ -33,6 +40,14 @@ class SwarmNode {
     this.tooltipContainer.append(this.tooltipWrapper)
   }
 
+  initNodeWrapper() {
+    this.nodeWrapper = document.createElement('div')
+    this.nodeWrapper.classList.add('swarm-node-wrapper')
+    this.nodeContainer.append(this.nodeWrapper)
+    this.initNodeSymbol()
+    this.initNodeName()
+  }
+
   calculateTooltipPos(xmin, xmax) {
     const xmid = this.cvsWidth / 2
     this.isHorizontal = false
@@ -41,10 +56,40 @@ class SwarmNode {
     } else {
       this.tooltipWrapper.style.transform = `translateX(${this.cvsSimbolSize + TOOLTIP_DISTANCE}px)`
     }
-    this.tooltipWrapper.style.left = `${this.x - this.cvsSimbolSize / 2}px`
-    this.tooltipWrapper.style.top = `${this.y - this.cvsSimbolSize / 2}px`
+    this.nodeWrapper.style.left = this.tooltipWrapper.style.left = `${this.x - this.cvsSimbolSize / 2}px`
+    this.nodeWrapper.style.top = this.tooltipWrapper.style.top = `${this.y - this.cvsSimbolSize / 2}px`
 
     this.tooltipWrapper.classList.add(this.isHorizontal ? 'horizontal' : 'vertical')
+  }
+
+  initNodeSymbol() {
+    this.symbolImg = document.createElement('img')
+    this.symbolImg.onload = () => {
+      this.nodeWrapper.append(this.symbolImg)
+    }
+    this.symbolImg.src = defaultNodeImg
+  }
+
+  initNodeName() {
+    const contentWrapper = document.createElement('div')
+    contentWrapper.classList.add('swarm-node-wrapper__content')
+    this.nameElement = document.createElement('div')
+    this.nameElement.innerText = this.name
+    this.roleElement = document.createElement('div')
+    contentWrapper.append(this.nameElement)
+    contentWrapper.append(this.roleElement)
+    this.nodeWrapper.append(contentWrapper)
+  }
+
+  setSymbol(type) {
+    if (type === 'default-node') this.symbolImg.src = defaultNodeImg
+    if (type === 'highlight-node') this.symbolImg.src = highlightNodeImg
+    if (type === 'collector') this.symbolImg.src = collectorImg
+    if (type === 'witness') this.symbolImg.src = witnessImg
+  }
+
+  setRole(type) {
+    if (type !== 'highlightNode') this.roleElement.innerText = type
   }
 
   // calculateTooltipPos(xmin, xmax) {

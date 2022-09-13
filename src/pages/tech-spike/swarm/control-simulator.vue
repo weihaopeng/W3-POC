@@ -284,6 +284,7 @@ export default defineComponent({
         const sessionId = getRandomHash();
         const index = Math.random() < 0.5 ? 1 : 4; // 只有1或5来发
         fromNodeId.value = nodes[index].id;
+        emit('sendMsg', 'setRoles', [nodes[index].id], 'highlightNode')
         const toList = nodes.filter((node) => (node.id !== fromNodeId.value)).map((node) => ({ node, valid: true, overtime: false }));
         sendDepartureMsg({ sessionId, toList, count: i + 1, roundId });
         sendArriveMsg({ sessionId, toList, count: i + 1, roundId });
@@ -291,6 +292,7 @@ export default defineComponent({
         // const res = sendVerifyMsg(sessionId, toList, i + 1);
         const res = sendVerifyMsg(sessionId, collectorNode, i + 1);
         await sleep(res.cost + 2000);
+        emit('sendMsg', 'clearRoles', [nodes[index].id])
       }
       emit('sendMsg', 'clearRoles', [nodes[3].id])
 
@@ -303,6 +305,7 @@ export default defineComponent({
         bpround.value = i + 1;
         const sessionId = getRandomHash();
         const index = i === 0 ? 3 : 2;
+        emit('sendMsg', 'setRoles', [nodes[index].id], 'highlightNode')
         fromNodeId.value = nodes[index].id;
         if (i === 0) historyNodes.push(nodes[index])
         const toList = nodes.filter((node) => (node.id !== fromNodeId.value && node.id !== '444')).map((node) => ({ node, valid: true, overtime: false }));
@@ -312,7 +315,11 @@ export default defineComponent({
         sendArriveMsg({ sessionId, toList, count: i + 1, witnessId: witnessNode[0].node.id, historyNodes: JSON.parse(JSON.stringify(historyNodes)), roundId });
         const res = sendVerifyMsg(sessionId, witnessNode, i + 1);
         await sleep(res.cost + 2000);
-        if (i === 0) emit('sendMsg', 'clearRoles', [nodes[i === 0 ? 2 : 0].id])
+        if (i === 0) {
+          emit('sendMsg', 'clearRoles', [nodes[2].id, nodes[index].id])
+        } else {
+          emit('sendMsg', 'clearRoles', [nodes[2].id])
+        }
       }
 
       let block;
