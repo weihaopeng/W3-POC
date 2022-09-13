@@ -92,6 +92,26 @@ class SwarmNode {
     if (type !== 'highlightNode') this.roleElement.innerText = type
   }
 
+  // TODO: this is a temporary duty for first node instance.
+  drawTheCircle() {
+    console.log(this.nodeContainer)
+    const oldCircle = this.nodeContainer.getElementsByClassName('swarm-node-circle')[0]
+    if (oldCircle) oldCircle.remove()
+    const xmid = this.cvsWidth / 2
+    const ymid = this.cvsHeight / 2
+    const circleRadius = Math.sqrt(Math.pow(xmid - this.x, 2) + Math.pow(ymid - this.y, 2))
+    const circle = document.createElement('div')
+    circle.classList.add('swarm-node-circle')
+    circle.style.height = circle.style.width = `${2 * circleRadius}px`
+    circle.style.border = 'solid 1px rgba(255, 255, 255, 0.1)'
+    circle.style.borderRadius = '50%'
+    circle.style.position = 'absolute'
+    circle.style.left = '50%'
+    circle.style.top = '50%'
+    circle.style.transform = `translate(calc(-50% + ${this.cvsSimbolSize / 2}px), calc(-50% + ${this.cvsSimbolSize / 2}px))`
+    this.nodeContainer.prepend(circle)
+  }
+
   // calculateTooltipPos(xmin, xmax) {
   //   const ymid = this.cvsHeight / 2
   //   if (this.x === xmin) {

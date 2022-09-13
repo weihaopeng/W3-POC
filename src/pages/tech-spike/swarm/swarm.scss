@@ -85,9 +85,17 @@ html, body {
 }
 
 $tooltip-bg-map: (
-  'tx': #40a9ff,
-  'bp': #73d13d,
-  'block': #b37feb,
+  'tx': #436fcb,
+  'bp': #af8e2e,
+  'block': #902399,
+  'fork': #f759ab,
+  'invalid': #8c8c8c
+);
+
+$tooltip-valid-bg-map: (
+  'tx': #5b8ff9,
+  'bp': #dfa517,
+  'block': #ba5cc2,
   'fork': #f759ab,
   'invalid': #8c8c8c
 );
@@ -96,9 +104,9 @@ $tooltip-bg-map: (
   @for $i from 0 to length($selectors) {
     $type: nth($selectors, $i + 1);
     &.#{$type} {
-      background-color: rgba(map.get($tooltip-bg-map, #{$type}), 0.5);
+      background-color: rgba(map.get($tooltip-bg-map, #{$type}), 0.6);
       &.valid {
-        background-color: map.get($tooltip-bg-map, #{$type});
+        background-color: map.get($tooltip-valid-bg-map, #{$type});
       }
     }
   }
@@ -131,15 +139,32 @@ $tooltip-bg-map: (
       .swarm-tooltip-card {
         display: flex;
         .swarm-tooltip {
-          padding: 12px;
+          padding: 10px 12px;
+          font-size: 12px;
+          color: #fff;
+          border-radius: 4px;
           position: relative;
           @include tooltip-bg('tx', 'bp', 'block', 'fork', 'invalid');
-          &.valid::after {
-            content: '✅';
+          &.valid::before {
+            content: '';
             position: absolute;
             right: -10px;
             top: -10px;
-            color: green;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #1acd57;
+          }
+          &.valid::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: -5px;
+            width: 10px;
+            height: 7px;
+            border-bottom: solid 2px #fff;
+            border-left: solid 2px #fff;
+            transform: rotate(-45deg);
           }
           &.to-remove {
             opacity: 0;

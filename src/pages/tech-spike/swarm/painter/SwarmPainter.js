@@ -70,7 +70,6 @@ class SwarmPainter {
       ]
     }
     this.chart.setOption(option)
-    window.ccc = this.chart
   }
 
   initClearBtn() {
@@ -120,6 +119,7 @@ class SwarmPainter {
     for(let i = 0; i < this.nodes.length; i++) {
       const [x, y] = nodeLayouts[i]
       this.nodes[i].setCoordinates(x, y, xmin, xmax)
+      if (i === 0) this.nodes[i].drawTheCircle()
     }
   }
 
