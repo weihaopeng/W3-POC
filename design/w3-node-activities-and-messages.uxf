@@ -105,7 +105,7 @@ change fork</panel_attributes>
       <h>150</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-tx valid
+tx valid 
 &amp; isCollector</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
   </element>
@@ -132,8 +132,8 @@ fg=blue</panel_attributes>
       <h>480</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-relay
-valid &amp; effective msg:
+relay 
+valid &amp; effective msg: 
 tx, bp, block, fork
 </panel_attributes>
     <additional_attributes>10.0;10.0;10.0;300.0</additional_attributes>
@@ -147,7 +147,7 @@ tx, bp, block, fork
       <h>150</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-bp valid
+bp valid 
 &amp; isWitness</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
   </element>
@@ -234,7 +234,7 @@ fork detected</panel_attributes>
       <h>495</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-HARD_FORK
+HARD_FORK 
 detected</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;310.0</additional_attributes>
   </element>
@@ -272,7 +272,7 @@ ask for witness</panel_attributes>
       <h>195</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-send bp
+send bp 
 (new/next)</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;110.0</additional_attributes>
   </element>
@@ -308,7 +308,7 @@ fg=gray</panel_attributes>
       <h>135</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-init &amp; periodicEmitBlockMessage (join w3-network, w3Node.ready === true)</panel_attributes>
+init &amp; start (join w3-network, w3Node.ready === true)</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;70.0</additional_attributes>
   </element>
   <element>
@@ -469,7 +469,7 @@ init</panel_attributes>
     </coordinates>
     <panel_attributes>lt=-&gt;
 connect
-libp2p.periodicEmitBlockMessage()
+libp2p.start()
 </panel_attributes>
     <additional_attributes>10.0;20.0;160.0;20.0</additional_attributes>
   </element>
@@ -508,7 +508,7 @@ connect
       <h>90</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-periodicEmitBlockMessage
+start
 latency &lt;= threshold
 &amp;&amp; chain.h + 1 &gt;= block.h</panel_attributes>
     <additional_attributes>10.0;20.0;220.0;20.0</additional_attributes>
@@ -702,7 +702,7 @@ append block</panel_attributes>
       <h>75</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-can't AFW
+can't AFW 
 anymore
 fg=gray</panel_attributes>
     <additional_attributes>10.0;20.0;440.0;20.0</additional_attributes>
@@ -754,7 +754,7 @@ fg=blue</panel_attributes>
       <h>60</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-can't AFW
+can't AFW 
 fg=gray</panel_attributes>
     <additional_attributes>10.0;20.0;370.0;20.0</additional_attributes>
   </element>
@@ -805,7 +805,7 @@ enough txs</panel_attributes>
       <w>450</w>
       <h>45</h>
     </coordinates>
-    <panel_attributes>* A Node Can AFW Only Once in an ResetableEpoch *
+    <panel_attributes>* A Node Can AFW Only Once in an Epoch *
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
@@ -1583,7 +1583,7 @@ Collecting Stage
       <h>195</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-periodicEmitBlockMessage timer
+start timer
 t = 17 * LU
 
 
@@ -1830,7 +1830,7 @@ group=11</panel_attributes>
       <h>405</h>
     </coordinates>
     <panel_attributes>lt=.
-e1.periodicEmitBlockMessage
+e1.start
 
 
 
@@ -1883,7 +1883,7 @@ e1: block msg.
 
 
 
-reset
+reset 
 epoch timer
 
 
@@ -2152,7 +2152,7 @@ e2: block msg.
 
 
 
-reset
+reset 
 epoch timer
 
 
@@ -2245,7 +2245,7 @@ group=11</panel_attributes>
       <w>450</w>
       <h>45</h>
     </coordinates>
-    <panel_attributes>* ResetableEpoch Time Analysis *
+    <panel_attributes>* Epoch Time Analysis *
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
@@ -2258,7 +2258,7 @@ style=wordwrap</panel_attributes>
       <h>75</h>
     </coordinates>
     <panel_attributes>lt=&lt;-&gt;
-ResetableEpoch
+Epoch
        Te = Tc + Tw = 17 * LU</panel_attributes>
     <additional_attributes>10.0;20.0;830.0;20.0</additional_attributes>
   </element>
@@ -2270,7 +2270,7 @@ ResetableEpoch
       <w>450</w>
       <h>45</h>
     </coordinates>
-    <panel_attributes>* ResetableEpoch Sync by block Message *
+    <panel_attributes>* Epoch Sync by block Message *
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>

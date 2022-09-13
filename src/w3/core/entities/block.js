@@ -19,9 +19,12 @@ class Block {
     // this.hash = w3Algorithm.hash(this)
   }
 
-  async verify (node) {
-    return this.preHash === node.epoch.tailHash && this.bp && this.hash
-      && await this.bp.verify(node)
+  async verify (node, isForPreivousEpoch=false) {
+    const preHash = isForPreivousEpoch ? node.chain.getTailHash(1) : node.epoch.tailHash
+    const res = this.preHash === preHash && this.bp && this.hash
+      && await this.bp.verify(node, isForPreivousEpoch)
+    if (!res) debug('--- WARN: block verify failed', this.brief)
+    return res
   }
 
   get height() {
@@ -52,19 +55,20 @@ class Block {
   lt(other) {
     if (this.height !== other.height) debug('--- WARN: should only compare other with same height')
     for (let i = 0; i < this.txs.length; i++) {
-      if (this.txs[i].lt(other.txs[i])) return true
-      if (this.txs[i].gt(other.txs[i])) return false
+      if (!this.txs[i] || this.txs[i].lt(other.txs[i])) return true
+      if (!other.txs[i] || this.txs[i].gt(other.txs[i])) return false
     }
-    return false // equals
+
+    return this.txs.length < other.txs.length   // equals or length bigger value bigger
   }
 
   gt(other) {
     if (this.height !== other.height) debug('--- WARN: should only compare other with same height')
     for (let i = 0; i < this.txs.length; i++) {
-      if (this.txs[i].gt(other.txs[i])) return true
-      if (this.txs[i].lt(other.txs[i])) return false
+      if (!other.txs[i] || this.txs[i].gt(other.txs[i])) return true
+      if (!this.txs[i] || this.txs[i].lt(other.txs[i])) return false
     }
-    return false // equals
+    return  this.txs.length === other.txs.length  // equals
   }
 
   equals(other) {

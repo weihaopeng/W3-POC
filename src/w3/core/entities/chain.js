@@ -42,7 +42,6 @@ class Chain {
   constructor (node, blocks = []) {
     this.node = node
     this._blocks = blocks
-    this.debug = { blocks: [] }
   }
 
   reset () {
@@ -53,39 +52,24 @@ class Chain {
     if (block.height === this.height + 1 && block.preHash === this.tailHash) {
       this._blocks.push(block)
       this.node.localFacts.updateTxsState(block.txs, 'chain')
-      // this.node.epoch.proceedNextEpoch()
-      this.debug.blocks.push({ node: this.node.i, caller, action: 'add', block: block.superBrief, time: Date.now() })
     } else if (block.height === this.height && block.preHash === this.getTailHash(1)) {
       let txOnChain, txUnused, tail = this.tail
       if (block.lt(tail)) {
-        debug('--- WARN: use block %s to replace tail %s', block.superBrief, tail.superBrief)
+        debug('--- node: %s WARN: use block %s to replace tail %s', this.node.i, block.superBrief, tail.superBrief)
         this._blocks.pop() && this._blocks.push(block)
         txOnChain = block.txs
         txUnused = _.differenceBy(tail.txs, block.txs, 'hash')
-        this.debug.blocks.push({
-          node: this.node.i,
-          caller,
-          action: 'lt & replace',
-          block: block.superBrief,
-          time: Date.now()
-        })
       } else {
+        debug('--- node: %s WARN: block %s great than tail %s', this.node.i, block.superBrief, tail.superBrief)
         txOnChain = null // already on chain
         txUnused = _.differenceBy(block.txs, tail.txs, 'hash')
-        this.debug.blocks.push({
-          node: this.node.i,
-          caller,
-          action: 'not lt',
-          block: block.superBrief,
-          time: Date.now()
-        })
       }
       txOnChain && this.node.localFacts.updateTxsState(txOnChain, 'chain')
       this.node.localFacts.updateTxsState(txUnused, 'tx')
     } else {
-      debug('--- WARN: invalid block, should not add to chain, chain height: %s, block height: %s, block: ', this.height, block.height, block.superBrief)
+      debug('--- node: %s WARN: invalid block, should not add to chain, chain height: %s, block height: %s, block: ', this.node.i, this.height, block.height, block.superBrief)
     }
-    debug('--- SHOW chain: %s ', this.superBrief)
+    debug('--- node: %s SHOW chain: %s ', this.node.i, this.superBrief)
   }
 
   get blocks() {
@@ -123,6 +107,10 @@ class Chain {
 
   getBlockAtHeight (height) {
     return this.blocks[height - 1]
+  }
+
+  getHashAtHeight (height) {
+    return this.getBlockAtHeight(height)?.hash || 'genesis'
   }
 }
 

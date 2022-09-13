@@ -3,7 +3,7 @@ import chai from 'chai'
 const should = chai.should()
 
 import Debug from 'debug'
-import { ResetableEpoch } from '../../../src/w3/core/protocol/resetable-epoch.js'
+import { ResetableEpoch } from '../../../src/w3/core/node/epoch/resetable-epoch.js'
 import { util } from '../../../src/w3/util.js'
 import EventEmitter2 from 'eventemitter2'
 
@@ -60,7 +60,7 @@ describe('Epoch sync mechanism @issue#11', () => {
       epoch.resetOn(blockEventEmitter, 'block', ({height}) => epoch.height === height + 1)
 
       epoch.on('stage', (async ({ stage }) => {
-        if (stage === 'witnessAndMint') {
+        if (stage === 'witness-and-mint') {
           const guassLatency = util.gaussRandom(collectTime, collectTime + witnessAndMintTime)
           await util.wait(guassLatency)
           debug('----  block event emit block height: %s, with witnessAndMintTime: %s', epoch.height, guassLatency)

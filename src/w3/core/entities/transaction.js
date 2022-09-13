@@ -62,7 +62,7 @@ class Transaction {
   }
 
   lt(other) {
-    return this.i < other.i
+    return this.i < other?.i
 
     return this.from.lt(other.from) ? true : this.from.gt(other.from) ? false :
       this.from.nonce < other.from.nonce ? true : this.from.nonce > other.from.nonce ? false :
@@ -70,7 +70,7 @@ class Transaction {
   }
 
   gt(other) {
-    return this.i > other.i
+    return !other || this.i > other.i
 
     return this.from.gt(other.from) ? true : this.from.lt(other.from) ? false :
       this.from.nonce > other.from.nonce ? true : this.from.nonce < other.from.nonce ? false :

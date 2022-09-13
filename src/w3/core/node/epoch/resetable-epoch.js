@@ -18,6 +18,10 @@ class ResetableEpoch extends EventEmitter2 {
     return epoch
   }
 
+  static startAllEpoches() {
+    this.epoches.forEach(epoch => epoch.start())
+  }
+
   static stopAllEpoches() {
     this.epoches.forEach(epoch => epoch.stop())
   }
@@ -25,6 +29,11 @@ class ResetableEpoch extends EventEmitter2 {
   static clear() {
     this.epoches = []
     this.differenceEmitter.removeAllListeners()
+  }
+
+  static destroy() {
+    this.stopAllEpoches()
+    this.clear()
   }
 
   static detectEpochHeightDifference() {
@@ -36,7 +45,7 @@ class ResetableEpoch extends EventEmitter2 {
     return {min, max, dif, epochHeights }
   }
 
-  constructor (node, { collectTime = 1000, witnessAndMintTime = 1000 } = {}) {
+  constructor (node, { collectTime, witnessAndMintTime } = {}) {
     super()
     this.node = node
     this.collectTime = collectTime || node.network.config.EPOCH_COLLECTING_TIME
@@ -58,7 +67,7 @@ class ResetableEpoch extends EventEmitter2 {
     clearTimeout(this.collectTimeOverTimer)
 
     this.collectTimeOverTimer = setTimeout(() => {
-      this.stage = 'witnessAndMint'
+      this.stage = 'witness-and-mint'
       this.emit('stage', { stage: this.stage })
       this.nextEpochTimer = setTimeout(() => {
         this.goEpoch()
@@ -84,6 +93,7 @@ class ResetableEpoch extends EventEmitter2 {
   stop() {
     clearTimeout(this.nextEpochTimer)
     clearTimeout(this.collectTimeOverTimer)
+    this.removeAllListeners()
   }
 
   immediatelyNextEpoch () {

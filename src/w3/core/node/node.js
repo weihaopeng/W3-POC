@@ -7,7 +7,7 @@ import { BlockProposal } from '../entities/block-proposal.js'
 
 import Debug from 'debug'
 import _ from 'lodash'
-import { Epoch } from './epoch.js'
+import { Epoch } from './epoch/epoch.js'
 const debug = Debug('w3:node')
 
 class Node {
@@ -15,7 +15,7 @@ class Node {
     if (!account || !network) throw new Error(`can't create node, check the params`)
     this.account = account
     this.network = network
-    this.localFacts = new LocalFacts(this.network.config.TX_COUNT)
+    this.localFacts = new LocalFacts()
     this.isSingleNode = isSingleNode // is the only node in the network, used to separate the concern of two-stages-mint and the collaborations among nodes.
     this.startAnswerQuery()
   }
@@ -48,7 +48,12 @@ class Node {
   }
 
   onConnected() {
-    this.syncChain().then(() => this.start())
+    this.syncChain().then(_ => this.start())
+  }
+
+  onDisconnected() {
+    this.epoch.stop()
+    // abstract
   }
 
   onReady () {
@@ -79,24 +84,26 @@ class Node {
 
     this.network.listen('fork',  (fork) => this.handleForkWins(fork), this)
 
-    this.localFacts.on('tx-updated-or-added',  ({tx, state, res}) => {
-      if (res === 'added') { // updatedState, replaced, rejected means the count of txPool in the pool is not change
-         this.askForWitnessAndMintWhenProper()
+    this.epoch.on('stage',  async ({ stage }) => {
+      if (stage === 'witness-and-mint') { // updatedState, replaced, rejected means the count of txPool in the pool is not change
+        const txs = this.localFacts.pickTxsForBp()
+        if (txs.length >= 1) {
+          this.isCollector() && await this.askForWitnessAndMint(txs)
+        } else {
+          console.log('--- FATAL: no enough txs for bp')
+        }
       }
     })
 
-  }
+    this.epoch.start()
+    //
+    // start() {
+    //   super.start()
+    //   this.node.network.listen('block',  (block, origin) => {
+    //     if (this.height === block.height + 1) this.reset()
+    //   })`
+    // }
 
-  async askForWitnessAndMintWhenProper () {
-    const txs = this.localFacts.pickEnoughTxsForBp()
-    if (txs) {
-      this.isCollector() && this.epoch.canAskForWitness() && await this.askForWitnessAndMint(txs)
-      this.epoch.goNextEpochAfterTwoStageMint()
-    }
-
-    // const txs = this.localFacts.pickEnoughTxsForBp()
-    // txs && this.epoch.goNextEpochAfterTwoStageMint()
-    // txs && this.isCollector() && (this.epoch.afw = true) && await this.askForWitnessAndMint(txs)
   }
 
   async handleTx (tx) {
@@ -117,8 +124,19 @@ class Node {
   }
 
   async handleNewBlock (block, origin) {
+    debug('*************** WARN: node %s receive new block %s from %s', this.i, block.superBrief, origin.i)
     block = new Block(block)
-    const isValid = await this.updateLocalFact('block', block)
+    let isForPreivousEpoch = false
+    if (block.height === this.epoch.height) {
+      if (this.epoch.stage === 'collect') {
+        this.epoch.reset()
+        isForPreivousEpoch = true
+      } else {
+        debug('*************** FATAL: receive old block, but epoch is not in collect state')
+      }
+    }
+
+    const isValid = await this.updateLocalFact('block', block, isForPreivousEpoch)
     if (!isValid) debug('--- FATAL: receive invalid block', block.brief)
     // TODO: 按 design/handle-block.png 算法处理
     if (isValid && (this !== origin || this.isSingleNode)) {
@@ -137,12 +155,12 @@ class Node {
     // TODO: 按其中的消息，检查chain
   }
 
-  isCollector (pks = this.account.publicKeyString) {
-    return this._isCollector(pks)
+  isCollector (pks = this.account.publicKeyString, tailHash) {
+    return this._isCollector(pks, tailHash)
     // return this.isSingleNode || this._isCollector(pks)
   }
 
-  _isCollector (pks) {
+  _isCollector (pks, tailHash) {
     // abstract now
   }
 
@@ -208,16 +226,16 @@ class Node {
     return { chain: this.chain }
   }
 
-  async updateLocalFact (type, data) { // type: tx, bp, block, fork
+  async updateLocalFact (type, data, isForPreivousEpoch) { // type: tx, bp, block, fork
     // TODO: 根据bp、block、fork消息中的height，来判定当前node是否需要stop(退出ready)
     const node = this
-    const { valid } = await this.localFacts.verifyAndUpdate(type, data, node)
+    const { valid } = await this.localFacts.verifyAndUpdate(type, data, node, isForPreivousEpoch)
     this.network.emitW3Event('node.verify', {type, data, node, valid})
     return valid
   }
 
   stopTwoStagesBlockGeneration () {
-    // TODO:
+    this.epoch.stop()
   }
 }
 

@@ -8,10 +8,10 @@ const config = {
   ], // events consumed by w3
 
   NODES_AMOUNT: 2**8,
-  COLLECTORS_AMOUNT: 2,
-  WITNESSES_AMOUNT: 2,
+  COLLECTORS_AMOUNT: 3,
+  WITNESSES_AMOUNT: 3,
   WITNESS_ROUNDS_AMOUNT: 2,
-  TX_COUNT: 100,
+  // TX_COUNT: 100,
   INIT_CHAIN_INTERVAL: 10000, // 10秒
 
   MSG_ARRIVAL_RATIO: 1, // the ratio is always 1 in a P2P network using TCP as transportation protocol,

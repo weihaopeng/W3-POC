@@ -25,15 +25,15 @@ describe('Single Node Network Mode @issue#2', () => {
   after(() => w3.destroy())
 
   describe('normal creation & bad tx ', () => {
-    it('normal creation of _blocks', async () => {
+    it('normal creation of zblocks', async () => {
       await w3.sendFakeTxs(10, 100) // only two block to drive the single node mode dev.
-      await util.wait(config.WITNESS_AND_MINT_LATENCY)
+      await util.wait(1 * config.EPOCH_TIME)
       w3.showCollectorsStatistic()
       w3.showWitnessesStatistic()
       w3.nodes.should.have.length(1)
-      w3.nodes[0].chain.blocks.should.have.length(2) // 2 _blocks are appended to the chain
+      w3.nodes[0].chain.blocks.should.have.length(1) // 2 _blocks are appended to the chain
       w3.nodes[0].localFacts.txPool.forEach(({ state }) => state.should.equal('chain'))
-    })
+    }).timeout(0)
 
     it('drop a bad tx', async () => {
       await w3.sendFakeTxs(10, 100, 1) // only two block to drive the single node mode dev.
@@ -41,14 +41,9 @@ describe('Single Node Network Mode @issue#2', () => {
       w3.showCollectorsStatistic()
       w3.showWitnessesStatistic()
       w3.nodes.should.have.length(1)
-      w3.nodes[0].chain.blocks.should.have.length(1) // only 1 _blocks are appended to the chain
-      // txPool are drained
+      w3.nodes[0].chain.blocks.should.have.length(0)
       w3.nodes[0].localFacts.txPool.should.have.length(9)
-      w3.nodes[0].localFacts.txPool.filter(({ state }) => state === 'tx').should.have.length(4)
-
-      // w3.nodes[0].localFacts.txPool.should.have.length(9)
-      // w3.nodes[0].localFacts.txPool.filter(({ state }) => state === 'chain').should.have.length(5)
-      // w3.nodes[0].localFacts.txPool.filter(({ state }) => state === 'tx').should.have.length(4)
+      w3.nodes[0].localFacts.txPool.filter(({ state }) => state === 'tx').should.have.length(9)
     })
 
   })
@@ -73,11 +68,7 @@ describe('Single Node Network Mode @issue#2', () => {
         txs: [1, 2, 3, 4, 5].map(i => w3.createFakeTx(i))
       }))
       await util.wait(config.WITNESS_AND_MINT_LATENCY)
-      /**
-       * Although the bp droped, which can be seen from the debug log, the txs in the bp are still in the txPool, and when
-       * there are enough txs in the txPool, a new legitimate bp and then a new block will be created.
-       */
-      w3.nodes[0].chain.height.should.equals(1)
+      w3.nodes[0].chain.height.should.equals(0)
     })
 
     it('drop a bad bp which has an invalid witness', async () => {
@@ -91,11 +82,7 @@ describe('Single Node Network Mode @issue#2', () => {
         ]
       }))
       await util.wait(config.WITNESS_AND_MINT_LATENCY)
-      /**
-       * Although the bp droped, which can be seen from the debug log, the txs in the bp are still in the txPool, and when
-       * there are enough txs in the txPool, a new legitimate bp and then a new block will be created.
-       */
-      w3.nodes[0].chain.height.should.equals(1)
+      w3.nodes[0].chain.height.should.equals(0)
 
     })
   })
@@ -127,11 +114,7 @@ describe('Single Node Network Mode @issue#2', () => {
         })
       }))
       await util.wait(config.WITNESS_AND_MINT_LATENCY)
-      /**
-       * Although the bp droped, which can be seen from the debug log, the txs in the bp are still in the txPool, and when
-       * there are enough txs in the txPool, a new legitimate bp and then a new block will be created.
-       */
-      w3.nodes[0].chain.height.should.equals(1)
+      w3.nodes[0].chain.height.should.equals(0)
     })
 
     it('drop a bad block which has an invalid witness', async () => {
@@ -148,12 +131,7 @@ describe('Single Node Network Mode @issue#2', () => {
         })
       }))
       await util.wait(config.WITNESS_AND_MINT_LATENCY)
-      /**
-       * Although the bp droped, which can be seen from the debug log, the txs in the bp are still in the txPool, and when
-       * there are enough txs in the txPool, a new legitimate bp and then a new block will be created.
-       */
-      w3.nodes[0].chain.height.should.equals(1)
-
+      w3.nodes[0].chain.height.should.equals(0)
     })
   })
 

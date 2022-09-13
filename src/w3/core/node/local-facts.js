@@ -2,6 +2,7 @@ import { Transaction } from '../entities/transaction.js'
 import EventEmitter2 from 'eventemitter2'
 
 import Debug from 'debug'
+
 const debug = Debug('w3:TxsPool')
 
 /**
@@ -10,9 +11,8 @@ const debug = Debug('w3:TxsPool')
  * otherwise, the message will be droped and the process halts.
  */
 class LocalFacts extends EventEmitter2 {
-  constructor (txCount) {
+  constructor () {
     super()
-    this.txCount = txCount
     this.txPool = [] // { tx, state: tx | bp | block | chain }
     this.bpPool = [] // { bp,  valid}
     this.blockPool = [] // { block, valid }
@@ -35,7 +35,7 @@ class LocalFacts extends EventEmitter2 {
     this.forkPool = []
   }
 
-  drainPools() {
+  drainPools () {
     this.txPool = this.txPool.filter(({ state }) => state !== 'chain')
   }
 
@@ -100,19 +100,22 @@ class LocalFacts extends EventEmitter2 {
     _tx && (_tx.state = state)
   }
 
-  pickEnoughTxsForBp (txCount = this.txCount) {
-    let txs = this.txPool.filter(({ state }) => state === 'tx')
-    if (txs.length >= txCount) {
-      // debug('--- SHOW: this.txPool.length: ', this.txPool.length)
-      txs = txs.slice(0, txCount)
-      return txs.map(({ tx }) => tx).sort(Transaction.sort)
-    }
+  pickTxsForBp () {
+    let txs = this.txPool.filter(({ state }) => state === 'tx' || state === 'bp')
+    return txs.map(({ tx }) => tx).sort(Transaction.sort)
+
+    // let txs = this.txPool.filter(({ state }) => state === 'tx')
+    // if (txs.length >= txCount) {
+    //   // debug('--- SHOW: this.txPool.length: ', this.txPool.length)
+    //   txs = txs.slice(0, txCount)
+    //   return txs.map(({ tx }) => tx).sort(Transaction.sort)
+    // }
   }
 
-  async verifyAndUpdate (type, data, node) {
+  async verifyAndUpdate (type, data, node, isForPreivousEpoch) {
     return type === 'tx' ? this.verifyAndAddTx(data) :
       type === 'bp' ? this.verifyBpAndAddTxs(data, node) :
-        type === 'block' ? this.verifyBlockAndAddTxs(data, node) :
+        type === 'block' ? this.verifyBlockAndAddTxs(data, node, isForPreivousEpoch) :
           this.verifyForkAndAddTx(data, node)
   }
 
@@ -144,8 +147,8 @@ class LocalFacts extends EventEmitter2 {
     return { allTxValid }
   }
 
-  async verifyBlockAndAddTxs (block, node) { // TODO: not tested in single node mode
-    let valid = await block?.verify(node)
+  async verifyBlockAndAddTxs (block, node, isForPreivousEpoch) { // TODO: not tested in single node mode
+    let valid = await block?.verify(node, isForPreivousEpoch)
     // this.blockPool.push({ block, valid}) // TODO: how to use blockPool?
     // if (!valid) debug('--- FATAL: verifyBlockAndAddTxs: block is invalid, should not happen', block.brief)
     let { allTxValid } = await this._verifyAndUpdateTxs(block.txs, valid ? 'chain' : 'tx') // valid block verifyThenUpdateOrAddTx to chain

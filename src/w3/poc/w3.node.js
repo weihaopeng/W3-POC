@@ -21,9 +21,9 @@ class W3Node extends Node {
     return { i: this.i, address: this.account.addressString }
   }
 
-  _isCollector (publicKeyString) {
-    const preBlock = this.epoch.tailHash || this.network.initPreBlockValue // !CAUSION: everty node should have the same preBlockValue
-    return w3Algorithm.isRandomSelected(this.network.distanceFn, preBlock, publicKeyString, this.network.config.COLLECTORS_AMOUNT)
+  _isCollector (publicKeyString, tailHash) {
+    tailHash = tailHash ? tailHash : this.epoch.tailHash
+    return w3Algorithm.isRandomSelected(this.network.distanceFn, tailHash, publicKeyString, this.network.config.COLLECTORS_AMOUNT)
   }
 
   _isWitness (bp, publicKeyString) {

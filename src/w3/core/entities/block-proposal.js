@@ -25,20 +25,33 @@ class BlockProposal {
     this.witnessRecords[i] = {...this.witnessRecords[i], witness: { publicKeyString, i: node.i }, witnessSig: this.sig(privateKey) }
   }
 
-  async verify (node) {
+  async verify (node, isForPreivousEpoch) {
     let valid = Account.isValidPublicKeyString(this.collector.publicKeyString)
-      && typeof this.height === 'number' && this.txs?.length === node.network.config.TX_COUNT
-      && (this.height === 1 || this.tailHash === node.epoch.tailHash) // height bigger than 1, must have tailHash // TODO: tailHash should eqls node.
-      && node.epoch.height + 1 === this.height
+      && typeof this.height === 'number' && this.txs?.length > 0
+      && this.verifyHeight(node, isForPreivousEpoch)
     if (!valid) return !!debug('--- bp height invalid, node.epoch.height: %s, bp height: %s ', node.epoch.height, this.height)
 
 
-    valid = valid && node.isCollector(this.collector.publicKeyString)
+    valid = valid && node.isCollector(this.collector.publicKeyString, this.tailHash)
     if (!valid) return !!debug('--- FATAL: bp collector invalid, node.isCollector(this.collector): ', node.isCollector(this.collector.publicKeyString))
 
     valid = valid && this.verifyWitnessRecords(node)
     if (!valid) return !!debug('--- FATAL: bp witnessRecords invalid: %O', this.witnessRecords)
     return true
+  }
+
+  verifyHeight (node, isForPreivousEpoch) { // TODO: 待优化
+    // undefined means verify a bp directly, it both valid for current epoch and previous epoch, to make create block go ahead, even for previous epoach.
+    return isForPreivousEpoch !== undefined ? this._verifyHeight(node, true) || this._verifyHeight(node, false)
+      : this._verifyHeight(node, isForPreivousEpoch) // this is called from block
+    // return this._verifyHeight(isForPreivousEpoch, node)
+  }
+
+  _verifyHeight (node, isForPreivousEpoch) {
+    const epochHeight = isForPreivousEpoch ? node.epoch.height - 1 : node.epoch.height
+    const epochTailHash = isForPreivousEpoch ? node.epoch.previousTailHash : node.epoch.tailHash
+    return (this.height === 1 || this.tailHash === epochTailHash ) // height bigger than 1, must have tailHash // TODO: tailHash should eqls node.
+      && this.height === epochHeight + 1
   }
 
   verifyWitnessRecords (node) {

@@ -11,6 +11,7 @@ import { w3Algorithm } from './w3.algorithm.js'
 
 import Debug from 'debug'
 import { Chain } from '../core/entities/chain.js'
+import { Epoch } from '../core/node/epoch/epoch.js'
 const debug = Debug('w3:poc:network')
 
 /**
@@ -31,7 +32,7 @@ class W3Swarm extends EventEmitter2 {
 
     this.config.W3_EVENTS_ON && (this.events = new EventEmitter2({ wildcard: true }))
     this.distanceFn = w3Algorithm.simpleNHashDistance(nodesAmount)
-    this.initPreBlockValue = 'genuesis' + Math.floor(Math.random() * nodesAmount) // TODO: use a better way to initialize preBlockValue
+    this.initPreBlockValue = 'genuesis'
 
     // TODO：add network connect/disconnect periodicEmitBlockMessage/stop observer
     await Promise.all(this.nodes.map(node => node.connect()))
@@ -53,6 +54,7 @@ class W3Swarm extends EventEmitter2 {
     this.nodes = null
     this.removeAllListeners()
     Chain.reset()
+    Epoch.destroy()
   }
 
   listen (event, cb, target) {
@@ -86,11 +88,11 @@ class W3Swarm extends EventEmitter2 {
   async sendFakeTxs (n, tps = 1, badTx= 0) { // transaction per second, is the lamda of the Poisson Distribution
     this.fakeTxs = n
     let time = Date.now()
-    // const possionLatencies = new Array(n).fill(0).map(() => util.exponentialRandom(tps / 1000))
-    // debug('*********** tps: %s, avg possionLatencies: %s', tps, possionLatencies.reduce((a, b) => a + b) / possionLatencies.length)
+    const possionLatencies = new Array(n).fill(0).map(() => util.exponentialRandom(tps / 1000))
+    debug('*********** tps: %s, avg possionLatencies: %s', tps, possionLatencies.reduce((a, b) => a + b) / possionLatencies.length)
     const badIndexs = _.sampleSize([...new Array(n)].map((_, i) => i), badTx)
     for (let i = 0; i < n; i++) {
-      i % 100 === 0 && console.log('---node %s send %s fake txs, time used: %s ms', this.nodes[0].i, i, Date.now() - time)
+      i % 100 === 0 && console.log('---send %s fake txs, time used: %s ms', i, Date.now() - time)
       const possionLatency = util.exponentialRandom(tps / 1000)
       // debug('--- sendFakeTx latency: %s ms', possionLatency)
       await util.wait(possionLatency)
