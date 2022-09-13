@@ -1,5 +1,5 @@
 <template lang="pug">
-.control-simulator(:style="simulatorStyle" ref="simulator")
+.control-simulator(:style="simulatorStyle" ref="simulator" v-show="!isPresent")
   .control-simulator__dragging-bar(@mousedown="startDrag") Drag to move
   .form-container
     div(v-if="!isPresent")
@@ -32,8 +32,8 @@
             ARadioButton(v-for="chainType in chainTypes", :value="chainType", :key="chainType") {{ chainType }}
         AFormItem(:wrapperCol="{offset: 3}")
           AButton(type="primary", @click="sendMsg('chain')") Send
-    div
-      h3 Present
+    div(v-if="!isPresent")
+      h3 Simulate
         AButton(v-if="presentStatus !== 'playing'" type="link" size="large" @click="playPresent")
           template(#icon)
             PlayCircleOutlined
@@ -137,8 +137,8 @@ export default defineComponent({
       const sessionId = getRandomHash()
       const randomWitness = toList[Math.floor(Math.random() * toList.length)]
       const verifyList = networkType.value === 'bp' ? [randomWitness] : toList
-      sendDepartureMsg(sessionId, toList, null, block, randomWitness.node.id)
-      sendArriveMsg(sessionId, toList, null, block, randomWitness.node.id)
+      sendDepartureMsg({ sessionId, toList, block, witnessId: randomWitness.node.id })
+      sendArriveMsg({ sessionId, toList, block, witnessId: randomWitness.node.id })
       sendVerifyMsg(sessionId, verifyList)
     }
 
@@ -165,23 +165,23 @@ export default defineComponent({
       return list
     }
 
-    const sendDepartureMsg = (sessionId, toList, count, block, witnessId, historyNodes, txCount, participantsCount) => {
+    const sendDepartureMsg = ({ sessionId, toList, count, block, witnessId, historyNodes, txCount, participantsCount, roundId }) => {
       for (const to of toList) {
-        const msg = createNetworkMsg({ sessionId, to: to.node.name, witnessId, count, block, historyNodes, txCount, participantsCount });
+        const msg = createNetworkMsg({ sessionId, to: to.node.name, witnessId, count, block, historyNodes, txCount, participantsCount, roundId });
         console.log(msg)
         emit('sendMsg', 'handleNetworkMessage', msg, 'departure')
         // this.messageHandler.handleNetworkMessage(msg, 'departure');
       }
     }
 
-    const sendArriveMsg = (sessionId, toList, count, block, witnessId, historyNodes, txCount, participantsCount, autoDownplay) => {
+    const sendArriveMsg = ({ sessionId, toList, count, block, witnessId, historyNodes, txCount, participantsCount, autoDownplay, roundId }) => {
       let max = 0;
       for (const to of toList) {
         if (to.overtime) continue
         to.arriveTime = Math.random() * COMMUNICATE_COST_THRESHOLD + COMMUNICATE_COST
         max = Math.max(max, to.arriveTime);
         setTimeout(() => {
-          const msg = createNetworkMsg({ sessionId, to: to.node.name, count, block, witnessId, isDeparture: false, historyNodes, txCount, participantsCount });
+          const msg = createNetworkMsg({ sessionId, to: to.node.name, count, block, witnessId, isDeparture: false, historyNodes, txCount, participantsCount, roundId });
           emit('sendMsg', 'handleNetworkMessage', msg, 'arrive', autoDownplay)
           // this.messageHandler.handleNetworkMessage(msg, 'arrive');
         }, to.arriveTime)
@@ -210,9 +210,10 @@ export default defineComponent({
       return str.toLocaleUpperCase()
     }
 
-    const createNetworkMsg = ({ sessionId, to, count, block, witnessId, isDeparture, historyNodes, txCount, participantsCount }) => {
+    const createNetworkMsg = ({ sessionId, to, count, block, witnessId, isDeparture, historyNodes, txCount, participantsCount, roundId }) => {
       if (isDeparture === undefined) isDeparture = true
       const msg = {
+        roundId,
         sessionId,
         type: networkType.value,
         data: { content: getShortFor(networkType.value) + (count || 1) },
@@ -250,12 +251,12 @@ export default defineComponent({
       }
     }
 
-    const sendChainMessage = (block, txCount, participantsCount) => {
+    const sendChainMessage = (block, txCount, participantsCount, roundId) => {
       if (chainType.value === 'block on chain') {
         block = block || mockBlockInfo()
         txCount = txCount || Math.floor(Math.random() * 20) + 10
         participantsCount = participantsCount || Math.floor(Math.random() * 10) + 10
-        emit('sendMsg', 'handleBlockOnChain', { data: { block, txCount, participantsCount } })
+        emit('sendMsg', 'handleBlockOnChain', { data: { block, txCount, participantsCount }, roundId })
       } else {
         // TODO fork
         emit('sendMsg', 'handleChainForked', { data: {} })
@@ -275,6 +276,8 @@ export default defineComponent({
       networkType.value = 'tx';
       // COMMUNICATE_COST = 200;
       // COMMUNICATE_COST_THRESHOLD = 50;
+      const roundId = getRandomHash()
+      emit('sendMsg', 'setRoles', [nodes[3].id], 'Collector')
       for (let i = 0; i < 3; i++) {
         if (presentStatus.value === 'stopped') break;
         // while(presentStatus.value === 'pausing') {}
@@ -282,17 +285,19 @@ export default defineComponent({
         const index = Math.random() < 0.5 ? 1 : 4; // 只有1或5来发
         fromNodeId.value = nodes[index].id;
         const toList = nodes.filter((node) => (node.id !== fromNodeId.value)).map((node) => ({ node, valid: true, overtime: false }));
-        sendDepartureMsg(sessionId, toList, i + 1);
-        sendArriveMsg(sessionId, toList, i + 1);
+        sendDepartureMsg({ sessionId, toList, count: i + 1, roundId });
+        sendArriveMsg({ sessionId, toList, count: i + 1, roundId });
         const collectorNode = toList.filter((to) => to.node.id === '444')
         // const res = sendVerifyMsg(sessionId, toList, i + 1);
         const res = sendVerifyMsg(sessionId, collectorNode, i + 1);
         await sleep(res.cost + 2000);
       }
+      emit('sendMsg', 'clearRoles', [nodes[3].id])
 
       networkType.value = 'bp';
       const historyNodes = [];
       for (let i = 0; i < 2; i++) {
+        emit('sendMsg', 'setRoles', [nodes[i === 0 ? 2 : 0].id], `R${i + 1} Witness`)
         if (presentStatus.value === 'stopped') break;
         // while(presentStatus.value === 'pausing') {}
         bpround.value = i + 1;
@@ -303,10 +308,11 @@ export default defineComponent({
         const toList = nodes.filter((node) => (node.id !== fromNodeId.value && node.id !== '444')).map((node) => ({ node, valid: true, overtime: false }));
         const witnessNode = toList.filter((to) => i === 0 ? to.node.id === '333' : to.node.id === '111')
         historyNodes.push(witnessNode[0].node)
-        sendDepartureMsg(sessionId, toList, i + 1, null, witnessNode[0].node.id, JSON.parse(JSON.stringify(historyNodes)));
-        sendArriveMsg(sessionId, toList, i + 1, null, witnessNode[0].node.id, JSON.parse(JSON.stringify(historyNodes)));
+        sendDepartureMsg({ sessionId, toList, count: i + 1, witnessId: witnessNode[0].node.id, historyNodes: JSON.parse(JSON.stringify(historyNodes)), roundId });
+        sendArriveMsg({ sessionId, toList, count: i + 1, witnessId: witnessNode[0].node.id, historyNodes: JSON.parse(JSON.stringify(historyNodes)), roundId });
         const res = sendVerifyMsg(sessionId, witnessNode, i + 1);
         await sleep(res.cost + 2000);
+        if (i === 0) emit('sendMsg', 'clearRoles', [nodes[i === 0 ? 2 : 0].id])
       }
 
       let block;
@@ -319,8 +325,8 @@ export default defineComponent({
         fromNodeId.value = nodes[0].id;
         const toList = nodes.filter((node) => (node.id !== fromNodeId.value)).map((node) => ({ node, valid: true, overtime: false }));
         block = mockBlockInfo();
-        sendDepartureMsg(sessionId, toList, null, block, null, null, txCount, participantsCount);
-        sendArriveMsg(sessionId, toList, null, block, null, null, txCount, participantsCount, false);
+        sendDepartureMsg({ sessionId, toList, block, txCount, participantsCount, roundId });
+        sendArriveMsg({ sessionId, toList, block, txCount, participantsCount, autoDownplay: false, roundId });
         const res = sendVerifyMsg(sessionId, toList, null, false);
         await sleep(res.cost + 2000);
       }
@@ -329,7 +335,7 @@ export default defineComponent({
       if (presentStatus.value !== 'stopped') {
         const type = chainType.value
         chainType.value = 'block on chain'
-        sendChainMessage(block, txCount, participantsCount)
+        sendChainMessage(block, txCount, participantsCount, roundId)
         chainType.value = type
       }
 
@@ -447,33 +453,34 @@ export default defineComponent({
   h3:not(:first-child) {
     border-top: solid 1px #dcdcdc;
   }
-  .stop-btn {
-    display: inline-flex;
-    justify-content: center;
-    &__icon {
-      border: solid 1px #1890ff;
-      width: 18px;
-      height: 18px;
-      border-radius: 9px;
-      transform: translateY(2px);
-      &-inner {
-        background: #1890ff;
-        width: 8px;
-        height: 8px;
-        margin: 4px;
-      }
+}
+
+.stop-btn {
+  display: inline-flex;
+  justify-content: center;
+  &__icon {
+    border: solid 1px #1890ff;
+    width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    transform: translateY(2px);
+    &-inner {
+      background: #1890ff;
+      width: 8px;
+      height: 8px;
+      margin: 4px;
     }
-    &:hover .stop-btn__icon {
-      border-color: #40a9ff;
-      &-inner {
-        background-color: #40a9ff;
-      }
+  }
+  &:hover .stop-btn__icon {
+    border-color: #40a9ff;
+    &-inner {
+      background-color: #40a9ff;
     }
-    &:active .stop-btn__icon {
-      border-color: #096dd9;
-      &-inner {
-        background-color: #096dd9;
-      }
+  }
+  &:active .stop-btn__icon {
+    border-color: #096dd9;
+    &-inner {
+      background-color: #096dd9;
     }
   }
 }

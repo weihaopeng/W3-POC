@@ -19,7 +19,7 @@ html, body {
 .chain-column, .block-column, .bp-column {
   width: 300px;
   overflow-y: auto;
-  max-height: 75vh;
+  max-height: 65vh;
 }
 
 .bp-column  {
@@ -163,8 +163,15 @@ $tooltip-bg-map: (
       padding: 16px;
       // animation: yellow-fade 2s linear 1;
       position: relative;
+      cursor: pointer;
       &.highlight {
         background-color: #fff1b8;
+      }
+      &.selected {
+        background-color: #bae7ff;
+      }
+      &:hover {
+        box-shadow: 0 0 4px 0 #000;
       }
     }
     .#{$type}-type {

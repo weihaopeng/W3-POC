@@ -42,6 +42,7 @@ class SwarmPainter {
           name: 'W3 Swarm',
           type: 'graph',
           layout: 'circular',
+          animation: false,
           edgeSymbol: ['circle', 'arrow'],
           edgeSymbolSize: [4, 25],
           circular: {
@@ -87,13 +88,19 @@ class SwarmPainter {
     btn.classList.add('w3-btn')
     btn.classList.add('w3-btn--primary')
     btn.addEventListener('click', () => {
-      for (const tooltipWrapper of Array.from(document.getElementsByClassName('swarm-tooltip-wrapper'))) {
-        tooltipWrapper.innerHTML = ''
-      }
-      this.nodes.map((node) => node.tooltipGroup = [])
+      this.clearAll()
     })
     btn.innerText = 'Clear all'
     this.tooltipContainer.prepend(btn)
+  }
+
+  clearAll() {
+    for (const tooltipWrapper of Array.from(document.getElementsByClassName('swarm-tooltip-wrapper'))) {
+      tooltipWrapper.innerHTML = ''
+    }
+    this.nodes.map((node) => node.tooltipGroup = [])
+    this.chart.dispatchAction({ type: 'unselect', dataIndex: this.links.map((link, index) => index), dataType: 'edge' })
+    this.chart.dispatchAction({ type: 'unselect', dataIndex: this.nodes.map((node, index) => index) })
   }
 
   setSelectedLineColor(color) {
@@ -131,6 +138,36 @@ class SwarmPainter {
     dataIndex.map((i) => {
       if (msg.valid || msg.valid === false) this.nodes[i].changeTooltipToValid(msg)
       else this.nodes[i].appendTooltip(msg)
+    })
+  }
+
+  setNodeName(id, name) {
+    const target = this.nodes.find(node => node.id === id)
+    target.name = name
+    this.chart.setOption({
+      series: [
+        {
+          data: this.nodes
+        }
+      ]
+    })
+  }
+
+  setNodeSymbol(id, symbol, symbolSize, symbolColor) {
+    const target = this.nodes.find(node => node.id === id)
+    target.symbol = symbol
+    target.symbolSize = symbolSize
+    if (!target.itemStyle) target.itemStyle = {}
+    target.itemStyle.color = symbolColor
+    if (!target.select) target.select = {}
+    if (!target.select.itemStyle) target.select.itemStyle = {}
+    target.select.itemStyle = { color: symbolColor }
+    this.chart.setOption({
+      series: [
+        {
+          data: this.nodes
+        }
+      ]
     })
   }
 
