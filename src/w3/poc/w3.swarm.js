@@ -33,7 +33,7 @@ class W3Swarm extends EventEmitter2 {
     this.distanceFn = w3Algorithm.simpleNHashDistance(nodesAmount)
     this.initPreBlockValue = 'genuesis' + Math.floor(Math.random() * nodesAmount) // TODO: use a better way to initialize preBlockValue
 
-    // TODO：add network connect/disconnect start/stop observer
+    // TODO：add network connect/disconnect periodicEmitBlockMessage/stop observer
     await Promise.all(this.nodes.map(node => node.connect()))
 
     // TODO: wire the network @Jian-ru

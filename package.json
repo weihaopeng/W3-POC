@@ -10,7 +10,7 @@
   "type": "module",
   "description": "A large-scale P2P application protocol testbed based on IPFS and Libp2p for testing W3 which is a consensusless blockchain.",
   "scripts": {
-    "start": "cross-env DEBUG=w3* vite",
+    "periodicEmitBlockMessage": "cross-env DEBUG=w3* vite",
     "test": "cross-env DEBUG=w3* mocha --exit --ui bdd \"./test/**/*.test.js\"",
     "deps": "depcruise --include-only \"^src\" --output-type dot src | dot -T svg > architecture.svg",
     "version": "auto-changelog -p && git add CHANGELOG.md",

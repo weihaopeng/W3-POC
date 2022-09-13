@@ -28,7 +28,7 @@ describe('Full(Normal) Network Mode @issue#2', () => {
   after(() => w3.destroy())
 
   it('work normal to create blocks', async () => {
-    debug('---- start to %s send fake txs in %s tps, will create %s blocks, may end in %s s----', txAmount, tps, txAmount/TX_COUNT, txAmount / tps)
+    debug('---- periodicEmitBlockMessage to %s send fake txs in %s tps, will create %s blocks, may end in %s s----', txAmount, tps, txAmount/TX_COUNT, txAmount / tps)
     await w3.sendFakeTxs(txAmount, tps)
     await util.wait((TX_COUNT / tps) * 100 + config.WITNESS_AND_MINT_LATENCY)
     w3.showCollectorsStatistic()

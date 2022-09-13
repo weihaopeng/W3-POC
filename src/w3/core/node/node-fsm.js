@@ -10,7 +10,7 @@ const debug = Debug('w3:peer:fsm')
 const fsm = {
   init: 'pending',
   transitions: [
-    { name: 'connect', from: ['pending', 'disconnected'], to: 'connected' }, // libp2p.connect & start
+    { name: 'connect', from: ['pending', 'disconnected'], to: 'connected' }, // libp2p.connect & periodicEmitBlockMessage
     { name: 'disconnect', from: ['connected', 'ready'], to: 'disconnected' }, //
     { name: 'start', from: 'connected', to: 'ready' }, // latency <= threshold && chain.height + 1 >= block.height
     { name: 'stop', from: 'ready', to: 'connected' },  // latency >  threshold || chain.height + 1 <  block.height
