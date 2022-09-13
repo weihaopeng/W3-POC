@@ -34,22 +34,36 @@ class SwarmNode {
   }
 
   calculateTooltipPos(xmin, xmax) {
-    const ymid = this.cvsHeight / 2
-    if (this.x === xmin) {
+    const xmid = this.cvsWidth / 2
+    this.isHorizontal = false
+    if (this.x <= xmid) {
       this.tooltipWrapper.style.transform = `translateX(calc(-100% - ${TOOLTIP_DISTANCE}px)`
-      this.isHorizontal = false
-    } else if (this.x === xmax) {
+    } else {
       this.tooltipWrapper.style.transform = `translateX(${this.cvsSimbolSize + TOOLTIP_DISTANCE}px)`
-      this.isHorizontal = false
     }
-    else if (this.y < ymid) this.tooltipWrapper.style.transform = `translateY(calc(-100% - ${TOOLTIP_DISTANCE}px)`
-    else this.tooltipWrapper.style.transform = `translateY(${this.cvsSimbolSize + TOOLTIP_DISTANCE}px)`
-
     this.tooltipWrapper.style.left = `${this.x - this.cvsSimbolSize / 2}px`
     this.tooltipWrapper.style.top = `${this.y - this.cvsSimbolSize / 2}px`
 
     this.tooltipWrapper.classList.add(this.isHorizontal ? 'horizontal' : 'vertical')
   }
+
+  // calculateTooltipPos(xmin, xmax) {
+  //   const ymid = this.cvsHeight / 2
+  //   if (this.x === xmin) {
+  //     this.tooltipWrapper.style.transform = `translateX(calc(-100% - ${TOOLTIP_DISTANCE}px)`
+  //     this.isHorizontal = false
+  //   } else if (this.x === xmax) {
+  //     this.tooltipWrapper.style.transform = `translateX(${this.cvsSimbolSize + TOOLTIP_DISTANCE}px)`
+  //     this.isHorizontal = false
+  //   }
+  //   else if (this.y < ymid) this.tooltipWrapper.style.transform = `translateY(calc(-100% - ${TOOLTIP_DISTANCE}px)`
+  //   else this.tooltipWrapper.style.transform = `translateY(${this.cvsSimbolSize + TOOLTIP_DISTANCE}px)`
+
+  //   this.tooltipWrapper.style.left = `${this.x - this.cvsSimbolSize / 2}px`
+  //   this.tooltipWrapper.style.top = `${this.y - this.cvsSimbolSize / 2}px`
+
+  //   this.tooltipWrapper.classList.add(this.isHorizontal ? 'horizontal' : 'vertical')
+  // }
 
   /**
    * Tooltip card is a card with two tooltips. A node may receive messages from two tx/block processes at the same time.

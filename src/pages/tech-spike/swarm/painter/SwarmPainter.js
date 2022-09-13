@@ -17,7 +17,9 @@ class SwarmPainter {
     for (let index = 0; index < nodes.length; index++) {
       const node = nodes[index]
       nodes.map((n, i) => {
-        if (n.id !== node.id) links.push({ source: index, target: i, lineStyle: { curveness: index > i ? 0.1 : -0.1 } })
+        const curveness = index > i ? 0.1 : -0.1
+
+        if (n.id !== node.id) links.push({ source: index, target: i, lineStyle: { curveness } })
       })
     }
     return links
@@ -44,7 +46,7 @@ class SwarmPainter {
           layout: 'circular',
           animation: false,
           edgeSymbol: ['circle', 'arrow'],
-          edgeSymbolSize: [4, 25],
+          edgeSymbolSize: [4, 10],
           circular: {
             rotateLabel: false
           },
@@ -81,6 +83,7 @@ class SwarmPainter {
       ]
     }
     this.chart.setOption(option)
+    window.ccc = this.chart
   }
 
   initClearBtn() {

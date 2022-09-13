@@ -12,18 +12,38 @@ html, body {
 .chain-column, .block-column, .bp-column, .swarm-column {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin: 0 8px;
+  margin-right: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  position: relative;
+  &::after {
+    position: absolute;
+    content: '';
+    bottom: 0;
+    width: 100%;
+    height: 12px;
+    background: linear-gradient(180deg,rgba(61,63,80,0.00), rgba(61,63,80,0.90));
+    border-radius: 0px 0px 4px 4px;
+  }
 }
 
 .chain-column, .block-column, .bp-column {
-  width: 300px;
+  width: 270px;
   overflow-y: auto;
-  max-height: 65vh;
+  max-height: 100%;
+  &__title {
+    color: #fff;
+    font-size: 20px;
+    text-align: left;
+    margin: 10px 16px 15px;
+  }
 }
 
 .bp-column  {
-  width: 340px;
+  margin-right: 0;
 }
 
 .swarm-column {
@@ -32,6 +52,9 @@ html, body {
 
 #chain-container, #block-container, #bp-container {
   overflow-y: auto;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /*************** swarm ***************/
@@ -83,10 +106,10 @@ $tooltip-bg-map: (
 
 .swarm-cvs-container {
   flex-grow: 1;
-  background: #dcdcdc;
+  // background: #dcdcdc;
   width: 100%;
   position: relative;
-  padding: 40px;
+  padding: 20px;
   box-sizing: border-box;
   #swarm-node-cvs {
     width: 100%;
@@ -94,8 +117,8 @@ $tooltip-bg-map: (
   }
   #swarm-tooltip-container {
     position: absolute;
-    top: 40px;
-    left: 40px;
+    top: 20px;
+    left: 20px;
     width: calc(100% - 80px);
     height: calc(100% - 80px);
 
@@ -152,6 +175,22 @@ $tooltip-bg-map: (
   }
 }
 
+$block-selected-bg-color-map: (
+  'chain': #a9eabf,
+  'block': #d9a9ea,
+  'bp': #ead9a9
+);
+$block-selected-border-color-map: (
+  'chain': #1acd57,
+  'block': #c229cf,
+  'bp': #dfa517
+);
+$block-selected-shadow-color-map: (
+  'chain': rgba(18,136,58,0.60),
+  'block': rgba(18,136,58,0.60),
+  'bp': rgba(136,102,18,0.60)
+);
+
 @mixin container($types...) {
   @for $i from 0 to length($types) {
     $type: nth($types, $i + 1);
@@ -159,19 +198,24 @@ $tooltip-bg-map: (
     .#{$type}-container {
       border: solid 1px #dcdcdc;
       border-radius: 4px;
-      margin: 16px;
-      padding: 16px;
+      margin: 6px 10px 12px;
+      padding: 15px 18px;
       // animation: yellow-fade 2s linear 1;
       position: relative;
       cursor: pointer;
-      &.highlight {
-        background-color: #fff1b8;
-      }
-      &.selected {
-        background-color: #bae7ff;
+      font-size: 12px;
+      background: #eff0f9;
+      box-sizing: border-box;
+      box-shadow: 0px 2px 6px 0px rgba(0,0,0,0.20);
+      border: solid 2px #eff0f9;
+      &.highlight, &.selected {
+        background-color: map.get($block-selected-bg-color-map, #{$type});
+        border-color: map.get($block-selected-border-color-map, #{$type});
+        box-shadow: 0 2px 8px 0 map.get($block-selected-shadow-color-map, #{$type});
       }
       &:hover {
-        box-shadow: 0 0 4px 0 #000;
+        border-color: map.get($block-selected-border-color-map, #{$type});
+        box-shadow: 0 2px 8px 0 map.get($block-selected-shadow-color-map, #{$type});
       }
     }
     .#{$type}-type {

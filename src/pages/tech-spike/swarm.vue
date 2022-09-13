@@ -1,36 +1,21 @@
 <template lang="pug">
 .swarm
-  .swarm-title
-    h1 Two-stages Mint Simulation
-    div(v-if="route.query.present", style="color: #666; height: 40px; display: flex; align-items: center;")
-      span Config: { NODES_AMOUNT: 5, COLLECTORS_AMOUNT: 1, WITNESSES_AMOUNT: 1, WITNESS_ROUNDS_AMOUNT: 2, TX_COUNT: 3 }
-      AButton(v-if="!presenting" type="link" size="large" @click="simulate")
+  .swarm-header
+    .swarm-header__title Two-stages Mint Simulation
+    .swarm-header__operation
+      AButton.play-btn(v-if="!presenting"  shape="circle" @click="simulate")
         template(#icon)
-          PlayCircleOutlined
-      AButton.ant-btn-icon-only.stop-btn(v-else type="link" size="large" @click="stopSimulate")
+          img(:src="PlayPng")
+      AButton.ant-btn-icon-only.stop-btn(v-else @click="stopSimulate")
         .stop-btn__icon
           .stop-btn__icon-inner
-      AButton(type="primary" @click="clearSwarm") Clear Swarm
-    ASteps(:precent="currentPrecent", :current="currentStep")
-      AStep(title="Collecting Stage")
-        template(#description)
-          .swarm-step-description.highlight-green(v-if="currentStage" :class="{ highlight: currentStage === 'tx' }")
-            span random collector: {{ collectorName }}
-            span.highlight-point {{ txRoundList.length }}/3
-            span Txs
-      AStep(title="Witness(BP) & Mint(Block)")
-        template(#description)
-          .swarm-step-description.highlight-orange(v-for="(bpRound, index) in bpRoundList", :class="{ highlight: currentStage === `bp${index + 1}` || bpRound.type === 'block' }")
-            div(v-if="bpRound.type === 'bp'")
-              span Round
-              span.highlight-point {{ index + 1 }}
-              span random witness: 
-              span.highlight-point {{ bpRound.witnessName }}
-            span.highlight-point(v-else) Mint
+      AButton.clear-btn(shape="circle")
+        template(#icon)
+          img(:src="ClearPng")
 
   .swarm-main
     .chain-column
-      h1 chain
+      .chain-column__title chain
       #chain-container(ref="chainContainer")
         .chain-container(v-for="block in chainBlockList" :class="{ highlight: block.highlight, selected: block.roundId === selectedRound }" @click="highlightBlockOrBp(block)")
           .block-info
@@ -46,7 +31,7 @@
             div Addr: {{ block.data.block.node.address }}
 
     .block-column
-      h1 block
+      .block-column__title block
       #block-container(ref="blockContainer")
         .block-container(v-for="block in blockList" :class="{ highlight: block.highlight, selected: block.roundId === selectedRound }" @click="highlightBlockOrBp(block)")
           .block-info
@@ -61,19 +46,45 @@
             div Addr: {{ block.data.node.address }}
 
     .swarm-column
-      h1 swarm
+      .swarm-steps
+        .swarm-steps__config Config: { NODES_AMOUNT: 5, COLLECTORS_AMOUNT: 1, WITNESSES_AMOUNT: 1, WITNESS_ROUNDS_AMOUNT: 2, TX_COUNT: 3 }
+        ASteps(:percent="currentPercent * 33", :current="currentStep")
+          AStep(title="Collecting Stage" disabled)
+            template(#description)
+              .swarm-step-description.highlight-green(v-if="currentStage" :class="{ highlight: currentStage === 'tx' }")
+                span random collector: {{ collectorName }}
+                span.highlight-point {{ txRoundList.length }}/3
+                span Txs
+          AStep(title="Witness(BP) & Mint(Block)" disabled)
+            template(#description)
+              .swarm-step-description.highlight-orange(v-for="(bpRound, index) in bpRoundList", :class="{ highlight: currentStage === `bp${index + 1}` || bpRound.type === 'block' }")
+                div(v-if="bpRound.type === 'bp'")
+                  span Round
+                  span.highlight-point {{ index + 1 }}
+                  span random witness: 
+                  span.highlight-point {{ bpRound.witnessName }}
+                span.highlight-point(v-else) Mint
+
       .swarm-cvs-container
         #swarm-node-cvs
         #swarm-tooltip-container
-          .swarm-tooltip-legend
-            div Legend
-            div TX → Transaction
-            div BP → Block Proposal
-            div Bk → Block
-            div Fk → Chain forked
+        .swarm-tooltip-legend
+          div Legend
+          div
+            span TX 
+            span.swarm-tooltip-legend__description → Transaction
+          div
+            span BP 
+            span.swarm-tooltip-legend__description → Block Proposal
+          div
+            span Bk 
+            span.swarm-tooltip-legend__description → Block
+          div
+            span Fk 
+            span.swarm-tooltip-legend__description → Chain forked
       
     .bp-column
-      h1 bp
+      .bp-column__title bp
       #bp-container(ref="bpContainer")
         .bp-container(v-for="(bp, bpIndex) in bpList" :class="{ highlight: bp.highlight, selected: bp.roundId === selectedRound }" @click="highlightBlockOrBp(bp)")
           span Witness Round{{ bp.data.round }}
@@ -95,7 +106,8 @@ import ControlSimulator from './swarm/control-simulator.vue'
 import { useRoute } from 'vue-router'
 import { getRandomIp, getRandomHash } from './util.js'
 import dayjs from 'dayjs'
-import { PlayCircleOutlined, PauseCircleOutlined } from '@ant-design/icons-vue'
+import PlayPng from '@/assets/play.png'
+import ClearPng from '@/assets/clear.png'
 
 import nodes from './swarm/assets/nodes.json'
 import MessageHandler from './swarm/MessageHandler.js'
@@ -103,14 +115,14 @@ import SwarmPainter from './swarm/painter/SwarmPainter.js'
 
 export default defineComponent({
   name: 'Swarm',
-  components: { PlayCircleOutlined, PauseCircleOutlined, ControlSimulator },
+  components: { ControlSimulator },
   setup: () => {
     const chainBlockList = ref([])
     const blockList = ref([])
     const bpList = ref([])
     const bpRoundList = ref([])
     const collectorName = ref('No.4')
-    const currentPrecent = ref(0)
+    const currentPercent = ref(0)
     const currentStep = ref(0)
     const currentStage = ref('')
     const txRoundList = ref([])
@@ -248,7 +260,6 @@ export default defineComponent({
     }
 
     const analysisCurrentStage = (...args) => {
-      console.log('stage', args)
       const type = args[0].type
       const sessionId = args[0].sessionId
       const isWitness = args[0].data.isWitness
@@ -257,8 +268,10 @@ export default defineComponent({
       if (!currentStage.value) currentStage.value = 'tx'
       if (type === 'tx' && action === 'departure' && !txRoundList.value.find((round) => round.sessionId === sessionId)) {
         txRoundList.value.push({ sessionId })
+        currentPercent.value++
       }
       if (type === 'bp' && isWitness && !bpRoundList.value.find((round) => round.sessionId === sessionId)) {
+        if (bpRoundList.value.length === 0 ) currentPercent.value = 0
         currentStep.value = 1
         bpRoundList.value.push({
           witnessName: nodes.find((node) => node.id === toNodeId).name,
@@ -266,21 +279,28 @@ export default defineComponent({
           type
         })
         currentStage.value = `bp${bpRoundList.value.length}`
+        currentPercent.value++
       }
       if (type === 'block' && !bpRoundList.value.find((round) => round.sessionId === sessionId)) {
         bpRoundList.value.push({ sessionId, type: 'block' })
         currentStage.value = `block`
+        currentPercent.value++
       }
     }
 
     const simulate = () => {
-      clearSwarm()
+      resetSwarm()
+      ControlSimulatorComp.value.playPresent()
+    }
+
+    const resetSwarm = () => {
+      clearSwarmCvs()
       currentStep.value = 0
       collectorName.value = 'No.4'
       txRoundList.value = []
       bpRoundList.value = []
       currentStage.value = ''
-      ControlSimulatorComp.value.playPresent()
+      currentPercent.value = 0
     }
 
     const stopSimulate = () => {
@@ -315,11 +335,11 @@ export default defineComponent({
         bpRoundList.value.push({ type: 'block '})
         currentStage.value = 'block'
       } else {
-        selectedRound.value = ''
+        resetSwarm()
       }
     }
 
-    const clearSwarm = () => {
+    const clearSwarmCvs = () => {
       messageHandler.value.clearRoles(nodes.map((node) => node.id))
       selectedRound.value = ''
       swarmPainter.value.clearAll()
@@ -330,7 +350,7 @@ export default defineComponent({
       blockList,
       bpList,
       bpRoundList,
-      currentPrecent,
+      currentPercent,
       currentStep,
       currentStage,
       txRoundList,
@@ -343,13 +363,15 @@ export default defineComponent({
       presenting,
       selectedRound,
       collectorName,
+      PlayPng,
+      ClearPng,
       handleMsg,
       startPresent,
       endPresent,
       simulate,
       stopSimulate,
       highlightBlockOrBp,
-      clearSwarm
+      clearSwarmCvs
     }
   }
 })
@@ -363,29 +385,22 @@ export default defineComponent({
   width: 100%;
   display: flex;
   flex-direction: column;
-  &-title {
+  &-header {
+    color: #fff;
+    font-size: 24px;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    .ant-steps {
-      padding: 0 30vw;
-      height: 145px;
-      .ant-steps-item-description {
-        max-width: 360px;
-        font-size: 24px;
+    justify-content: space-between;
+    margin: 16px 0;
+    &__operation {
+      .ant-btn {
+        margin-left: 16px;
       }
-      .swarm-step-description {
-        white-space: nowrap;
-        span {
-          margin-left: 4px;
-        }
-        &.highlight.highlight-green .highlight-point {
-          font-weight: bolder;
-          color: #52c41a;
-        }
-        &.highlight.highlight-orange .highlight-point {
-          font-weight: bolder;
-          color: #fa8c16;
+      .play-btn, .stop-btn, .clear-btn {
+        border-width: 0;
+        padding: 0;
+        background: transparent;
+        img {
+          width: 32px;
         }
       }
     }
@@ -393,6 +408,88 @@ export default defineComponent({
   &-main {
     flex-grow: 1;
     display: flex;
+    overflow: hidden;
+  }
+  .swarm-steps {
+    height: 146px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    &__config {
+      font-size: 12px;
+      color: #fff;
+      margin: 15px 0 12px;
+      text-align: center;
+      font-weight: 300;
+    }
+    .ant-steps {
+      // padding: 0 200px;
+      width: 584px;
+      .ant-steps-item {
+        cursor: default;
+      }
+      .ant-steps-item-title {
+        color: rgba(255, 255, 255, 0.85);
+      }
+
+      .ant-progress-circle-trail {
+        display: none;
+      }
+      .ant-steps-item-icon {
+        background: #5B8FF9;
+        border-color: #5B8FF9;
+        border-width: 2px;
+      }
+      .ant-steps-item-wait {
+        .ant-steps-item-title {
+          color: rgba(255, 255, 255, 0.255);
+        }
+        .ant-steps-item-icon {
+          background-color: transparent;
+          border-color: rgba(255, 255, 255, 0.3);
+          .ant-steps-icon {
+            color: rgba(255, 255, 255, 0.3);
+          }
+        }
+      }
+      .ant-steps-item-finish {
+        .ant-steps-item-icon {
+          background-color: transparent;
+          border-color: #5B8FF9;
+          .ant-steps-icon {
+            color: #5B8FF9;
+          }
+        }
+      }
+      .ant-steps-item-description {
+        max-width: 360px;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.85);
+      }
+      .swarm-step-description {
+        white-space: nowrap;
+        span {
+          margin-left: 4px;
+        }
+        &.highlight.highlight-green {
+          font-weight: bolder;
+          color: #1ACD57;
+        }
+        &.highlight.highlight-orange {
+          font-weight: bolder;
+          color: rgb(238, 140, 62);
+        }
+      }
+    }
+  }
+  .swarm-tooltip-legend {
+    position: absolute;
+    top: 0;
+    left: 30px;
+    color: #fff;
+    .swarm-tooltip-legend__description {
+      font-weight: 300;
+    }
   }
   .node-info__link {
     color: #1890ff;
