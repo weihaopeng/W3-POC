@@ -805,7 +805,7 @@ enough txs</panel_attributes>
       <w>450</w>
       <h>45</h>
     </coordinates>
-    <panel_attributes>* A Node Can AFW Only Once in an Epoch *
+    <panel_attributes>* A Node Can AFW Only Once in an ResetableEpoch *
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
@@ -2245,7 +2245,7 @@ group=11</panel_attributes>
       <w>450</w>
       <h>45</h>
     </coordinates>
-    <panel_attributes>* Epoch Time Analysis *
+    <panel_attributes>* ResetableEpoch Time Analysis *
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
@@ -2258,7 +2258,7 @@ style=wordwrap</panel_attributes>
       <h>75</h>
     </coordinates>
     <panel_attributes>lt=&lt;-&gt;
-Epoch
+ResetableEpoch
        Te = Tc + Tw = 17 * LU</panel_attributes>
     <additional_attributes>10.0;20.0;830.0;20.0</additional_attributes>
   </element>
@@ -2270,7 +2270,7 @@ Epoch
       <w>450</w>
       <h>45</h>
     </coordinates>
-    <panel_attributes>* Epoch Sync by block Message *
+    <panel_attributes>* ResetableEpoch Sync by block Message *
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>

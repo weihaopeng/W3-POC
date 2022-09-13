@@ -4,16 +4,16 @@
  */
 import Debug from 'debug'
 import _ from 'lodash'
-const debug = Debug('w3:TxsPool')
+const debug = Debug('w3:epoch')
 
 import EventEmitter2 from 'eventemitter2'
 
-class Epoch extends EventEmitter2 {
+class ResetableEpoch extends EventEmitter2 {
   static epoches = []
   static differenceEmitter = new EventEmitter2()
 
   static create(node, conf) {
-    const epoch = new Epoch(node, conf)
+    const epoch = new this(node, conf)
     this.epoches.push(epoch)
     return epoch
   }
@@ -33,6 +33,7 @@ class Epoch extends EventEmitter2 {
     const max = _.max(epochHeights)
     const dif = max - min
     this.differenceEmitter.emit('difference', { min, max, dif, epochHeights })
+    return {min, max, dif, epochHeights }
   }
 
   constructor (node, { collectTime = 1000, witnessAndMintTime = 1000 } = {}) {
@@ -46,7 +47,6 @@ class Epoch extends EventEmitter2 {
   start(height) {
     this.goEpoch(height)
   }
-
 
   goEpoch(height) {
     this.stage = 'collect' // null | collect | witnessAndMint
@@ -64,22 +64,26 @@ class Epoch extends EventEmitter2 {
         this.goEpoch()
       }, this.witnessAndMintTime)
 
-      debug('--- Epoch witnesses and mints at %s, height: %s ', Date.now(), this.height)
+      debug('--- ResetableEpoch witnesses and mints at %s, height: %s ', Date.now(), this.height)
     }, this.collectTime)
 
     this.constructor.detectEpochHeightDifference() // use in dev. for observe the epoch height difference
-    debug('--- Epoch collects at %s, height: %s ', Date.now(), this.height)
+    debug('--- ResetableEpoch collects at %s, height: %s ', Date.now(), this.height)
   }
 
   reset() {
     this.goEpoch(this.height)
   }
 
+  resetOn(source, event, predicate =_ => true) {
+    (source.on || source.listen).bind(source)(event, (data) => {
+      predicate(data) && this.reset()
+    }, this)
+  }
+
   stop() {
     clearTimeout(this.nextEpochTimer)
     clearTimeout(this.collectTimeOverTimer)
-    delete this.nextEpochTimer
-    delete this.collectTimeOverTimer
   }
 
   immediatelyNextEpoch () {
@@ -87,4 +91,4 @@ class Epoch extends EventEmitter2 {
   }
 }
 
-export { Epoch }
+export { ResetableEpoch }

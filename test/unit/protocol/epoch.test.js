@@ -3,7 +3,7 @@ import chai from 'chai'
 const should = chai.should()
 
 import Debug from 'debug'
-import { Epoch } from '../../../src/w3/core/protocol/epoch.js'
+import { ResetableEpoch } from '../../../src/w3/core/protocol/resetable-epoch.js'
 import { util } from '../../../src/w3/util.js'
 import EventEmitter2 from 'eventemitter2'
 
@@ -14,7 +14,7 @@ const blockEventEmitter = new EventEmitter2()
 describe('Epoch sync mechanism @issue#11', () => {
 
   beforeEach(() => {
-    Epoch.differenceEmitter.on('difference', ({dif, min, max, epochHeights}) => {
+    ResetableEpoch.differenceEmitter.on('difference', ({dif, min, max, epochHeights}) => {
       if (dif > 1) {
         console.log('--- WARN: epoch height difference: %s ( > 1 )', dif)
         console.log('--- WARN: epochHeights: %s', epochHeights)
@@ -27,7 +27,8 @@ describe('Epoch sync mechanism @issue#11', () => {
 
   afterEach(() => {
     blockEventEmitter.removeAllListeners()
-    Epoch.clear()
+    ResetableEpoch.stopAllEpoches()
+    ResetableEpoch.clear()
   })
 
   const latencyUpperBound = 100
@@ -38,7 +39,7 @@ describe('Epoch sync mechanism @issue#11', () => {
 
   it('without reset, unsync with height difference converge to 3~4', async () => {
     for (let i = 0; i < epochCount; i++) {
-      const epoch =  Epoch.create(i, { collectTime, witnessAndMintTime })
+      const epoch =  ResetableEpoch.create(i, { collectTime, witnessAndMintTime })
       const possionLatency = util.exponentialRandom(epochCount / (collectTime * 5)) // show error
       // const possionLatency = util.exponentialRandom(epochCount / collectTime )
       debug('--- periodicEmitBlockMessage epoch latency: %s ms', possionLatency)
@@ -47,18 +48,16 @@ describe('Epoch sync mechanism @issue#11', () => {
     }
 
     await util.wait(10 * epochTime)
-    Epoch.stopAllEpoches()
+    ResetableEpoch.detectEpochHeightDifference().dif.should.be.above(1)
 
   }).timeout(0)
 
   it('periodic emit block message, sync with height difference converge to 0', async () => {
     for (let i = 0; i < epochCount; i++) {
-      const epoch =  Epoch.create(i, { collectTime, witnessAndMintTime })
+      const epoch =  ResetableEpoch.create(i, { collectTime, witnessAndMintTime })
 
       // Try to sync with height difference converge to 0
-      blockEventEmitter.on('block', ({ height }) => {
-        if (epoch.height > height) epoch.reset()
-      })
+      epoch.resetOn(blockEventEmitter, 'block', ({height}) => epoch.height === height + 1)
 
       epoch.on('stage', (async ({ stage }) => {
         if (stage === 'witnessAndMint') {
@@ -66,7 +65,7 @@ describe('Epoch sync mechanism @issue#11', () => {
           await util.wait(guassLatency)
           debug('----  block event emit block height: %s, with witnessAndMintTime: %s', epoch.height, guassLatency)
           blockEventEmitter.emit('block', { height: epoch.height })
-          epoch.immediatelyNextEpoch()
+          // epoch.immediatelyNextEpoch()
         }
       }))
 
@@ -78,8 +77,7 @@ describe('Epoch sync mechanism @issue#11', () => {
     }
 
     await util.wait(10 * epochTime)
-    Epoch.stopAllEpoches()
-
+    ResetableEpoch.detectEpochHeightDifference().dif.should.lte(1)
   }).timeout(0)
 })
 
