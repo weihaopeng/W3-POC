@@ -39,7 +39,7 @@ export default defineComponent({
       ]
       if (props.config.attackType)
         text.push(
-          `{important|Attack Success Probability： 1/e+15}`,
+          `{important|Attack Success Probability： 1/10}{sup|15}`,
           `                          {important|1 in 1.4 billion} years`
         )
       return text;
@@ -48,15 +48,15 @@ export default defineComponent({
     function showPerformance() {
       const performanceChart = echarts.init(performanceContainerRef.value)
       const series = [
-        {name: 'In', type: 'line', showSymbol: false, data: [{name: 'init1', value: [new Date().toString(), 0]}]},
-        {name: 'Out', type: 'line', showSymbol: false, data: [{name: 'init2', value: [new Date().toString(), 0]}]}
+        {name: 'In_all', type: 'line', showSymbol: false, data: [{name: 'init1', value: [new Date().toString(), 0]}]},
+        {name: 'Out_all', type: 'line', showSymbol: false, data: [{name: 'init2', value: [new Date().toString(), 0]}]}
       ]
-      const legend = ['In', 'Out']
+      const legend = ['In_all', 'Out_all']
 
       if (props.config.attackType) {
-        legend.push('ForgeIn', 'ForgeOut')
-        series.push({name: 'ForgeIn', type: 'line', showSymbol: false, data: []});
-        series.push({name: 'ForgeOut', type: 'line', showSymbol: false, data: []});
+        legend.push('In_forge', 'Out_forge')
+        series.push({name: 'In_forge', type: 'line', showSymbol: false, data: []});
+        series.push({name: 'Out_forge', type: 'line', showSymbol: false, data: []});
       }
 
       performanceChart.setOption({
@@ -68,6 +68,11 @@ export default defineComponent({
             rich: {
               important: {
                 color: 'red'
+              },
+              sup: {
+                color: 'red',
+                fontSize: 8,
+                verticalAlign: 'top'
               }
             }
           }
@@ -94,13 +99,12 @@ export default defineComponent({
           },
         },
         grid: {
-          left: '10%'
+          left: '15%'
         },
         series
       })
 
-      watch(() => props.config.swarmScale, () => {
-        // console.log('swarmScale', props.config)
+      watch(() => props.config.nodeScale, () => {
         performanceChart.setOption({
           title: {
             subtext: subTitleText.value.join('\n'),

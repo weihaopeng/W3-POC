@@ -127,8 +127,6 @@ class Controller extends EventEmitter {
       series.push({ data: this.performanceWithAttackerChartOutboundData })
     }
 
-    console.log(series)
-
     this.performanceChart && this.performanceChart.setOption({ series })
   }
 
@@ -139,7 +137,7 @@ class Controller extends EventEmitter {
     const swarms = this.swarms;
     for (let swarm of swarms) {
       let nodes = swarm.nodes;
-      nodes = _.sampleSize(nodes, nodes.length < 100 ? nodes.length : (100 + (nodes.length - 100) / 10));
+      nodes = _.sampleSize(nodes, nodes.length < 100 ? nodes.length : (100 + (nodes.length - 100) / 20));
 
       let departNodesTotal = Math.floor(this.tps / swarms.length);
       departNodesTotal =departNodesTotal < 5 ? 5 : departNodesTotal > 10 ? 10 : departNodesTotal
@@ -159,12 +157,12 @@ class Controller extends EventEmitter {
     }
 
     for (let departSwarm of swarms) {
-      const departNodes = _.sampleSize(departSwarm.nodes, 3)
+      const departNodes = _.sampleSize(departSwarm.nodes, 5)
 
       for (let arriveSwarm of swarms) {
         if (departSwarm.id === arriveSwarm.id) continue
 
-        const arriveNodes = _.sampleSize(arriveSwarm.nodes, 3)
+        const arriveNodes = _.sampleSize(arriveSwarm.nodes, 5)
         for (let departNode of departNodes) {
           for (let arriveNode of arriveNodes) {
             if (departNode.address === arriveNode.address) continue

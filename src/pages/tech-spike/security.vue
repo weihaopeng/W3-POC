@@ -2,11 +2,11 @@
 AButton(@click="showConfig") config
 ARow
   ACol(:span="12")
-    WorldMap
+    WorldMap(:config="config")
   ACol(:span="6")
     Performance(:performance-visible="visible.performance" @close="closePerformance" :config="config")
     Resource(:resource-visible="visible.resource" @close="closeResource" :config="config")
-ADrawer(title="config" v-model:visible="configVisible" placement="left" @close="onConfigClose")
+ADrawer(title="W3 Network Configuration" v-model:visible="configVisible" placement="left" @close="onConfigClose")
   NetworkConfig(:default-config="config" @change-config="onChangeConfig")
 </template>
 

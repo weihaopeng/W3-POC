@@ -1,15 +1,19 @@
 <template lang="pug">
+APageHeader(
+  style="border: 1px solid rgb(235, 237, 240); display: flex; justify-content: center;"
+  :title="`W3 chain height ${Math.floor(config.chainHeight)}　　　　　total transactions ${config.totalTransactions}`"
+)
 AButton(@click="showConfig") config
     //- AButton(@click="showResult") result
 //- div
 //-   WorldMap
 ARow
   ACol(:span="12")
-    WorldMap
+    WorldMap(:config="config")
   ACol(:span="6")
     Performance(:performance-visible="visible.performance" @close="closePerformance" :config="config")
     Resource(:resource-visible="visible.resource" @close="closeResource" :config="config")
-ADrawer(title="config" v-model:visible="configVisible" placement="left" @close="onConfigClose")
+ADrawer(title="W3 Network Configuration" v-model:visible="configVisible" placement="left" @close="onConfigClose")
   NetworkConfig(:default-config="config" @change-config="onChangeConfig")
 </template>
 
@@ -65,11 +69,18 @@ export default defineComponent({
       latencyBetweenSwarm: 100,
       tps: 15,
       swarmScale: 1,
-      forgeAccountRatio: 0
+      forgeAccountRatio: 0,
+      chainHeight: 181311,
+      totalTransactions: 103123414
     })
 
     controller.setNodesScale(config.value.nodeScale, 0);
     controller.autoGenerateTx(config.value.tps)
+
+    let timer = setInterval(() => {
+      config.value.chainHeight += config.value.tps / 50;
+      config.value.totalTransactions += config.value.tps;
+    }, 1000)
 
     const onChangeConfig = (newConfig) => {
       console.log('change config', newConfig)
@@ -77,7 +88,7 @@ export default defineComponent({
       controller.autoGenerateTx(newConfig.tps)
       config.value.nodeScale = newConfig.nodeScale
       config.value.tps = newConfig.tps;
-      config.swarmScale = Math.ceil(newConfig.nodeScale / (50 + Math.random() * 50))
+      config.value.swarmScale = newConfig.swarmScale
     }
 
     return {
