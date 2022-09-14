@@ -173,24 +173,32 @@ export default defineComponent({
           })
         }
 
-        const minuteAgo = Math.floor(Math.random() * 20) + i * 20
+        const minuteAgo = Math.floor(Math.random() * 20) + (mockRound - i) * 20
         const randomMs = Math.floor(Math.random() * 10000)
         const baseTime = dayjs().subtract(minuteAgo * 60000 + randomMs, 'millisecond')
         const noIndex = Math.floor(Math.random() * 5);
         const participantsNodes = nodes.filter((node, index) => index !== noIndex)
         participantsNodes.sort(() => (Math.random() - 0.5))
+        const round1BpTime = generateTime(baseTime, Math.floor(Math.random() * 1000))
+        const round1WitnessTime = generateTime(baseTime, 3000 + Math.floor(Math.random() * 1000))
+        const round2BpTime = generateTime(round1WitnessTime, Math.floor(Math.random() * 1000))
+        const round2WitnessTime = generateTime(round2BpTime, 3000 + Math.floor(Math.random() * 1000))
         for (let round = 0; round < 2; round++) {
           bpList.value.push({
             data: {
               nodes: participantsNodes.filter((node, index) => index <= round + 1),
-              bpTime: baseTime.add(round * 3000 + Math.floor(Math.random() * 1000), 'millisecond').format('YYYY/MM/DD HH:mm:ss:SSS'),
-              witnessTime: baseTime.add((round + 1) * 3000 + Math.floor(Math.random() * 1000), 'millisecond').format('YYYY/MM/DD HH:mm:ss:SSS'),
+              bpTime: round === 0 ? round1BpTime.format('YYYY/MM/DD HH:mm:ss:SSS') : round2BpTime.format('YYYY/MM/DD HH:mm:ss:SSS'),
+              witnessTime: round === 0 ? round1WitnessTime.format('YYYY/MM/DD HH:mm:ss:SSS') : round2WitnessTime.format('YYYY/MM/DD HH:mm:ss:SSS'),
               round: round + 1
             },
             roundId
           })
         }
       }
+    }
+
+    const generateTime = (baseTime, addTime) => {
+      return baseTime.add(addTime, 'millisecond')
     }
 
     onBeforeMount(() => mockData())
