@@ -2,11 +2,15 @@
 div
   ASpace
     AButton(@click="showConfig") config
-    AButton(@click="showResult") result
-div
-  WorldMap
-Performance(:performance-visible="visible.performance" @close="closePerformance" :config="config")
-Resource(:resource-visible="visible.resource" @close="closeResource" :config="config")
+    //- AButton(@click="showResult") result
+//- div
+//-   WorldMap
+ARow
+  ACol(:span="16")
+    WorldMap
+  ACol(:span="6")
+    Performance(:performance-visible="visible.performance" @close="closePerformance" :config="config")
+    Resource(:resource-visible="visible.resource" @close="closeResource" :config="config")
 ADrawer(title="config" v-model:visible="configVisible" placement="left" @close="onConfigClose")
   NetworkConfig(:default-config="config" @change-config="onChangeConfig")
 </template>

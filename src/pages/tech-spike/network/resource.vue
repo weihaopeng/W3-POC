@@ -1,16 +1,15 @@
 <template lang="pug">
-AModal(
-  ref="modalRef" v-model:visible="visible" :wrap-style="{ overflow: 'hidden' }" :footer="null"
-  :mask="false" :forceRender="true" :keyboard="false" @cancel="onClose"
-)
-  template(#title)
-    div(style="width: 100%; cursor: move") resource
+ACard(style="width:480px; height:480px" :bordered="false")
+  //- template(#extra)
+  //-   a(href="#" @click="onClose") close
+  //- template(#title)
+  //-   div(style="width: 100%") resource
   div
     div(ref="resourceContainerRef" id="resource-container" style="width: 100%; height: 360px")
 </template>
 
 <script>
-import { defineComponent, ref, watch } from 'vue'
+import { defineComponent, onMounted, ref, watch } from 'vue'
 import * as echarts from 'echarts'
 import 'echarts-gl'
 import controller from "@/pages/tech-spike/network/controller.js";
@@ -26,18 +25,10 @@ export default defineComponent({
     const resourceContainerRef = ref(null)
     const visible = ref(props.resourceVisible)
 
-    let renderChart = false
     watch(
       () => props.resourceVisible,
       () => {
         visible.value = props.resourceVisible
-        if (!renderChart) {
-          setTimeout(() => {
-            const resourceChart = showResource()
-            controller.initChart({memoryChart: resourceChart})
-          }, 300)
-          renderChart = true
-        }
       }
     )
 
@@ -102,6 +93,13 @@ export default defineComponent({
     const onClose = () => {
       emit('close');
     }
+
+    onMounted(async () => {
+      setTimeout(() => {
+        const resourceChart = showResource()
+        controller.initChart({resourceChart})
+      }, 300);
+    })
 
     return {
       resourceContainerRef,

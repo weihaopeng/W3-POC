@@ -62,9 +62,9 @@ class Controller extends EventEmitter {
   _redrawCPU() {
 
     const now = Date.now()
-    const cpuUsage = 10 + 10 * Math.random();
+    const cpuUsage = 10 * Math.random();
     const memoryUsage = 10 + 10 * Math.random();
-    const bandwidthUsage = 10 + 10 * Math.random();
+    const bandwidthUsage = 20 + 10 * Math.random();
 
     if (this.cpuData.length > 600) this.cpuData.shift()
     if (this.memoryData.length > 600) this.memoryData.shift()

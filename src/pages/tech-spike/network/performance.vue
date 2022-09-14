@@ -1,16 +1,15 @@
 <template lang="pug">
-AModal.performance-modal(
-  ref="modalRef", v-model:visible="visible", :wrap-style="{ overflow: 'hidden' }"
-  :footer="null", :mask="false", :maskClosable="false", :forceRender="true", :keyboard="false", @cancel="onClose"
-)
-  template(#title)
-    div(style="width: 100%; cursor: move") performance
+ACard(style="width: 480px" :bordered="false")
+  //- template(#extra)
+  //-   a(href="#" @click="onCLose") close
+  //- template(#title)
+  //-   div(style="width: 100%") performance
   div
     div(ref="performanceContainerRef" id="performance-container" style="width: 100%; height: 360px")
 </template>
 
 <script>
-import { defineComponent, ref, watch } from 'vue'
+import { defineComponent, onMounted, ref, watch } from 'vue'
 import * as echarts from 'echarts'
 import 'echarts-gl'
 import controller from "@/pages/tech-spike/network/controller.js";
@@ -25,19 +24,11 @@ export default defineComponent({
   setup: (props, { emit }) => {
     const performanceContainerRef = ref(null)
     const visible = ref(props.performanceVisible)
-    let renderChart = false
 
     watch(
       () => props.performanceVisible,
       () => {
         visible.value = props.performanceVisible
-        if (!renderChart) {
-          setTimeout(() => {
-            const performanceChart = showPerformance()
-            controller.initChart({performanceChart})
-          }, 300);
-          renderChart = true;
-        }
       }
     )
 
@@ -96,6 +87,13 @@ export default defineComponent({
       emit('close');
     }
 
+    onMounted(async () => {
+      setTimeout(() => {
+        const performanceChart = showPerformance()
+        controller.initChart({performanceChart})
+      }, 300);
+    })
+
     return {
       performanceContainerRef,
       visible,
@@ -105,9 +103,3 @@ export default defineComponent({
   }
 })
 </script>
-
-<style lang="scss">
-.performance-modal {
-  transform: translateX(550px);
-}
-</style>
