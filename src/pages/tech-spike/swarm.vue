@@ -7,9 +7,9 @@
         template(#icon)
           img(:src="PlayPng")
       AButton.ant-btn-icon-only.stop-btn(v-else @click="stopSimulate")
-        .stop-btn__icon
-          .stop-btn__icon-inner
-      AButton.clear-btn(shape="circle")
+        template(#icon)
+          img(:src="StopPng")
+      AButton.clear-btn(shape="circle" @click="clearSwarmPainter")
         template(#icon)
           img(:src="ClearPng")
 
@@ -55,7 +55,7 @@
                 span random collector: {{ collectorName }}
                 span.highlight-point {{ txRoundList.length }}/3
                 span Txs
-          AStep(title="Witness(BP) & Mint(Block)" disabled)
+          AStep(title="Witness (BP) & Mint (Block)" disabled)
             template(#description)
               .swarm-step-description.highlight-orange(v-for="(bpRound, index) in bpRoundList", :class="{ highlight: currentStage === `bp${index + 1}` || bpRound.type === 'block' }")
                 div(v-if="bpRound.type === 'bp'")
@@ -83,6 +83,7 @@
           div
             span Fk 
             span.swarm-tooltip-legend__description → Chain forked
+        AButton(@click="clearSwarmPainter" type="primary" style="position: absolute; top: 0; transform: translateY(-100%)" v-if="!route.query.present") Clear All
       
     .bp-column
       .bp-column__title bp
@@ -108,6 +109,7 @@ import { useRoute } from 'vue-router'
 import { getRandomIp, getRandomHash } from './util.js'
 import dayjs from 'dayjs'
 import PlayPng from '@/assets/play.png'
+import StopPng from '@/assets/stop.png'
 import ClearPng from '@/assets/clear.png'
 
 import nodes from './swarm/assets/nodes.json'
@@ -195,7 +197,7 @@ export default defineComponent({
 
     onMounted(() => {
       swarmPainter.value = new SwarmPainter(document.getElementById('swarm-node-cvs'), document.getElementById('swarm-tooltip-container'), document.getElementById('swarm-node-container'), nodes)
-      swarmPainter.value.init(!route.query.present)
+      swarmPainter.value.init()
       messageHandler.value = new MessageHandler({
         swarmPainter: swarmPainter.value,
         nodes
@@ -346,6 +348,10 @@ export default defineComponent({
       swarmPainter.value.clearAll()
     }
 
+    const clearSwarmPainter = () => {
+      swarmPainter.value.clearAll()
+    }
+
     return {
       chainBlockList,
       blockList,
@@ -365,6 +371,7 @@ export default defineComponent({
       selectedRound,
       collectorName,
       PlayPng,
+      StopPng,
       ClearPng,
       handleMsg,
       startPresent,
@@ -372,7 +379,8 @@ export default defineComponent({
       simulate,
       stopSimulate,
       highlightBlockOrBp,
-      clearSwarmCvs
+      clearSwarmCvs,
+      clearSwarmPainter
     }
   }
 })
@@ -386,6 +394,7 @@ export default defineComponent({
   width: 100%;
   display: flex;
   flex-direction: column;
+  padding: 4px 30px 40px;
   &-header {
     color: #fff;
     font-size: 24px;
@@ -400,8 +409,29 @@ export default defineComponent({
         border-width: 0;
         padding: 0;
         background: transparent;
+        position: relative;
         img {
           width: 32px;
+        }
+        &:hover::after {
+          content: '';
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          background: rgba(255, 255, 255, 0.1);
+          top: 0;
+          left: 0;
+          border-radius: 50%;
+        }
+        &:active::after {
+          content: '';
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          background: rgba(0, 0, 0, 0.1);
+          top: 0;
+          left: 0;
+          border-radius: 50%;
         }
       }
     }
@@ -425,7 +455,7 @@ export default defineComponent({
     }
     .ant-steps {
       // padding: 0 200px;
-      width: 584px;
+      width: 677px;
       .ant-steps-item {
         cursor: default;
       }
@@ -439,6 +469,11 @@ export default defineComponent({
       .ant-steps-item-icon {
         background: #5B8FF9;
         border-color: #5B8FF9;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .ant-steps-item:not(.ant-steps-item-process) .ant-steps-item-icon {
         border-width: 2px;
       }
       .ant-steps-item-wait {

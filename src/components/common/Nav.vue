@@ -9,7 +9,7 @@ ALayout
       @click="linkToRoute"
     )
       AMenuItem(key="benchmark") Benchmark
-      AMenuItem(key="swarm") Swarm
+      AMenuItem(key="simulation") Simulation
       AMenuItem(key="security") Security
       AMenuItem(key="libp2p") Libp2p
 
@@ -109,7 +109,6 @@ export default defineComponent({
 
   &-content
     flex-grow: 1
-    margin: 4px 30px 40px
 
 </style>
   

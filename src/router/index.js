@@ -23,8 +23,8 @@ const routes = [
     component: Libp2p
   },
   {
-    path: '/swarm/',
-    name: 'swarm',
+    path: '/simulation/',
+    name: 'simulation',
     component: Swarm
   },
   {

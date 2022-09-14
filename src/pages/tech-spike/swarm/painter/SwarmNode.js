@@ -192,8 +192,8 @@ class SwarmNode {
   changeTooltipToValid(msg) {
     const id = this.id
     const tooltipCard = this.tooltipGroup.find((tooltipCard) => tooltipCard.id === id)
-    const tooltip = Array.from(tooltipCard.children).find((child) => child.innerText === msg.data.content)
-    tooltip.classList.add('valid')
+    const tooltip = Array.from(tooltipCard.children).find((child) => child.getAttribute('w3-content') === msg.data.content)
+    if (tooltip) tooltip.classList.add('valid')
   }
 }
 

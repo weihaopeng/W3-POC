@@ -20,7 +20,7 @@ body {
 }
 
 #app {
-  font-family: FZLTZHK, FZLTZHK-Regular;
+  font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   height: 100%;

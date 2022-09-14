@@ -24,14 +24,13 @@ class SwarmPainter {
     return links
   }
 
-  init(needClear) {
+  init() {
     this.initChart()
     this.setNodesCoordinates()
     window.addEventListener('resize', () => {
       this.chart.resize()
       this.setNodesCoordinates()
     })
-    if (needClear) this.initClearBtn()
   }
 
   initChart() {
@@ -70,17 +69,6 @@ class SwarmPainter {
       ]
     }
     this.chart.setOption(option)
-  }
-
-  initClearBtn() {
-    const btn = document.createElement('div')
-    btn.classList.add('w3-btn')
-    btn.classList.add('w3-btn--primary')
-    btn.addEventListener('click', () => {
-      this.clearAll()
-    })
-    btn.innerText = 'Clear all'
-    this.tooltipContainer.prepend(btn)
   }
 
   clearAll() {

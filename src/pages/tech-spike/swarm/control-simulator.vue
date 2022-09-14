@@ -428,7 +428,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .control-simulator {
   position: absolute;
   bottom: 5vh;
@@ -466,32 +466,28 @@ export default defineComponent({
   display: inline-flex;
   justify-content: center;
   &__icon {
-    border: solid 2px #6e8bc7;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    transform: translateY(2px);
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border: solid 1px #1890ff;
+    width: 18px;
+    height: 18px;
+    border-radius: 9px;
     &-inner {
-      background: #6e8bc7;
-      width: 48%;
-      height: 48%;
+      background: #1890ff;
+      width: 8px;
+      height: 8px;
+      margin: 4px;
     }
   }
-  // &:hover .stop-btn__icon {
-  //   border-color: #40a9ff;
-  //   &-inner {
-  //     background-color: #40a9ff;
-  //   }
-  // }
-  // &:active .stop-btn__icon {
-  //   border-color: #096dd9;
-  //   &-inner {
-  //     background-color: #096dd9;
-  //   }
-  // }
+  &:hover .stop-btn__icon {
+    border-color: #40a9ff;
+    &-inner {
+      background-color: #40a9ff;
+    }
+  }
+  &:active .stop-btn__icon {
+    border-color: #096dd9;
+    &-inner {
+      background-color: #096dd9;
+    }
+  }
 }
 </style>
