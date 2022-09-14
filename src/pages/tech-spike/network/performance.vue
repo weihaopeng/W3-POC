@@ -37,15 +37,25 @@ export default defineComponent({
       performanceChart.setOption({
         title: {
           text: 'w3 network performance',
-          subtext: `${props.config.nodeScale.toLocaleString()} nodes in ${props.config.swarmScale.toLocaleString()} swarms\nsample rate 20 per second`,
-          left: 'center'
+          subtext: `${props.config.nodeScale.toLocaleString()} nodes in ${props.config.swarmScale.toLocaleString()} swarms\n` +
+                  `sample rate 20 per second\n` +
+                  `{important|Attack Success Probability： 1/e+15}\n` +
+                  `                          {important|1 in 1.4 billion} years`,
+          left: 'center',
+          subtextStyle: {
+            rich: {
+              important: {
+                color: 'red'
+              }
+            }
+          }
         },
         tooltip: {
           trigger: 'axis',
         },
         legend: {
           data: ['Inbound', 'Outbound'],
-          top: '20%'
+          top: '25%'
         },
         xAxis: {
           type: 'time',
