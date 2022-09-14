@@ -1,0 +1,831 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>180</x>
+      <y>220</y>
+      <w>1030</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m2=time</panel_attributes>
+    <additional_attributes>10.0;10.0;1010.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>640</x>
+      <y>120</y>
+      <w>70</w>
+      <h>210</h>
+    </coordinates>
+    <panel_attributes>lt=.
+col.car
+txs.car
+
+
+
+
+
+
+
+
+
+</panel_attributes>
+    <additional_attributes>10.0;40.0;10.0;160.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>730</x>
+      <y>130</y>
+      <w>70</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>lt=.
+w1.car
+
+
+
+
+
+
+</panel_attributes>
+    <additional_attributes>10.0;30.0;10.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>820</x>
+      <y>130</y>
+      <w>70</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>lt=.
+w2.car
+
+
+
+
+
+
+</panel_attributes>
+    <additional_attributes>10.0;30.0;10.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>910</x>
+      <y>130</y>
+      <w>70</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>lt=.
+w3.car
+
+
+
+
+
+
+</panel_attributes>
+    <additional_attributes>10.0;30.0;10.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1000</x>
+      <y>150</y>
+      <w>160</w>
+      <h>190</h>
+    </coordinates>
+    <panel_attributes>lt=.
+nb.car
+
+
+all Nodes Recieved
+all New Blocks
+
+
+
+
+
+</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;170.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>180</x>
+      <y>240</y>
+      <w>490</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-&gt;
+Collecting Stage
+       Tc = 3 * Tw + LU = 13 * LU</panel_attributes>
+    <additional_attributes>10.0;20.0;470.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>180</x>
+      <y>120</y>
+      <w>100</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+start timer
+t = 17 * LU
+
+
+fg=red</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;110.0</additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>790</x>
+      <y>80</y>
+      <w>370</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>LU: Latency Upperbound
+car: being Confident of All nodes Received
+style=wordwrap
+fg=gray</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>550</x>
+      <y>130</y>
+      <w>80</w>
+      <h>190</h>
+    </coordinates>
+    <panel_attributes>lt=.
+col.end
+
+
+
+
+
+
+
+
+
+</panel_attributes>
+    <additional_attributes>10.0;30.0;10.0;150.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>640</x>
+      <y>150</y>
+      <w>120</w>
+      <h>230</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+afw
+w1
+
+
+
+
+
+
+
+
+
+
+fg=red</panel_attributes>
+    <additional_attributes>10.0;10.0;100.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>730</x>
+      <y>150</y>
+      <w>120</w>
+      <h>230</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+afw
+w2
+
+
+
+
+
+
+
+
+
+
+fg=red</panel_attributes>
+    <additional_attributes>10.0;10.0;100.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>820</x>
+      <y>150</y>
+      <w>120</w>
+      <h>230</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+afw
+w3
+
+
+
+
+
+
+
+
+
+
+fg=red</panel_attributes>
+    <additional_attributes>10.0;10.0;100.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>910</x>
+      <y>150</y>
+      <w>120</w>
+      <h>210</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+block
+
+
+
+
+
+
+
+
+
+
+fg=red</panel_attributes>
+    <additional_attributes>10.0;10.0;100.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>550</x>
+      <y>150</y>
+      <w>120</w>
+      <h>210</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+last
+tx
+
+
+
+
+
+
+
+
+
+fg=red</panel_attributes>
+    <additional_attributes>10.0;10.0;100.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>180</x>
+      <y>190</y>
+      <w>30</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>lt=.
+
+
+
+
+
+
+
+
+</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;130.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>640</x>
+      <y>230</y>
+      <w>390</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-&gt;
+Witness and Mint Stage
+Tw = 4 * latency-upperbound
+fg=blue</panel_attributes>
+    <additional_attributes>10.0;20.0;370.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>310</x>
+      <y>120</y>
+      <w>150</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+previous epoch
+block message
+
+reset epoch timer
+t = 17 * LU
+fg=red</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;110.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>330</x>
+      <y>530</y>
+      <w>240</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=-
+</panel_attributes>
+    <additional_attributes>10.0;20.0;220.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>330</x>
+      <y>500</y>
+      <w>80</w>
+      <h>270</h>
+    </coordinates>
+    <panel_attributes>lt=.
+e1.start
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</panel_attributes>
+    <additional_attributes>10.0;20.0;10.0;230.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>560</x>
+      <y>300</y>
+      <w>130</w>
+      <h>650</h>
+    </coordinates>
+    <panel_attributes>lt=.
+
+
+
+
+
+
+
+
+
+
+
+
+e1: block msg.
+
+
+
+
+
+
+
+
+
+
+
+
+reset 
+start of epoch
+
+
+
+
+
+
+
+
+
+
+
+
+
+fg=red</panel_attributes>
+    <additional_attributes>10.0;220.0;10.0;420.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>790</x>
+      <y>540</y>
+      <w>70</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+m2=e2
+fg=blue</panel_attributes>
+    <additional_attributes>10.0;10.0;50.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>580</x>
+      <y>530</y>
+      <w>240</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=-
+</panel_attributes>
+    <additional_attributes>10.0;20.0;220.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1040</x>
+      <y>540</y>
+      <w>70</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+m2=e3
+fg=blue</panel_attributes>
+    <additional_attributes>10.0;10.0;50.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>830</x>
+      <y>530</y>
+      <w>240</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=-
+</panel_attributes>
+    <additional_attributes>10.0;20.0;220.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>510</x>
+      <y>690</y>
+      <w>60</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m2=e1
+fg=blue</panel_attributes>
+    <additional_attributes>30.0;10.0;40.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>330</x>
+      <y>680</y>
+      <w>240</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=-
+</panel_attributes>
+    <additional_attributes>10.0;20.0;220.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>510</x>
+      <y>620</y>
+      <w>60</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+m2=e1
+fg=blue</panel_attributes>
+    <additional_attributes>30.0;10.0;40.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>330</x>
+      <y>610</y>
+      <w>240</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=-
+</panel_attributes>
+    <additional_attributes>10.0;20.0;220.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>700</x>
+      <y>620</y>
+      <w>60</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m2=e2
+fg=blue</panel_attributes>
+    <additional_attributes>30.0;10.0;40.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>520</x>
+      <y>610</y>
+      <w>240</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=-
+</panel_attributes>
+    <additional_attributes>10.0;20.0;220.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>880</x>
+      <y>620</y>
+      <w>60</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m2=e3
+fg=blue</panel_attributes>
+    <additional_attributes>30.0;10.0;40.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>700</x>
+      <y>610</y>
+      <w>240</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=-
+</panel_attributes>
+    <additional_attributes>10.0;20.0;220.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1040</x>
+      <y>620</y>
+      <w>60</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m2=e4
+fg=blue</panel_attributes>
+    <additional_attributes>30.0;10.0;40.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>860</x>
+      <y>610</y>
+      <w>240</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=-
+</panel_attributes>
+    <additional_attributes>10.0;20.0;220.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>740</x>
+      <y>690</y>
+      <w>60</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m2=e2
+fg=blue</panel_attributes>
+    <additional_attributes>30.0;10.0;40.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>540</x>
+      <y>680</y>
+      <w>260</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=-
+</panel_attributes>
+    <additional_attributes>10.0;20.0;240.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>810</x>
+      <y>300</y>
+      <w>130</w>
+      <h>650</h>
+    </coordinates>
+    <panel_attributes>lt=.
+
+
+
+
+
+
+
+
+
+
+
+
+e2: block msg.
+
+
+
+
+
+
+
+
+
+
+
+
+reset 
+start of epoch
+
+
+
+
+
+
+
+
+
+
+
+
+
+fg=red</panel_attributes>
+    <additional_attributes>10.0;220.0;10.0;420.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>990</x>
+      <y>690</y>
+      <w>60</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m2=e1
+fg=blue</panel_attributes>
+    <additional_attributes>30.0;10.0;40.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>770</x>
+      <y>680</y>
+      <w>280</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=-
+</panel_attributes>
+    <additional_attributes>10.0;20.0;260.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>100</x>
+      <y>540</y>
+      <w>230</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>Node 1 (high latency)
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>100</x>
+      <y>610</y>
+      <w>230</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>Node 1 (low latency w/o sync)
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>100</x>
+      <y>680</y>
+      <w>230</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>Node 1 (low latency w/ sync)
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>540</x>
+      <y>540</y>
+      <w>70</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+m2=e1
+fg=blue</panel_attributes>
+    <additional_attributes>10.0;10.0;50.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>560</x>
+      <y>70</y>
+      <w>300</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>* Epoch Time Analysis *
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>180</x>
+      <y>290</y>
+      <w>850</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-&gt;
+Epoch
+       Te = Tc + Tw = 17 * LU</panel_attributes>
+    <additional_attributes>10.0;20.0;830.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>550</x>
+      <y>430</y>
+      <w>300</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>* Epoch Sync by block Message *
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>560</x>
+      <y>780</y>
+      <w>530</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>epoch_start_lag: time lag of the same epoch start betweent nodes
+style=wordwrap
+fg=gray</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>560</x>
+      <y>760</y>
+      <w>370</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>Max(epoch_start_lag) &lt; LU
+fg=black</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
