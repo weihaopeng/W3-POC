@@ -23,6 +23,7 @@ class Controller extends EventEmitter {
     this.performanceChartOutboundData = []
     this.performanceChartInboundData = []
     this.performanceWithAttackerChartOutboundData = []
+    this.performanceWithAttackerChartInboundData = [];
     this.cpuData = []
     this.memoryData = []
     this.bandwidthData = []
@@ -51,11 +52,14 @@ class Controller extends EventEmitter {
     return _.concat(this.honestNodes, this.attackerNodes)
   }
 
-  initChart({ networkChart, performanceChart, performanceWithAttackerChart, memoryChart }) {
+  initChart({ networkChart, performanceChart, memoryChart, withAttacker, bandwidthGauge, memoryGauge, cpuGauge }) {
     if (networkChart) this.networkChart = networkChart
     if (performanceChart) this.performanceChart = performanceChart
-    if (performanceWithAttackerChart) this.performanceWithAttackerChart = performanceWithAttackerChart
     if (memoryChart) this.memoryChart = memoryChart
+    if (bandwidthGauge) this.bandwidthGauge = bandwidthGauge
+    if (memoryGauge) this.memoryGauge = memoryGauge
+    if (cpuGauge) this.cpuGauge = cpuGauge
+    if (!_.isNil(withAttacker)) (this.withAttacker = withAttacker)
     this._redrawNetwork()
   }
 
@@ -86,6 +90,9 @@ class Controller extends EventEmitter {
         { data: this.bandwidthData },
       ],
     })
+    this.cpuGauge && this.cpuGauge.setOption({ series: [{ data: [{ value: cpuUsage, name: 'CPU' }] }] })
+    this.memoryGauge && this.memoryGauge.setOption({ series: [{ data: [{ value: memoryUsage, name: 'Memory' }] }] })
+    this.bandwidthGauge && this.bandwidthGauge.setOption({ series: [{ data:[{ value: bandwidthUsage, name: 'BW' }] }] })
   }
 
   _redrawPerformance() {
@@ -93,12 +100,9 @@ class Controller extends EventEmitter {
     const now = Date.now()
 
     const departureMessagesLastSec = this.tps * (this.nodes.length - 1)
-    const attackerDepartureMessagesLastSec = Math.round(
-      departureMessagesLastSec * (this.attackerNodes.length / this.nodes.length)
-    )
-    const arrivalMessagesLastSec = Math.round(
-      departureMessagesLastSec * (0.9 + Math.random() * 0.2)
-    )
+    const attackerDepartureMessagesLastSec = Math.round(departureMessagesLastSec * (this.attackerNodes.length / this.nodes.length))
+    const arrivalMessagesLastSec = Math.round(departureMessagesLastSec * (0.9 + Math.random() * 0.2))
+    const attackerArrivalMessagesLastSec = Math.round(arrivalMessagesLastSec * (this.attackerNodes.length / this.nodes.length))
 
     if (this.performanceChartOutboundData.length > 600)
       this.performanceChartOutboundData.shift()
@@ -106,39 +110,38 @@ class Controller extends EventEmitter {
       this.performanceChartInboundData.shift()
     if (this.performanceWithAttackerChartOutboundData.length > 600)
       this.performanceWithAttackerChartOutboundData.shift()
+    if (this.performanceWithAttackerChartInboundData.length > 600)
+      this.performanceWithAttackerChartInboundData.shift()
 
-    this.performanceChartOutboundData.push({
-      name: now.toString(),
-      value: [new Date(), departureMessagesLastSec],
-    })
-    this.performanceWithAttackerChartOutboundData.push({
-      name: now.toString(),
-      value: [new Date(), attackerDepartureMessagesLastSec],
-    })
-    this.performanceChartInboundData.push({
-      name: now.toString(),
-      value: [new Date(), arrivalMessagesLastSec],
-    })
-    this.performanceChart && this.performanceChart.setOption({
-      series: [
-        { data: this.performanceChartInboundData },
-        { data: this.performanceChartOutboundData },
-      ],
-    })
-    this.performanceWithAttackerChart && this.performanceWithAttackerChart.setOption({
-      series: [
-        { data: this.performanceChartOutboundData },
-        { data: this.performanceWithAttackerChartOutboundData },
-      ],
-    })
+    this.performanceChartOutboundData.push({ name: now.toString(), value: [new Date(), departureMessagesLastSec] })
+    this.performanceWithAttackerChartOutboundData.push({ name: now.toString(), value: [new Date(), attackerDepartureMessagesLastSec] })
+    this.performanceChartInboundData.push({ name: now.toString(), value: [new Date(), arrivalMessagesLastSec] })
+    this.performanceWithAttackerChartInboundData.push({ name: now.toString(), value: [new Date(), attackerArrivalMessagesLastSec] })
+
+    const series = [
+      { data: this.performanceChartInboundData },
+      { data: this.performanceChartOutboundData },
+    ];
+    if (this.withAttacker) {
+      series.push({ data: this.performanceWithAttackerChartInboundData })
+      series.push({ data: this.performanceWithAttackerChartOutboundData })
+    }
+
+    console.log(series)
+
+    this.performanceChart && this.performanceChart.setOption({ series })
   }
 
   _redrawNetwork() {
     if (!this.networkChart) return
     this.networkChartData = []
-    for (let swarm of this.swarms) {
-      const nodes = swarm.nodes
-      let departNodesTotal = Math.floor(this.tps / this.swarms.length)
+   // const swarms = _.sampleSize(this.swarms, Math.ceil(Math.sqrt(this.swarms.length)));
+    const swarms = this.swarms;
+    for (let swarm of swarms) {
+      let nodes = swarm.nodes;
+      nodes = _.sampleSize(nodes, nodes.length < 100 ? nodes.length : (100 + (nodes.length - 100) / 10));
+
+      let departNodesTotal = Math.floor(this.tps / swarms.length);
       departNodesTotal =departNodesTotal < 5 ? 5 : departNodesTotal > 10 ? 10 : departNodesTotal
       const departNodes = _.sampleSize(nodes, departNodesTotal)
       for (let departNode of departNodes) {
@@ -155,10 +158,10 @@ class Controller extends EventEmitter {
       }
     }
 
-    for (let departSwarm of this.swarms) {
+    for (let departSwarm of swarms) {
       const departNodes = _.sampleSize(departSwarm.nodes, 3)
 
-      for (let arriveSwarm of this.swarms) {
+      for (let arriveSwarm of swarms) {
         if (departSwarm.id === arriveSwarm.id) continue
 
         const arriveNodes = _.sampleSize(arriveSwarm.nodes, 3)
@@ -199,8 +202,8 @@ class Controller extends EventEmitter {
     }
   }
 
-  generateNetwork(honestScale, attackerScale) {
-    if (honestScale > 0 && honestScale !== this.honestNodes.length) {
+  generateNetwork(honestScale = 0, attackerScale = 0) {
+    if (honestScale !== this.honestNodes.length) {
       if (honestScale > this.honestNodes.length) {
         while (this.honestNodes.length < honestScale)
           this.honestNodes.push(new Node({ address: uuidV1().toString() }))
@@ -209,7 +212,7 @@ class Controller extends EventEmitter {
       }
     }
 
-    if (attackerScale > 0 && attackerScale !== this.attackerNodes.length) {
+    if (attackerScale !== this.attackerNodes.length) {
       if (attackerScale > this.attackerNodes.length) {
         while (this.attackerNodes.length < attackerScale)
           this.attackerNodes.push(new Node({ address: uuidV1().toString(), isAttacker: true }))
@@ -220,7 +223,7 @@ class Controller extends EventEmitter {
     }
 
     const nodesTotal = honestScale + attackerScale
-    const swarmsTotal = Math.ceil(nodesTotal / 100)
+    const swarmsTotal = Math.ceil(Math.sqrt(nodesTotal) / 50)
     const chunkSize = Math.sqrt(swarmsTotal)
     const lngChunkSize = chunkSize > Math.floor(chunkSize) ? Math.ceil(chunkSize) : chunkSize
     const lngChunkRange = 360 / lngChunkSize

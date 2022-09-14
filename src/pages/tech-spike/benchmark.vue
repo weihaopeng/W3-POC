@@ -4,7 +4,7 @@ AButton(@click="showConfig") config
 //- div
 //-   WorldMap
 ARow
-  ACol(:span="16")
+  ACol(:span="12")
     WorldMap
   ACol(:span="6")
     Performance(:performance-visible="visible.performance" @close="closePerformance" :config="config")
@@ -60,11 +60,12 @@ export default defineComponent({
     }
 
     const config = ref({
-      nodeScale: 10,
+      nodeScale: 1000,
       latencyInSwarm: 20,
       latencyBetweenSwarm: 100,
       tps: 15,
-      swarmScale: 1
+      swarmScale: 1,
+      forgeAccountRatio: 0
     })
 
     controller.setNodesScale(config.value.nodeScale, 0);

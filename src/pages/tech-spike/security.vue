@@ -1,7 +1,7 @@
 <template lang="pug">
 AButton(@click="showConfig") config
 ARow
-  ACol(:span="16")
+  ACol(:span="12")
     WorldMap
   ACol(:span="6")
     Performance(:performance-visible="visible.performance" @close="closePerformance" :config="config")
@@ -57,7 +57,7 @@ export default defineComponent({
     }
 
     const config = ref({
-      nodeScale: 10,
+      nodeScale: 1000,
       latencyInSwarm: 20,
       latencyBetweenSwarm: 100,
       tps: 15,
@@ -67,18 +67,18 @@ export default defineComponent({
     })
 
     const attackerScale = Math.floor((config.value.nodeScale * config.value.forgeAccountRatio) / 100)
-    controller.setNodesScale(config.value.nodeScale, attackerScale)
+    controller.setNodesScale(config.value.nodeScale - attackerScale, attackerScale)
     controller.autoGenerateTx(config.value.tps)
 
     const onChangeConfig = (newConfig) => {
       console.log('change config', newConfig)
       const attackerScale = Math.floor((newConfig.nodeScale * newConfig.forgeAccountRatio) / 100)
-      controller.setNodesScale(newConfig.nodeScale, attackerScale)
+      controller.setNodesScale(newConfig.nodeScale - attackerScale, attackerScale)
       controller.autoGenerateTx(newConfig.tps)
       config.value.nodeScale = newConfig.nodeScale
       config.value.tps = newConfig.tps
-      config.swarmScale = Math.ceil(newConfig.nodeScale / (50 + Math.random() * 50))
-      config.forgeAccountRatio = newConfig.forgeAccountRatio
+      config.value.swarmScale = Math.ceil(newConfig.nodeScale / (150 + Math.random() * 50))
+      config.value.forgeAccountRatio = newConfig.forgeAccountRatio
     }
 
     return {

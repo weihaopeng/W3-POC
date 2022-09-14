@@ -12,10 +12,7 @@ AForm(:model="configData", :label-col="{ span: 24 }", :wrapper-col="{ span: 16 }
     AButton(type="primary" html-type="submit" @click="onChangeConfig") Config
   
   AFormItem(label="Attack Type" v-if="defaultConfig.attackType")
-    ASelect(
-      ref="select", v-model:value="configData.attackType",
-      :options="AttackTypeList" @focus="focus"
-    )
+    ASelect(ref="select", v-model:value="configData.attackType", :options="AttackTypeList")
   AFormItem(label="ForgeAccountRatio(%)" v-if="defaultConfig.attackType")
     AInput(v-model:value="configData.forgeAccountRatio" type="number")
 
@@ -44,15 +41,10 @@ export default defineComponent({
       emit('changeConfig', toRaw(configData))
     }
 
-    const focus = () => {
-      console.log('focus')
-    }
-
     return {
       configData,
       AttackTypeList,
-      onChangeConfig,
-      focus
+      onChangeConfig
     }
   }
 })
