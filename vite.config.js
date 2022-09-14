@@ -49,6 +49,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
+      "protobufjs": "protobufjs/dist/protobuf.min.js",
       '@': path.resolve(_dirname, 'src'),
     }
   },
