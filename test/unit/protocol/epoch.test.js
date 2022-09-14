@@ -57,7 +57,7 @@ describe('Epoch sync mechanism @issue#11', () => {
       const epoch =  ResetableEpoch.create(i, { collectTime, witnessAndMintTime })
 
       // Try to sync with height difference converge to 0
-      epoch.resetOn(blockEventEmitter, 'block', ({height}) => epoch.height === height + 1)
+      epoch.resetOn(blockEventEmitter, 'block', ({height}) => epoch.height >= height)
 
       epoch.on('stage', (async ({ stage }) => {
         if (stage === 'witness-and-mint') {

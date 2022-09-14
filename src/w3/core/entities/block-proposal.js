@@ -25,10 +25,11 @@ class BlockProposal {
     this.witnessRecords[i] = {...this.witnessRecords[i], witness: { publicKeyString, i: node.i }, witnessSig: this.sig(privateKey) }
   }
 
-  async verify (node, isForPreivousEpoch) {
+  async verify (node, epoch) {
     let valid = Account.isValidPublicKeyString(this.collector.publicKeyString)
       && typeof this.height === 'number' && this.txs?.length > 0
-      && this.verifyHeight(node, isForPreivousEpoch)
+      && (this.height === 1 || this.tailHash === epoch.tailHash ) // height bigger than 1, must have tailHash // TODO: tailHash should eqls node.
+      && this.height === epoch.height + 1
     if (!valid) return !!debug('--- bp height invalid, node.epoch.height: %s, bp height: %s ', node.epoch.height, this.height)
 
 
@@ -38,20 +39,6 @@ class BlockProposal {
     valid = valid && this.verifyWitnessRecords(node)
     if (!valid) return !!debug('--- FATAL: bp witnessRecords invalid: %O', this.witnessRecords)
     return true
-  }
-
-  verifyHeight (node, isForPreivousEpoch) { // TODO: 待优化
-    // undefined means verify a bp directly, it both valid for current epoch and previous epoch, to make create block go ahead, even for previous epoach.
-    return isForPreivousEpoch !== undefined ? this._verifyHeight(node, true) || this._verifyHeight(node, false)
-      : this._verifyHeight(node, isForPreivousEpoch) // this is called from block
-    // return this._verifyHeight(isForPreivousEpoch, node)
-  }
-
-  _verifyHeight (node, isForPreivousEpoch) {
-    const epochHeight = isForPreivousEpoch ? node.epoch.height - 1 : node.epoch.height
-    const epochTailHash = isForPreivousEpoch ? node.epoch.previousTailHash : node.epoch.tailHash
-    return (this.height === 1 || this.tailHash === epochTailHash ) // height bigger than 1, must have tailHash // TODO: tailHash should eqls node.
-      && this.height === epochHeight + 1
   }
 
   verifyWitnessRecords (node) {
@@ -130,6 +117,32 @@ class BlockProposal {
 
   toJSON () { // make distanceFn has same results for different bp instances transferred by network
     return _.omit(this, 'i')
+  }
+
+
+  /**
+   * W3 Universal Rules  for comparing two bp/block
+   * compare txs sequence, this smaller, shorter one is lower, and the winner
+   */
+
+  lt(other) {
+    if (this.height !== other.height) debug('--- WARN: should only compare other with same height')
+    for (let i = 0; i < this.txs.length; i++) {
+      if (this.txs[i].lt(other.txs[i])) return true
+      if (this.txs[i].gt(other.txs[i])) return false
+    }
+
+    return this.txs.length < other.txs.length   // shorter one is lower and less than, same length means equal
+  }
+
+  gt(other) {
+    if (this.height !== other.height) debug('--- WARN: should only compare other with same height')
+    for (let i = 0; i < this.txs.length; i++) {
+      if (this.txs[i].gt(other.txs[i])) return true
+      if (this.txs[i].lt(other.txs[i])) return false
+    }
+    return  false  // longer one is higher and great than, same length means equal
+    // return  this.txs.length > other.txs.length  // the expression is ALWAYS TRUE here! longer one is higher and great than, same length means equal
   }
 }
 

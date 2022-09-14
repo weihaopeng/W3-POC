@@ -83,7 +83,7 @@ class LocalFacts extends EventEmitter2 {
       replaced = !_tx.tx.equals(winner)
       replaced && (_tx.tx = winner)
       _tx.state = state
-      // if (_tx.state === 'chain') 链上块错误，发送查询消息获取正确块，发送fork消息 // TODO: not implemented
+      // if (_tx.state === 'chain') 链上块错误，发送查询消息获取正确块，发送fork消息 // TODO: not implemented, maybe simple drop the new tx here
       // _tx.state 'tx', 'bp', 'block'阶段，直接替换，不需要发送消息，由其它节点自行分辨问题
 
       // TODO: may also check current chain
@@ -103,13 +103,6 @@ class LocalFacts extends EventEmitter2 {
   pickTxsForBp () {
     let txs = this.txPool.filter(({ state }) => state === 'tx' || state === 'bp')
     return txs.map(({ tx }) => tx).sort(Transaction.sort)
-
-    // let txs = this.txPool.filter(({ state }) => state === 'tx')
-    // if (txs.length >= txCount) {
-    //   // debug('--- SHOW: this.txPool.length: ', this.txPool.length)
-    //   txs = txs.slice(0, txCount)
-    //   return txs.map(({ tx }) => tx).sort(Transaction.sort)
-    // }
   }
 
   async verifyAndUpdate (type, data, node, isForPreivousEpoch) {
@@ -125,8 +118,8 @@ class LocalFacts extends EventEmitter2 {
     return { valid, txRes }
   }
 
-  async verifyBpAndAddTxs (bp, node) {
-    let valid = await bp?.verify(node)
+  async verifyBpAndAddTxs (bp, node, epoch) {
+    let valid = await bp?.verify(node, epoch)
     // this.bpPool.push({ bp, valid}) // TODO: how to use bpPool?
     if (!valid) debug('--- FATAL: verifyBpAndAddTxs: bp is invalid, should not happen', bp.brief)
     let { allTxValid } = await this._verifyAndUpdateTxs(bp.txs, valid ? 'bp' : 'tx')
@@ -147,8 +140,8 @@ class LocalFacts extends EventEmitter2 {
     return { allTxValid }
   }
 
-  async verifyBlockAndAddTxs (block, node, isForPreivousEpoch) { // TODO: not tested in single node mode
-    let valid = await block?.verify(node, isForPreivousEpoch)
+  async verifyBlockAndAddTxs (block, node, epoch) { // TODO: not tested in single node mode
+    let valid = await block?.verify(node, epoch)
     // this.blockPool.push({ block, valid}) // TODO: how to use blockPool?
     // if (!valid) debug('--- FATAL: verifyBlockAndAddTxs: block is invalid, should not happen', block.brief)
     let { allTxValid } = await this._verifyAndUpdateTxs(block.txs, valid ? 'chain' : 'tx') // valid block verifyThenUpdateOrAddTx to chain

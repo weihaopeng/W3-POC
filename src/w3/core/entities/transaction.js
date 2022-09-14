@@ -7,15 +7,22 @@ class Transaction {
     return new this({ i, from, to, value, nonce })
   }
 
+  static sort (a, b) {
+    return a.compareTo(b)
+  }
+
   constructor ({ i, to, from, nonce, value, sig='sig' }) { // we ignore sig for now
     Object.assign(this, { i, to, from, nonce, value, sig })
-    this.hash = 'hash-' + i // TODO
+    this.hash = 'hash-' + i // for simplify debugging, use in dev only
   }
 
   get brief() {
     return `${this.i}:(${this.from?.i}#${this.nonce}(${this.value})=>${this.to?.i})`
   }
 
+  toString() {
+    return `< i: ${this.i}, from: ${this.from.i}, to: ${this.to.i}, value: ${this.value} >`
+  }
 
   /**
    * TODO: using traditional tx verification algorithm verify against local fact
@@ -42,54 +49,44 @@ class Transaction {
     return true
   }
 
-  static sort (a, b) {
-    // return a.i - b.i // TODO only for theory test
-    return a.compareTo(b)
-  }
-
-  toString() {
-    return `< i: ${this.i}, from: ${this.from.i}, to: ${this.to.i}, value: ${this.value} >`
-  }
+  /**
+   * W3 Universal Rules  for comparing two transactions
+   * compare by the precedence of from, nonce, to, value , the lower one wins
+   */
 
   equals(other) {
-    return this.from.equals(other.from) && this.to.equals(other.to) && this.value === other.value && this.nonce === other.nonce
-  }
+    return this.i === other.i // for simplify debugging, use in dev only
 
-  compare(other) {
-    return this.from.lt(other.from) ? this : this.from.gt(other.from) ? other :
-      this.from.nonce < other.from.nonce ? this : this.from.nonce > other.from.nonce ? other :
-        this.resolveDoubleSpending(other)
+    return this.from.equals(other.from) && this.nonce === other.nonce && this.to.equals(other.to) && this.value === other.value
   }
 
   lt(other) {
-    return this.i < other?.i
+    return this.i < other?.i // for simplify debugging, use in dev only
 
     return this.from.lt(other.from) ? true : this.from.gt(other.from) ? false :
       this.from.nonce < other.from.nonce ? true : this.from.nonce > other.from.nonce ? false :
-      this.to.lt(other.to)
+        this.to.lt(other.to)
   }
 
   gt(other) {
-    return !other || this.i > other.i
+    return !other || this.i > other.i // for simplify debugging, use in dev only
 
     return this.from.gt(other.from) ? true : this.from.lt(other.from) ? false :
       this.from.nonce > other.from.nonce ? true : this.from.nonce < other.from.nonce ? false :
         this.to.gt(other.to)
   }
 
-  resolveDoubleSpending (other) {
-    return this.to.lt(other.to) ? this : this.to.gt(other.to) ? other :
-      this.value <= other.value ? this : other
-  }
-
   compareTo(other) {
-    return this.i - other.i
-
     return this.lt(other) ? -1 : this.gt(other) ? 1 : 0
   }
 
   isDoubleSpend(other) {
     return this.from.equals(other.from) && this.nonce === other.nonce
+  }
+
+  resolveDoubleSpending (other) {
+    return this.to.lt(other.to) ? this : this.to.gt(other.to) ? other :
+      this.value <= other.value ? this : other
   }
 }
 

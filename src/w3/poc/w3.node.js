@@ -8,12 +8,10 @@ import { util } from '../util.js'
 const debug = Debug('w3:poc:node')
 
 class W3Node extends Node {
-  static index = 0
 
   constructor (network, isSingleNode = false) {
     const account = util.getEthereumAccount()
     super({ account, network, isSingleNode })
-    this.i = this.constructor.index++
     createFsm(this)
   }
 

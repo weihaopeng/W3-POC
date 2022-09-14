@@ -5,14 +5,13 @@ import fs from 'fs-extra'
 chai.use(chaiString)
 const should = chai.should()
 
-import { W3Swarm, W3Node } from '../../src/w3/poc/index.js'
-import { util } from '../../src/w3/util.js'
+import { W3Swarm} from '../../src/w3/poc/index.js'
 
 import Debug from 'debug'
 import { config } from '../../src/w3/poc/config.default.js'
 import { Epoch } from '../../src/w3/core/node/epoch/epoch.js'
 
-// Debug.enable('w3:test')
+Debug.enable('w3:test')
 const debug = Debug('w3:test')
 
 
@@ -32,7 +31,7 @@ describe('Full(Normal) Network Mode @issue#2 @issue#11', () => {
         console.log('--- WARN: epoch height difference: %s ( > 1 )', dif)
         console.log('--- WARN: epochHeights: %s', epochHeights)
       } else if (dif === 0 && min > height) {
-        console.log('--- SHOW: all epoches on the same height: %s', min)
+        console.log('--- SHOW: all epochs on the same height: %s', min)
         console.log('--- SHOW: epochHeights: %s', epochHeights)
         height = min
       }
@@ -53,7 +52,7 @@ describe('Full(Normal) Network Mode @issue#2 @issue#11', () => {
 
   after(() => w3.destroy())
 
-  it('work normal to create blocks', async () => {
+  it.skip('work normal to create blocks', async () => {
     debug('---- periodicEmitBlockMessage to send %s fake txs in %s tps, will create %s blocks, may end in %s s----', txAmount, tps, txAmount/TX_COUNT, txAmount / tps)
     await w3.sendFakeTxs(txAmount, tps)
     // await util.wait(Math.ceil(txAmount / TX_COUNT) * config.EPOCH_TIME)
@@ -64,7 +63,7 @@ describe('Full(Normal) Network Mode @issue#2 @issue#11', () => {
     debug('--- heights: %o', heights)
 
     const chains = w3.nodes.map(node => {
-      node.chain.blocks.splice(-1, 1) // remove the last block which may be replaced in the last epoch, which is still runing now.
+      node.chain.blocks.splice(-1, 1) // remove the last block which may be replaced in the last epoch, which is still running now.
       return { node: node.i, chain: node.chain.superBrief.replace(/^height.+,/, '').replace(/ -> /g, ' -> \n') }
     })
     const chain = chains[0].chain

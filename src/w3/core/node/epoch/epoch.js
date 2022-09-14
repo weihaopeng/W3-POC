@@ -18,8 +18,11 @@ class Epoch extends ResetableEpoch{
     return this.node.chain.getHashAtHeight(this.height)
   }
 
-  get previousTailHash() {
-    return this.node.chain.getHashAtHeight(this.height - 1)
+  get previous() {
+    return {
+      height: this.height - 1,
+      tailHash: this.node.chain.getHashAtHeight(this.height - 1)
+    }
   }
 
   // proceedNextEpoch () {

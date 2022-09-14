@@ -6,13 +6,14 @@ import { Fork } from '../entities/fork.js'
 import { BlockProposal } from '../entities/block-proposal.js'
 
 import Debug from 'debug'
-import _ from 'lodash'
 import { Epoch } from './epoch/epoch.js'
 const debug = Debug('w3:node')
 
 class Node {
+  static index = 0
   constructor ({ account, network, isSingleNode=false }) {
     if (!account || !network) throw new Error(`can't create node, check the params`)
+    this.i = this.constructor.index++ // sequence number used in dev and debug
     this.account = account
     this.network = network
     this.localFacts = new LocalFacts()
@@ -35,7 +36,7 @@ class Node {
     // const chain = await this.network.queryPeers?.({})
     // return chain ? chain : new Promise((r, j) => setTimeout(() => r(this.initChain()), this.network.config.INIT_CHAIN_INTERVAL))
 
-    // local swarm netwrok, never disconnected
+    // local swarm network, never disconnected
     this.chain = await Chain.create(this)
     this.epoch = Epoch.create(this)
     this.localFacts.init(this.chain)
@@ -44,11 +45,11 @@ class Node {
   async boot () { //
     // this.chain = await Chain.create()
     // const block = new Block(null, 'FIRST_BLOCK')
-    // this.network.broadcast('block', block, this) //this used in theory test to aviod of react on its own message
+    // this.network.broadcast('block', block, this) //this used in theory test to avoid of react on its own message
   }
 
   onConnected() {
-    this.syncChain().then(_ => this.start())
+    this.syncChain().then(_ => this.start()) // start() is the fsm transition
   }
 
   onDisconnected() {
@@ -65,7 +66,6 @@ class Node {
 
   }
 
-
   startAnswerQuery () { // answers only by adjacent peers
     this.network.listen('query', async (msg, ack) => {
       if (msg.event === 'query') {
@@ -76,7 +76,7 @@ class Node {
   }
 
   startTwoStagesBlockGeneration () {
-    this.network.listen('tx', (tx) => this.handleTx(tx), this) // this is the target used in theory test to aviod of react on its own message
+    this.network.listen('tx', (tx) => this.handleTx(tx), this) // this is the target used in theory test to avoid of react on its own message
 
     this.network.listen('bp', (bp) => this.handleWitness(bp), this)
 
@@ -96,27 +96,22 @@ class Node {
     })
 
     this.epoch.start()
-    //
-    // start() {
-    //   super.start()
-    //   this.node.network.listen('block',  (block, origin) => {
-    //     if (this.height === block.height + 1) this.reset()
-    //   })`
-    // }
-
   }
 
   async handleTx (tx) {
     tx = new Transaction(tx)
-    const isTxAdded = await this.updateLocalFact('tx', tx)
-    // debug('--- isTxAdded: ', isTxAdded)
-    isTxAdded && this.isCollector() && await this.collect(tx)
+    const { valid, txRes } = await this.localFacts.verifyAndAddTx(tx)
+    this.network.emitW3Event('node.verify', {type: 'tx', data: tx, node: this, valid})
+    // debug('--- txRes: ', txRes)
+    valid && this.isCollector() && await this.collect(tx) // TODO: only for debug, may remove in future
   }
 
   async handleWitness (bp) {
     bp = new BlockProposal(bp)
-    const isValid = await this.updateLocalFact('bp', bp)
-    if (isValid) {
+    let epoch = this.getEpoch(bp)
+    const { valid } = await this.localFacts.verifyBpAndAddTxs(bp, this, epoch)
+    this.network.emitW3Event('node.verify', {type: 'bp', data: bp, node: this, valid})
+    if (valid) {
       if (!this.epoch.canWitness(bp.height))
         return debug('--- FATAL: receive invalid bp height: %s, not for this epoch %s', bp.height, this.epoch.height, bp.brief)
       this.isWitness(bp) && await this.witnessAndMint(bp)
@@ -126,32 +121,39 @@ class Node {
   async handleNewBlock (block, origin) {
     debug('*************** WARN: node %s receive new block %s from %s', this.i, block.superBrief, origin.i)
     block = new Block(block)
-    let isForPreivousEpoch = false
-    if (block.height === this.epoch.height) {
-      if (this.epoch.stage === 'collect') {
-        this.epoch.reset()
-        isForPreivousEpoch = true
-      } else {
-        debug('*************** FATAL: receive old block, but epoch is not in collect state')
-      }
-    }
 
-    const isValid = await this.updateLocalFact('block', block, isForPreivousEpoch)
-    if (!isValid) debug('--- FATAL: receive invalid block', block.brief)
-    // TODO: 按 design/handle-block.png 算法处理
-    if (isValid && (this !== origin || this.isSingleNode)) {
+    let epoch = this.getEpoch(block)
+    if (epoch !== this.epoch) this.epoch.reset() // the block from previous epoch, reset the epoch @see design/w3-node-activities-and-messages.png
+
+    const { valid } = await this.localFacts.verifyBlockAndAddTxs(block, this,epoch)
+    if (!valid) debug('--- FATAL: receive invalid block', block.brief)
+    this.network.emitW3Event('node.verify', {type: 'block', data: block, node: this, valid})
+
+    if (valid && (this !== origin || this.isSingleNode)) {
       this.chain.addOrReplaceBlock(block, 'handleNewBlock')
     }
   }
 
+  getEpoch (obj) {
+    if (obj.height === this.epoch.height) {
+      if (this.epoch.stage === 'collect') {
+        return this.epoch.previous
+      } else {
+        debug('*************** FATAL: receive old block/bp, but epoch is not in collect state')
+        return this.epoch
+      }
+    }
+    return this.epoch
+  }
+
   async handleForkWins (fork) { // { _blocks }
     fork = new Fork(fork)
-    const isValid = await this.verifyFork(fork)
-    if (!isValid) {
+    const { valid } = await this.localFacts.verifyForkAndAddTx(fork, this)
+    this.network.events.emit('node.verify', {type: 'fork', data: fork, node: this, valid})
+
+    if (!valid) {
       debug('fork is invalid, skip it', fork)
-      return this.network.events.emit('node.verify', {type: 'fork', data: fork, node: this, valid: isValid})
     }
-    await this.updateLocalFact('fork', fork)
     // TODO: 按其中的消息，检查chain
   }
 
@@ -175,8 +177,8 @@ class Node {
   async collect (tx) {
     debug('--- node %s collect tx %s ', this.account.i, tx)
     this.network.recordCollector(tx, this)
-    // the tx is not only collected from tx messages, but also colected from bp, block, fork messages containing valid txPool
-    // therefore refator the ASF logic to the localFacts's tx-added event handler
+    // the tx is not only collected from tx messages, but also collected from bp, block, fork messages containing valid txPool
+    // therefore refactor the ASF logic to the localFacts' tx-added event handler
   }
 
   async witnessAndMint (bp) {
@@ -191,7 +193,7 @@ class Node {
   async askForWitnessAndMint (txs) {
     const bp = this.createBlockProposal(txs)
     this.localFacts.updateTxsState(txs, 'bp')
-    this.network.broadcast('bp', bp, this) //this used in theory test to aviod of react on its own message
+    this.network.broadcast('bp', bp, this) //this used in theory test to avoid of react on its own message
   }
 
   createBlockProposal (txs) {
@@ -209,29 +211,20 @@ class Node {
 
   async continueWitnessAndMint (bp) {
     bp.askForWitness(this)
-    this.network.broadcast('bp', bp, this) //this used in theory test to aviod of react on its own message
+    this.network.broadcast('bp', bp, this) //this used in theory test to avoid of react on its own message
   }
 
   async mintBlock (bp) {
     const block = Block.mint(bp, this.epoch.tailHash)
 
     // debug('--- WARN: node %s mint block %s ', this.i, block.superBrief)
-
     if (!this.isSingleNode) this.chain.addOrReplaceBlock(block, 'mintBlock')// verifyThenUpdateOrAddTx to local chain before broadcast, singleNodeMode will verifyThenUpdateOrAddTx it in handleNewBlock
-    this.network.broadcast('block', block, this) //this used in theory test to aviod of react on its own message
+    this.network.broadcast('block', block, this) //this used in theory test to avoid of react on its own message
   }
 
   async query (query) {
     // TODO: sophisticated query
     return { chain: this.chain }
-  }
-
-  async updateLocalFact (type, data, isForPreivousEpoch) { // type: tx, bp, block, fork
-    // TODO: 根据bp、block、fork消息中的height，来判定当前node是否需要stop(退出ready)
-    const node = this
-    const { valid } = await this.localFacts.verifyAndUpdate(type, data, node, isForPreivousEpoch)
-    this.network.emitW3Event('node.verify', {type, data, node, valid})
-    return valid
   }
 
   stopTwoStagesBlockGeneration () {
