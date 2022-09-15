@@ -20,9 +20,9 @@ export default defineComponent({
 
     async function registerMap() {
       const {data: worldGeoJson} = await Promise.race([
-        axios.get('https://ghproxy.com/https://raw.githubusercontent.com/apache/echarts/29a4fe91f7cf59ea347e066bb241346f0b1bde75/test/data/map/json/world.json'),
-        axios.get('https://raw.githubusercontent.com/apache/echarts/29a4fe91f7cf59ea347e066bb241346f0b1bde75/test/data/map/json/world.json')
-      ]);
+        new Promise(resolve => axios.get('https://ghproxy.com/https://raw.githubusercontent.com/apache/echarts/29a4fe91f7cf59ea347e066bb241346f0b1bde75/test/data/map/json/world.json').then(resolve).catch(/*do nothing*/)),
+        new Promise(resolve => axios.get('https://raw.githubusercontent.com/apache/echarts/29a4fe91f7cf59ea347e066bb241346f0b1bde75/test/data/map/json/world.json').then(resolve).catch(/*do nothing*/))
+      ])
       echarts.registerMap('worldCustom', worldGeoJson)
       return true
     }
@@ -64,6 +64,7 @@ export default defineComponent({
           },
           itemStyle: {
             color: '#3D3F50',
+            borderWidth: 0
           },
           regionHeight: 0.5,
         },
@@ -99,8 +100,8 @@ export default defineComponent({
             {
               effect: {
                 show: true,
-                trailWidth: 1,
-                trailOpacity: 0.5,
+                trailWidth: 2,
+                trailOpacity: 1,
                 trailLength: 0.2,
                 constantSpeed: Math.max(1, Math.ceil(Math.log10(tps) * 10))
               },

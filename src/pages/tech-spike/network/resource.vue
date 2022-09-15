@@ -63,8 +63,10 @@ export default defineComponent({
         },
         grid: {
           left: '10%',
-          top: '25%'
+          top: '25%',
+          right: '3%'
         },
+        color: ['rgb(60,123,253)', 'rgb(145, 204, 117)', 'rgb(250, 200, 88)'],
         series: [
           { name: 'CPU', type: 'line', symbol: 'none', data: [] },
           { name: 'Memory', type: 'line', symbol: 'none', data: [] },
@@ -86,21 +88,20 @@ export default defineComponent({
               },
             },
             detail: {
-              fontSize: Math.ceil(resourceContainerRef.value.offsetWidth/50),
+              fontSize: Math.ceil(resourceContainerRef.value.offsetHeight / 18),
                 offsetCenter: [0, '-20%'],
                 valueAnimation: true,
                 formatter: function (value) {
                   return Math.round(value) + '%';
                 },
-                color: 'auto'
+                color: '#000'
               },
               axisTick: {
                 show: false
               },
               axisLabel: {
                 show: false,
-                distance: 50,
-
+                distance: 50
               },
               splitLine: {
                 show: false,
@@ -114,21 +115,23 @@ export default defineComponent({
                 show: false
               },
               title: {
-                fontSize: 10
+                fontSize: Math.ceil(resourceContainerRef.value.offsetHeight / 30),
+                offsetCenter: [0, '27%']
               },
               data: [{ value: 50, name }],
-              axisLine: { lineStyle: { width: 2 ,color: [[1, color2]] } }
+              axisLine: { lineStyle: { width: 2 ,color: [[1, color2]] } },
+              radius: "100%"
           }]
         }
       }
       const cpuGauge = echarts.init(cpuGaugeRef.value);
-      cpuGauge.setOption(generateGaugeOption({ name: 'CPU', color1: "rgb(84, 112, 198)", color2: "rgb(84, 112, 198, 0.2)" }))
+      cpuGauge.setOption(generateGaugeOption({ name: 'CPU', color1: 'rgb(60,123,253)', color2: 'rgb(60,123,253, 0.2)' }))
 
       const memoryGauge = echarts.init(memoryGaugeRef.value);
-      memoryGauge.setOption(generateGaugeOption({ name: 'Memory', color1: "rgb(145, 204, 117)", color2: "rgb(145, 204, 117, 0.2)" }))
+      memoryGauge.setOption(generateGaugeOption({ name: 'Memory', color1: 'rgb(145, 204, 117)', color2: 'rgb(145, 204, 117, 0.2)' }))
 
       const bandwidthGauge = echarts.init(bandwidthGaugeRef.value);
-      bandwidthGauge.setOption(generateGaugeOption({ name: 'BW', color1: "rgb(250, 200, 88)", color2: "rgb(250, 200, 88, 0.2)" }))
+      bandwidthGauge.setOption(generateGaugeOption({ name: 'BW', color1: 'rgb(250, 200, 88)', color2: 'rgb(250, 200, 88, 0.2)' }))
 
       return { resourceChart, cpuGauge, memoryGauge, bandwidthGauge }
     }
@@ -196,7 +199,7 @@ export default defineComponent({
 .resource-statement-text {
   float: right;
   padding-right: 5%;
-  font-size: 1.5vh;
+  font-size: 1.8vh;
 }
   
   </style>

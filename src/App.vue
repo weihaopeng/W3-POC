@@ -1,15 +1,29 @@
 <template lang="pug">
 Nav
-  router-view(:key="$route.fullPath")
+  router-view(:key="getRoute($route)")
 </template>
-  
+
 <script>
 import { defineComponent } from 'vue'
 import Nav from '@/components/common/Nav.vue'
+const routeMap = {
+  benchmark: 'network',
+
+}
 
 export default defineComponent({
   name: 'App',
-  components: { Nav }
+  components: { Nav },
+  setup: () => {
+    const getRoute = (route) => {
+      if (route.name === 'benchmark') return 'network'
+      if (route.name === 'security') return 'network'
+      return route.fullPath
+    }
+    return {
+      getRoute
+    }
+  }
 })
 </script>
 

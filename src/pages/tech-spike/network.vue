@@ -4,14 +4,14 @@
     AButton(@click="showConfig")
       template(#icon)
         SettingOutlined
-      | config
+      | Config
   BenchmarkHeader#benchmark-header(:chain-height="config.chainHeight" :total-transactions="config.totalTransactions")
   WorldMap#benchmark-map(:config="config")
   Performance#benchmark-performance(:performance-visible="visible.performance" @close="closePerformance" :config="config")
   Resource#benchmark-resource(:resource-visible="visible.resource" @close="closeResource" :config="config")
 
-ADrawer(title="W3 Network Configuration" v-model:visible="configVisible" placement="left" @close="onConfigClose")
-  NetworkConfig(:default-config="config" @change-config="onChangeConfig")
+ADrawer.network-config-drawer(title="W3 Network Configuration" v-model:visible="configVisible" placement="left" @close="onConfigClose")
+  NetworkConfig(:default-config="config" @change-config="onChangeConfig" @changeForgeAccountRatio="onChangeForgeAccountRatio")
 </template>
 
 <script>
@@ -27,7 +27,7 @@ import { useRoute } from 'vue-router'
 import { isNil } from 'lodash'
 
 export default defineComponent({
-  name: 'Benchmark',
+  name: 'Network',
   components: {
     WorldMap,
     Performance,
@@ -44,6 +44,7 @@ export default defineComponent({
       resource: false
     })
 
+    const route = useRoute();
     const config = ref({
       nodeScale: 1000,
       latencyInSwarm: 20,
@@ -54,11 +55,10 @@ export default defineComponent({
       forgeAccountRatio: 30,
       chainHeight: 181311,
       totalTransactions: 103123414,
-      isAttackSimulate: false,
+      isAttackSimulate: route.name === 'security',
       startAttackSimulate: false,
     })
 
-    const route = useRoute();
     watch(() => route.name, (newRouteName) => {
       config.value.isAttackSimulate = newRouteName === 'security'
       if (!config.value.isAttackSimulate) {
@@ -94,7 +94,7 @@ export default defineComponent({
       config.value.totalTransactions += config.value.tps
     }, 1000)
 
-    if (config.value.isAttackSimulate) {
+    if (config.value.isAttackSimulate && config.value.startAttackSimulate) {
       const attackerNodeScale = Math.floor(config.value.nodeScale * config.value.forgeAccountRatio / 100)
       controller.setNodesScale(config.value.nodeScale - attackerNodeScale,  attackerNodeScale)
     } else {
@@ -121,12 +121,20 @@ export default defineComponent({
         config.value.forgeAccountRatio = newConfig.forgeAccountRatio;
       
       if (!isNil(newConfig.startAttackSimulate)) {
-        if (config.value.startAttackSimulate === true) {
+        if (config.value.startAttackSimulate) {
           const attackerNodeScale = Math.floor(config.value.nodeScale * config.value.forgeAccountRatio / 100);
           controller.setNodesScale(config.value.nodeScale - attackerNodeScale, attackerNodeScale);
         } else {
           controller.setNodesScale(config.value.nodeScale, 0);
         }
+      }
+    }
+
+    const onChangeForgeAccountRatio = (forgeAccountRatio) => {
+      config.value.forgeAccountRatio = forgeAccountRatio;
+      if (config.value.startAttackSimulate) {
+        const attackerNodeScale = Math.floor(config.value.nodeScale * config.value.forgeAccountRatio / 100);
+        controller.setNodesScale(config.value.nodeScale-attackerNodeScale, attackerNodeScale);
       }
     }
 
@@ -139,7 +147,8 @@ export default defineComponent({
       showConfig,
       onChangeConfig,
       closePerformance,
-      closeResource
+      closeResource,
+      onChangeForgeAccountRatio
     }
   },
 })
@@ -174,7 +183,7 @@ export default defineComponent({
       left: 1.5%;
     }
     #benchmark-performance {
-      height: 41%;
+      height: 45.5%;
       width: 40%;
       position: relative;
       top: -71%;
@@ -182,11 +191,23 @@ export default defineComponent({
     }
     
     #benchmark-resource {
-      height: 41%;
+      height: 45.5%;
       width: 40%;
       position: relative;
       top: -69%;
       left: 58%
     }
   }
+</style>
+
+<style lang="scss">
+.network-config-drawer {
+  .ant-drawer-header {
+    height: 90px;
+  }
+  .ant-drawer-title {
+    font-size: 20px;
+    font-weight: 600;
+  }
+}
 </style>

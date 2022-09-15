@@ -11,6 +11,8 @@ const redrawNetworkDebounce = _.throttle((chart, data) => {
   })
 }, 2000)
 
+const LINE_CHART_X_RANGE = 40 // datas in ${x}s per page
+
 class Controller extends EventEmitter {
   constructor() {
     super()
@@ -69,9 +71,9 @@ class Controller extends EventEmitter {
     const memoryUsage = 10 + 10 * Math.random();
     const bandwidthUsage = 20 + 10 * Math.random();
 
-    if (this.cpuData.length > 600) this.cpuData.shift()
-    if (this.memoryData.length > 600) this.memoryData.shift()
-    if (this.bandwidthData.length > 600) this.bandwidthData.shift()
+    if (this.cpuData.length > LINE_CHART_X_RANGE) this.cpuData.shift()
+    if (this.memoryData.length > LINE_CHART_X_RANGE) this.memoryData.shift()
+    if (this.bandwidthData.length > LINE_CHART_X_RANGE) this.bandwidthData.shift()
 
     this.cpuData.push({ name: now.toString(), value: [new Date(), cpuUsage] })
     this.memoryData.push({
@@ -103,13 +105,13 @@ class Controller extends EventEmitter {
     const arrivalMessagesLastSec = Math.round(departureMessagesLastSec * (0.9 + Math.random() * 0.2))
     const attackerArrivalMessagesLastSec = Math.round(arrivalMessagesLastSec * (this.attackerNodes.length / this.nodes.length))
 
-    if (this.performanceChartOutboundData.length > 600)
+    if (this.performanceChartOutboundData.length > LINE_CHART_X_RANGE)
       this.performanceChartOutboundData.shift()
-    if (this.performanceChartInboundData.length > 600)
+    if (this.performanceChartInboundData.length > LINE_CHART_X_RANGE)
       this.performanceChartInboundData.shift()
-    if (this.performanceWithAttackerChartOutboundData.length > 600)
+    if (this.performanceWithAttackerChartOutboundData.length > LINE_CHART_X_RANGE)
       this.performanceWithAttackerChartOutboundData.shift()
-    if (this.performanceWithAttackerChartInboundData.length > 600)
+    if (this.performanceWithAttackerChartInboundData.length > LINE_CHART_X_RANGE)
       this.performanceWithAttackerChartInboundData.shift()
 
     this.performanceChartOutboundData.push({ name: now.toString(), value: [new Date(), departureMessagesLastSec] })
@@ -118,12 +120,12 @@ class Controller extends EventEmitter {
     this.performanceWithAttackerChartInboundData.push({ name: now.toString(), value: [new Date(), attackerArrivalMessagesLastSec] })
 
     const series = [
-      { data: this.performanceChartInboundData },
-      { data: this.performanceChartOutboundData },
+      { type: 'line', data: this.performanceChartInboundData },
+      { type: 'line', data: this.performanceChartOutboundData },
     ];
     if (this.withAttacker) {
-      series.push({ data: this.performanceWithAttackerChartInboundData })
-      series.push({ data: this.performanceWithAttackerChartOutboundData })
+      series.push({ type: 'line', data: this.performanceWithAttackerChartInboundData })
+      series.push({ type: 'line', data: this.performanceWithAttackerChartOutboundData })
     }
 
     this.performanceChart && this.performanceChart.setOption({ series })

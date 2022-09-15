@@ -2,6 +2,7 @@
 .title-container
   .title-sub1 W3 chain height
   .title-sub2 {{ Math.round(chainHeight).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') }}
+  ADivider.title-divider(type="vertical")
   .title-sub3 Total transactions
   .title-sub4 {{ Math.round(totalTransactions).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') }}
 </template>
@@ -54,6 +55,13 @@ export default defineComponent({
     width: 22%;
     margin: auto 0;
     color: #3c7bfd;
-}
+  }
+  .title-divider {
+    position: relative;
+    left: 4%;
+    z-index: 1;
+    height: 80%;
+    top: 10%
+  }
 }
 </style>

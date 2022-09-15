@@ -4,10 +4,10 @@
   #performance-statement-container
     .performance-statement-text {{ Number.parseInt(config.nodeScale).toLocaleString() }} nodes in {{ Number.parseInt(config.swarmScale).toLocaleString() }} swarms
     .performance-statement-text sample rate 20 per second
-    .performance-statement-text(v-if="config.isAttackSimulate && config.startAttackSimulate" style="color: #FF0000;")
+    .performance-statement-text(v-if="displayAttackLine" style="color: #FF0000;")
       | Attack Success Probability: 1/10
       sup 15
-    .performance-statement-text(v-if="config.isAttackSimulate && config.startAttackSimulate" style="color: #FF0000;") 1 in 1.4 billion years
+    .performance-statement-text(v-if="displayAttackLine" style="color: #FF0000;") 1 in 1.4 billion years
 </template>
 
 <script>
@@ -23,18 +23,19 @@ export default defineComponent({
   emits: ['changeConfig'],
   setup: (props) => {
     const performanceContainerRef = ref(null)
+    const displayAttackLine = ref(false)
 
     function showPerformance() {
       const performanceChart = echarts.init(performanceContainerRef.value)
 
-      const generateOption = (isAttackSimulate) => {
+      const generateOption = (startAttackSimulate) => {
         const series = [
           { name: 'In_all', type: 'line', symbol: 'none', data: [{ name: 'init1', value: [new Date().toString(), 0] }] },
           { name: 'Out_all', type: 'line', symbol: 'none', data: [{ name: 'init2', value: [new Date().toString(), 0] }] }
         ];
         const legend = ['In_all', 'Out_all']
 
-        if (isAttackSimulate) {
+        if (startAttackSimulate) {
           legend.push('In_forge', 'Out_forge')
           series.push({ name: 'In_forge', type: 'line', symbol: 'none', data: [] });
           series.push({ name: 'Out_forge', type: 'line', symbol: 'none', data: [] });
@@ -74,34 +75,43 @@ export default defineComponent({
           },
           grid: {
             left: '12%',
-            top: '25%'
+            top: '25%',
+            right: '3%'
           },
+          color: ['rgb(60,123,253)', 'rgb(145, 204, 117)', 'rgb(232,104,74)', 'rgb(246,189,22)'],
           series
         }
       }
-      performanceChart.setOption(generateOption(props.config.isAttackSimulate))
+      performanceChart.setOption(generateOption(props.config.startAttackSimulate))
 
       watch(() => props.config.startAttackSimulate, () => {
         controller.withAttacker = props.config.startAttackSimulate
         controller.performanceWithAttackerChartInboundData = []
         controller.performanceWithAttackerChartOutboundData = []
         performanceChart.clear()
-        performanceChart.setOption(generateOption(props.config.isAttackSimulate))
-      })
+        performanceChart.setOption(generateOption(props.config.startAttackSimulate))
+
+        if (props.config.startAttackSimulate) {
+            setTimeout(() => displayAttackLine.value = true, 2000);
+          } else {
+            displayAttackLine.value = false;
+          }
+        })
+
       return performanceChart
     }
 
     onMounted(async () => {
       setTimeout(() => {
         const performanceChart = showPerformance()
-        controller.initChart({ performanceChart, withAttacker: !!props.config.attackType })
+        controller.initChart({ performanceChart, withAttacker: props.config.startAttackSimulate })
       }, 300)
     })
 
     return {
       performanceContainerRef,
-      showPerformance
-      
+      showPerformance,
+      displayAttackLine
     }
   }
 })
@@ -125,6 +135,6 @@ export default defineComponent({
   .performance-statement-text {
     float: right;
     padding-right: 5%;
-    font-size: 1.5vh;
+    font-size: 1.8vh;
   }
 </style>

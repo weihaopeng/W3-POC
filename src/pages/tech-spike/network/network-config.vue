@@ -1,34 +1,34 @@
 <template lang="pug">
-AForm(:model="configData", :label-col="{ span: 24 }", :wrapper-col="{ span: 18 }")
+AForm.network-config-form(:model="configData", :label-col="{ span: 24 }", :wrapper-col="{ span: 18 }")
   AFormItem(label="Node Scale")
-    AInputNumber(v-model:value="configData.nodeScale" style="width: auto;" :formatter="numberFormatter")
-  div Swarms: {{ swarmScale }}
+    AInputNumber(size="large" v-model:value="configData.nodeScale" style="width: auto;" :formatter="numberFormatter")
+  AFormItem(:label="`Swarms: ${swarmScale}`")
   AFormItem(label="Latency In Swarm (ms)")
-    AInputNumber(v-model:value="configData.latencyInSwarm" addon-after="ms" :formatter="numberFormatter")
+    AInputNumber(size="large" v-model:value="configData.latencyInSwarm" addon-after="ms" :formatter="numberFormatter")
   AFormItem(label="Latency Between Swarm")
-    AInputNumber(v-model:value="configData.latencyBetweenSwarm" addon-after="ms" :formatter="numberFormatter")
+    AInputNumber(size="large" v-model:value="configData.latencyBetweenSwarm" addon-after="ms" :formatter="numberFormatter")
   AFormItem(label="Throughput")
-    AInputNumber(v-model:value="configData.tps" addon-after="TPS" :formatter="numberFormatter")
+    AInputNumber(size="large" v-model:value="configData.tps" addon-after="TPS" :formatter="numberFormatter")
   AFormItem
-    AButton(type="primary" html-type="submit" @click="onChangeConfig") Config
+    AButton(size="large" type="primary" html-type="submit" @click="onChangeConfig") Config
 
   ADivider(v-if="defaultConfig.isAttackSimulate")
   h3(v-if="defaultConfig.isAttackSimulate") Attack Simulation
 
   AFormItem(label="Attack Type" v-if="defaultConfig.isAttackSimulate")
-    ASelect(ref="select", v-model:value="configData.attackType", :options="AttackTypeList")
+    ASelect(size="large" ref="select", v-model:value="configData.attackType", :options="AttackTypeList")
 
   AFormItem(label="ForgeAccountRatio" v-if="defaultConfig.isAttackSimulate && configData.attackType === 'Sybil'")
-    AInput(v-model:value="configData.forgeAccountRatio" type="number" suffix="%")
+    AInputNumber(size="large" v-model:value="configData.forgeAccountRatio" addon-after="%")
 
   AFormItem(label="Attacked Node" v-if="defaultConfig.isAttackSimulate && configData.attackType === 'Finney'")
-    ASelect(ref="select" value="node1" :options="FinneyAttackNodeList")
+    ASelect(size="large" ref="select" value="node1" :options="FinneyAttackNodeList")
 
   AFormItem(label="Attacked Swarm" v-if="defaultConfig.isAttackSimulate && configData.attackType === 'Eclipse'")
-    ASelect(ref="select" value="swarm1" :options="EclipseNodeList")
+    ASelect(size="large" ref="select" value="swarm1" :options="EclipseNodeList")
   
   AFormItem(v-if="defaultConfig.isAttackSimulate")
-    AButton(type="primary" html-type="submit" @click="onSimulateSwitch") {{ simulateButtonName }}
+    AButton(size="large" type="primary" html-type="submit" @click="onSimulateSwitch") {{ simulateButtonName }}
 </template>
 
 <script>
@@ -59,8 +59,10 @@ const EclipseNodeList = [
 
 export default defineComponent({
   name: 'NetworkConfig',
-  emits: ['changeConfig'],
-  props: ['defaultConfig'],
+  emits: ['changeConfig', 'changeForgeAccountRatio'],
+  props: {
+    defaultConfig: Object
+  },
   setup: (props, { emit }) => {
     const configData = reactive({
       ...props.defaultConfig,
@@ -86,12 +88,16 @@ export default defineComponent({
 
     const onSimulateSwitch = () => {
       configData.startAttackSimulate = !configData.startAttackSimulate;
-      emit('changeConfig', {startAttackSimulate: configData.startAttackSimulate})
+      emit('changeConfig', { startAttackSimulate: configData.startAttackSimulate, forgeAccountRatio: configData.forgeAccountRatio })
     }
 
     const numberFormatter = (value) => {
       return `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
     }
+
+    watch(() => configData.forgeAccountRatio, () => {
+      emit('changeForgeAccountRatio', configData.forgeAccountRatio)
+    })
 
     return {
       configData,
@@ -107,3 +113,29 @@ export default defineComponent({
   }
 })
 </script>
+
+<style lang="scss" scoped>
+.network-config-form {
+  :deep .ant-form-item-label > label {
+    font-size: 20px;
+    font-weight: 500;
+  }
+  h3 {
+    font-size: 30px;
+    font-weight: 600;
+  }
+  :deep .ant-input-number-group-addon {
+    font-size: 16px;
+  }
+
+  .ant-divider {
+    margin: 24px -24px;
+    width: calc(100% + 48px);
+  }
+
+  .ant-btn {
+    background: #3C7BFD;
+  }
+}
+
+</style>

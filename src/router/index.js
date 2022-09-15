@@ -1,12 +1,12 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Swarm from '@/pages/tech-spike/swarm.vue'
-import Benchmark from '@/pages/tech-spike/benchmark.vue'
+import Network from '@/pages/tech-spike/network.vue'
 import Libp2p from '@/pages/libp2p/index.vue'
 const routes = [
   {
     path: '/benchmark/',
     name: 'benchmark',
-    component: Benchmark
+    component: Network
   },
   {
     path: '/',
@@ -29,9 +29,9 @@ const routes = [
     component: Swarm
   },
   {
-    path: '/benchmark/',
+    path: '/security/',
     name: 'security',
-    component: Benchmark
+    component: Network
   }
 ]
 
