@@ -5,6 +5,7 @@ const SYMBOL_SIZE = 44
 class SwarmPainter {
   constructor(cvsContainer, tooltipContainer, nodeContainer, nodes) {
     const { offsetWidth, offsetHeight } = cvsContainer
+    this.cvsContainer = cvsContainer
     this.nodes = nodes.map((node) => new SwarmNode(node, offsetWidth, offsetHeight, SYMBOL_SIZE, tooltipContainer, nodeContainer))
     this.links = this.generateLinks(nodes)
     this.chart = echarts.init(cvsContainer)
@@ -107,7 +108,11 @@ class SwarmPainter {
     for(let i = 0; i < this.nodes.length; i++) {
       const [x, y] = nodeLayouts[i]
       this.nodes[i].setCoordinates(x, y, xmin, xmax)
-      if (i === 0) this.nodes[i].drawTheCircle()
+      if (i === 0) {
+        const { offsetWidth, offsetHeight } = this.cvsContainer
+        this.nodes[i].updateCvsSize(offsetWidth, offsetHeight)
+        this.nodes[i].drawTheCircle()
+      }
     }
   }
 

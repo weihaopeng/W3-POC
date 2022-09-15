@@ -92,6 +92,11 @@ class SwarmNode {
     if (type !== 'highlightNode') this.roleElement.innerText = type
   }
 
+  updateCvsSize(width, height) {
+    this.cvsWidth = width
+    this.cvsHeight = height
+  }
+
   // TODO: this is a temporary duty for first node instance.
   drawTheCircle() {
     console.log(this.nodeContainer)
