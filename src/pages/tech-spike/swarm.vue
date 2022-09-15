@@ -410,7 +410,7 @@ export default defineComponent({
     margin: 16px 0;
     &__operation {
       .ant-btn {
-        margin-left: 16px;
+        margin-left: 24px;
       }
       .play-btn, .stop-btn, .clear-btn {
         border-width: 0;
@@ -449,25 +449,37 @@ export default defineComponent({
     overflow: hidden;
   }
   .swarm-steps {
-    height: 146px;
+    height: 160px;
     display: flex;
     flex-direction: column;
     align-items: center;
     &__config {
       font-size: 12px;
-      color: #fff;
+      color: rgba(255, 255, 255, 0.5);
       margin: 15px 0 12px;
       text-align: center;
       font-weight: 300;
     }
     .ant-steps {
       // padding: 0 200px;
-      width: 677px;
+      // width: 700px;
+      justify-content: center;
       .ant-steps-item {
         cursor: default;
+        width: 350px;
+        max-width: 350px;
+        &:last-child {
+          width: 400px;
+          max-width: 400px;
+        }
       }
       .ant-steps-item-title {
-        color: rgba(255, 255, 255, 0.85);
+        color: #fff;
+        font-weight: 900;
+        font-size: 24px;
+        &::after {
+          height: 2px
+        }
       }
 
       .ant-progress-circle-trail {
@@ -479,20 +491,33 @@ export default defineComponent({
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        width: 28px;
+        height: 28px;
       }
       .ant-steps-item:not(.ant-steps-item-process) .ant-steps-item-icon {
         border-width: 2px;
       }
+      .ant-steps-item-process > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title::after {
+        background: rgba(#d9d9d9, 0.3);
+      }
       .ant-steps-item-wait {
         .ant-steps-item-title {
-          color: rgba(255, 255, 255, 0.255);
+          color: rgba(255, 255, 255, 0.5);
+          font-weight: normal;
         }
         .ant-steps-item-icon {
           background-color: transparent;
-          border-color: rgba(255, 255, 255, 0.3);
+          border-color: rgba(255, 255, 255, 0.5);
           .ant-steps-icon {
-            color: rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.5);
           }
+        }
+      }
+      .ant-progress-inner {
+        max-width: 36px;
+        max-height: 36px;
+        svg path {
+          stroke-width: 8;
         }
       }
       .ant-steps-item-finish {
@@ -507,7 +532,7 @@ export default defineComponent({
       .ant-steps-item-description {
         max-width: 360px;
         font-size: 14px;
-        color: rgba(255, 255, 255, 0.85);
+        color: #fff;
       }
       .swarm-step-description {
         white-space: nowrap;

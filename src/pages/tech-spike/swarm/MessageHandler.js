@@ -1,4 +1,4 @@
-const DELAY_FOR_VIEW = 1500 // 到达节点的延时隐藏
+const DELAY_FOR_VIEW = 2500 // 到达节点的延时隐藏
 const TIMEOUT_THRESHOLD = 5000 // 超时判定机制
 
 class MessageHandler {

@@ -1,17 +1,23 @@
 <template lang="pug">
 ALayout
   ALayoutHeader.layout-header
-    .logo(@click="goHome")
-      img(:src="Logo")
-    AMenu(
-      mode="horizontal"
-      v-model:selectedKeys="selectedRoute"
-      @click="linkToRoute"
-    )
-      AMenuItem(key="benchmark") Benchmark
-      AMenuItem(key="simulation") Simulation
-      AMenuItem(key="security") Security
-      AMenuItem(key="libp2p") Libp2p
+    .layout-header--left
+      .logo(@click="goHome")
+        img(:src="Logo")
+      AMenu(
+        mode="horizontal"
+        v-model:selectedKeys="selectedRoute"
+        @click="linkToRoute"
+      )
+        AMenuItem(key="benchmark") Benchmark
+        AMenuItem(key="simulation") Simulation
+        AMenuItem(key="security") Security
+        AMenuItem(key="libp2p") Libp2p
+    .layout-header--right
+      .eth-global-logo(@click="goToEthProject")
+        img(:src="EthGlobalLogo")
+      .github-logo(@click="goToGithubCodeRepo")
+        img(:src="GithubLogo")
 
   ALayoutContent
     slot
@@ -21,6 +27,8 @@ ALayout
 import { ref, defineComponent, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Logo from '@/assets/logo.png'
+import EthGlobalLogo from '@/assets/ethglobal.png'
+import GithubLogo from '@/assets/github.png'
 
 export default defineComponent({
   name: 'Nav',
@@ -47,12 +55,24 @@ export default defineComponent({
       // router.push({ name: 'Benchmark' })
     }
 
+    const goToEthProject = () => {
+      window.open('https://ethglobal.com/showcase/w3-poc-nbhee')
+    }
+
+    const goToGithubCodeRepo = () => {
+      window.open('https://github.com/weihaopeng/W3-POC')
+    }
+
     return {
       route,
       selectedRoute,
       Logo,
+      EthGlobalLogo,
+      GithubLogo,
       goHome,
-      linkToRoute
+      linkToRoute,
+      goToEthProject,
+      goToGithubCodeRepo
     }
   }
 })
@@ -63,14 +83,20 @@ export default defineComponent({
   height: 100%
   background: #3d3f50
 
-  &-header
+  .layout-header
     display: flex
     align-items: center
+    justify-content: space-between
     line-height: unset
     height: 90px
     background: #ffffff
     box-shadow: 0px 1px 8px 0px rgba(0,0,0,0.15)
-    padding: 0
+    padding: 0 27px 0 0
+
+    &--left, &--right
+      display: flex
+      align-items: center
+      height: 100%
 
     .logo
       display: inline-block
@@ -78,6 +104,14 @@ export default defineComponent({
       margin-right: 282px
       user-select: none
       height: 100%
+      img
+        max-height: 100%
+
+    .eth-global-logo, .github-logo
+      cursor: pointer
+      user-select: none
+      height: 40px
+      margin-left: 18px
       img
         max-height: 100%
 

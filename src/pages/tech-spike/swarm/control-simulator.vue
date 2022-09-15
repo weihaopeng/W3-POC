@@ -58,10 +58,10 @@ import dayjs from 'dayjs'
 const networkTypes = ['tx', 'bp', 'block', 'fork']
 const chainTypes = ['block on chain', 'chain fork']
 
-let COMMUNICATE_COST = 2000
+let COMMUNICATE_COST = 2500
 let COMMUNICATE_COST_THRESHOLD = 500 // 通信在2000~2500ms波动
 
-const CALCULATE_COST = 500
+const CALCULATE_COST = 1000
 const CALCULATE_COST_THRESHOLD = 500 // 验证用时在500~1000ms波动
 
 export default defineComponent({
@@ -291,7 +291,7 @@ export default defineComponent({
         const collectorNode = toList.filter((to) => to.node.id === '444')
         // const res = sendVerifyMsg(sessionId, toList, i + 1);
         const res = sendVerifyMsg(sessionId, collectorNode, i + 1);
-        await sleep(res.cost + 2000);
+        await sleep(res.cost + 2500);
         emit('sendMsg', 'clearRoles', [nodes[index].id])
       }
       emit('sendMsg', 'clearRoles', [nodes[3].id])
@@ -314,7 +314,7 @@ export default defineComponent({
         sendDepartureMsg({ sessionId, toList, count: i + 1, witnessId: witnessNode[0].node.id, historyNodes: JSON.parse(JSON.stringify(historyNodes)), roundId });
         sendArriveMsg({ sessionId, toList, count: i + 1, witnessId: witnessNode[0].node.id, historyNodes: JSON.parse(JSON.stringify(historyNodes)), roundId });
         const res = sendVerifyMsg(sessionId, witnessNode, i + 1);
-        await sleep(res.cost + 2000);
+        await sleep(res.cost + 2500);
         if (i === 0) {
           emit('sendMsg', 'clearRoles', [nodes[2].id, nodes[index].id])
         } else {
@@ -335,7 +335,7 @@ export default defineComponent({
         sendDepartureMsg({ sessionId, toList, block, txCount, participantsCount, roundId });
         sendArriveMsg({ sessionId, toList, block, txCount, participantsCount, autoDownplay: false, roundId });
         const res = sendVerifyMsg(sessionId, toList, null, false);
-        await sleep(res.cost + 2000);
+        await sleep(res.cost + 2500);
       }
 
       // while(presentStatus.value === 'pausing') {}
