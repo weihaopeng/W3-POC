@@ -1,31 +1,34 @@
 <template lang="pug">
 AForm(:model="configData", :label-col="{ span: 24 }", :wrapper-col="{ span: 18 }")
   AFormItem(label="Node Scale")
-    AInputNumber(v-model:value="configData.nodeScale" style="width: auto;" :formatter="value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')")
+    AInputNumber(v-model:value="configData.nodeScale" style="width: auto;" :formatter="numberFormatter")
   div Swarms: {{ swarmScale }}
   AFormItem(label="Latency In Swarm (ms)")
-    AInputNumber(v-model:value="configData.latencyInSwarm" addon-after="ms" :formatter="value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')")
+    AInputNumber(v-model:value="configData.latencyInSwarm" addon-after="ms" :formatter="numberFormatter")
   AFormItem(label="Latency Between Swarm")
-    AInputNumber(v-model:value="configData.latencyBetweenSwarm" addon-after="ms" :formatter="value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')")
+    AInputNumber(v-model:value="configData.latencyBetweenSwarm" addon-after="ms" :formatter="numberFormatter")
   AFormItem(label="Throughput")
-    AInputNumber(v-model:value="configData.tps" addon-after="TPS" :formatter="value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')")
+    AInputNumber(v-model:value="configData.tps" addon-after="TPS" :formatter="numberFormatter")
   AFormItem
     AButton(type="primary" html-type="submit" @click="onChangeConfig") Config
 
-  ADivider(v-if="defaultConfig.attackType")
-  h3(v-if="defaultConfig.attackType") Attack Simulation
+  ADivider(v-if="defaultConfig.isAttackSimulate")
+  h3(v-if="defaultConfig.isAttackSimulate") Attack Simulation
 
-  AFormItem(label="Attack Type" v-if="defaultConfig.attackType")
+  AFormItem(label="Attack Type" v-if="defaultConfig.isAttackSimulate")
     ASelect(ref="select", v-model:value="configData.attackType", :options="AttackTypeList")
 
-  AFormItem(label="ForgeAccountRatio" v-if="defaultConfig.attackType && configData.attackType === 'Sybil'")
+  AFormItem(label="ForgeAccountRatio" v-if="defaultConfig.isAttackSimulate && configData.attackType === 'Sybil'")
     AInput(v-model:value="configData.forgeAccountRatio" type="number" suffix="%")
 
-  AFormItem(label="Attacked Node" v-if="defaultConfig.attackType && configData.attackType === 'Finney'")
-    ASelect(ref="select" value="node1" :option="FinneyAttackNodeList")
+  AFormItem(label="Attacked Node" v-if="defaultConfig.isAttackSimulate && configData.attackType === 'Finney'")
+    ASelect(ref="select" value="node1" :options="FinneyAttackNodeList")
 
-  AFormItem(label="Attacked Node" v-if="defaultConfig.attackType && configData.attackType === 'Eclipse'")
-    ASelect(ref="select" value="swarm1" :option="EclipseNodeList")
+  AFormItem(label="Attacked Swarm" v-if="defaultConfig.isAttackSimulate && configData.attackType === 'Eclipse'")
+    ASelect(ref="select" value="swarm1" :options="EclipseNodeList")
+  
+  AFormItem(v-if="defaultConfig.isAttackSimulate")
+    AButton(type="primary" html-type="submit" @click="onSimulateSwitch") {{ simulateButtonName }}
 </template>
 
 <script>
@@ -68,9 +71,26 @@ export default defineComponent({
       return Math.ceil(configData.nodeScale / (50 + Math.random() * 50))
     })
 
+     watch(() => props.defaultConfig.startAttackSimulate, () => {
+      configData.startAttackSimulate = props.defaultConfig.startAttackSimulate
+    })
+
     const onChangeConfig = () => {
       configData.swarmScale = swarmScale
       emit('changeConfig', toRaw(configData))
+    }
+
+    const simulateButtonName = computed(() => {
+      return configData.startAttackSimulate ? 'Stop' : 'Start'
+    })
+
+    const onSimulateSwitch = () => {
+      configData.startAttackSimulate = !configData.startAttackSimulate;
+      emit('changeConfig', {startAttackSimulate: configData.startAttackSimulate})
+    }
+
+    const numberFormatter = (value) => {
+      return `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
     }
 
     return {
@@ -79,7 +99,10 @@ export default defineComponent({
       AttackTypeList,
       FinneyAttackNodeList,
       EclipseNodeList,
-      onChangeConfig
+      simulateButtonName,
+      onChangeConfig,
+      onSimulateSwitch,
+      numberFormatter
     }
   }
 })

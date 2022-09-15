@@ -1,64 +1,51 @@
 <template lang="pug">
-ACard(style="width:720px; height:360px" :bordered="false")
-  //- template(#extra)
-  //-   a(href="#" @click="onClose") close
-  //- template(#title)
-  //-   div(style="width: 100%") resource
-  div
-    #resource-container(ref="resourceContainerRef" style="width: 100%; height: 360px")
-    #cpuGauge-container(ref="cpuGaugeRef")
-    #memoryGauge-container(ref="memoryGaugeRef")
-    #bandwidthGauge-container(ref="bandwidthGaugeRef")
+#resource-wrapper
+  #resource-container(ref="resourceContainerRef")
+  #resource-statement-container
+    .resource-statement-text {{ Number.parseInt(config.nodeScale).toLocaleString() }} nodes in {{ Number.parseInt(config.swarmScale).toLocaleString() }} swarms
+    .resource-statement-text sample rate 20 per second
+  #cpu-gauge-container(ref="cpuGaugeRef")
+  #memory-gauge-container(ref="memoryGaugeRef")
+  #bandwidth-gauge-container(ref="bandwidthGaugeRef")
 </template>
 
 <script>
-import { computed, defineComponent, onMounted, ref, watch } from 'vue'
+import { defineComponent, onMounted, ref } from 'vue'
 import * as echarts from 'echarts'
-import 'echarts-gl'
-import controller from "@/pages/tech-spike/network/controller.js";
+import controller from '@/pages/tech-spike/network/controller.js'
 
 export default defineComponent({
   name: 'Resource',
   props: {
-    resourceVisible: Boolean,
     config: Object
   },
-  emits: ["close"],
-  setup: (props, { emit }) => {
+  emits: ['close'],
+  setup: () => {
     const resourceContainerRef = ref(null)
     const cpuGaugeRef = ref(null)
     const memoryGaugeRef = ref(null)
     const bandwidthGaugeRef = ref(null)
-    const visible = ref(props.resourceVisible)
-
-    watch(
-      () => props.resourceVisible,
-      () => {
-        visible.value = props.resourceVisible
-      }
-    )
-
-    const subTitleText = computed(() => {
-      return [
-        `${props.config.nodeScale.toLocaleString()} nodes in ${props.config.swarmScale.toLocaleString()} swarms`,
-        `sample rate 20 per second`
-      ]
-    })
 
     function showResource() {
       const resourceChart = echarts.init(resourceContainerRef.value)
       resourceChart.setOption({
         title: {
           text: 'w3 node resource consumption (avg.)',
-          subtext: subTitleText.value.join('\n'),
-          left: 'center'
+          left: '2.5%',
+          top: '4.6%',
+          textStyle: {
+            color: '#000000',
+            fontWeight: 'bold',
+            fontSize: Math.ceil(resourceContainerRef.value.offsetWidth / 40)
+          }
         },
         tooltip: {
           trigger: 'axis',
         },
         legend: {
           data: ['CPU', 'Memory', 'Bandwidth'],
-          top: '20%'
+          top: '14%',
+          left: '2.2%'
         },
         xAxis: {
           type: 'time',
@@ -74,128 +61,142 @@ export default defineComponent({
             show: false,
           },
         },
+        grid: {
+          left: '10%',
+          top: '25%'
+        },
         series: [
-          { name: 'CPU', type: 'line', showSymbol: false, data: [], lineStyle: {color: 'red'} },
-          { name: 'Memory', type: 'line', showSymbol: false, data: [], lineStyle: {color: 'green'} },
-          { name: 'Bandwidth', type: 'line', showSymbol: false, data: [], lineStyle: {color: 'blue'} }
+          { name: 'CPU', type: 'line', symbol: 'none', data: [] },
+          { name: 'Memory', type: 'line', symbol: 'none', data: [] },
+          { name: 'Bandwidth', type: 'line', symbol: 'none', data: [] }
         ],
       })
+      const generateGaugeOption = ({name, color1, color2}) => {
+        return {
+          series: [{
+            name,
+            type: 'gauge',
+            progress: {
+              show: true,
+              overlap: false,
+              roundCap: true,
+              itemStyle: {
+                borderWidth: 2,
+                borderColor: color1
+              },
+            },
+            detail: {
+              fontSize: Math.ceil(resourceContainerRef.value.offsetWidth/50),
+                offsetCenter: [0, '-20%'],
+                valueAnimation: true,
+                formatter: function (value) {
+                  return Math.round(value) + '%';
+                },
+                color: 'auto'
+              },
+              axisTick: {
+                show: false
+              },
+              axisLabel: {
+                show: false,
+                distance: 50,
 
-      watch(() => props.config.swarmScale, () => {
-        // console.log('swarmScale', props.config)
-        resourceChart.setOption({
-          title: {
-            subtext: subTitleText.value.join('\n'),
-          }
-        })
-      })
-
-      watch(() => props.config.swarmScale, () => {
-        resourceChart.setOption({
-          title: {
-            subtext: subTitleText.value.join('\n'),
-          }
-        })
-      })
-
-      const gaugeOption = {
-        type: 'gauge',
-        detail: {
-          show: false
-        },
-        axisTick: {
-          show: false
-        },
-        axisLabel: {
-          distance: 0,
-          fontSize: 5
-        },
-        splitLine: {
-          distance: -30,
-          length: 30,
-          lineStyle: {
-            color: '#fff',
-            width: 4
-          }
-        },
-        pointer: {
-          width: 1
-        },
-        anchor: {
-          show: false
-        },
-        title: {
-          fontSize: 10
+              },
+              splitLine: {
+                show: false,
+                distance: 0,
+                length: 10
+              },
+              pointer: {
+                show: false
+              },
+              anchor: {
+                show: false
+              },
+              title: {
+                fontSize: 10
+              },
+              data: [{ value: 50, name }],
+              axisLine: { lineStyle: { width: 2 ,color: [[1, color2]] } }
+          }]
         }
       }
+      const cpuGauge = echarts.init(cpuGaugeRef.value);
+      cpuGauge.setOption(generateGaugeOption({ name: 'CPU', color1: "rgb(84, 112, 198)", color2: "rgb(84, 112, 198, 0.2)" }))
 
-      const cpuGauge = echarts.init(cpuGaugeRef.value)
-      cpuGauge.setOption({
-        series: [
-          { name: 'Cpu', data: [{ value: 50, name: 'CPU' }], axisLine: { lineStyle: { width: 2, color: [[1, 'red']] } }, ...gaugeOption }
-        ]
-      })
+      const memoryGauge = echarts.init(memoryGaugeRef.value);
+      memoryGauge.setOption(generateGaugeOption({ name: 'Memory', color1: "rgb(145, 204, 117)", color2: "rgb(145, 204, 117, 0.2)" }))
 
-      const memoryGauge = echarts.init(memoryGaugeRef.value)
-      memoryGauge.setOption({
-        series: [
-          {name: 'Memory', data: [{ value: 50, name: 'Memory' }], axisLine: { lineStyle: { width: 2, color: [[1, 'green']] }}, ...gaugeOption }
-        ]
-      })
+      const bandwidthGauge = echarts.init(bandwidthGaugeRef.value);
+      bandwidthGauge.setOption(generateGaugeOption({ name: 'BW', color1: "rgb(250, 200, 88)", color2: "rgb(250, 200, 88, 0.2)" }))
 
-      const bandwidthGauge = echarts.init(bandwidthGaugeRef.value)
-      bandwidthGauge.setOption({
-        series: [
-          {name: 'Bandwidth', data: [{ value: 50, name: 'BW' }], axisLine: { lineStyle: { width: 2, color: [[1, 'blue']] } }, ...gaugeOption }
-        ]
-      })
       return { resourceChart, cpuGauge, memoryGauge, bandwidthGauge }
-    }
-
-    const onClose = () => {
-      emit('close');
     }
 
     onMounted(async () => {
       setTimeout(() => {
         const { resourceChart, bandwidthGauge, memoryGauge, cpuGauge } = showResource()
         controller.initChart({ memoryChart: resourceChart, bandwidthGauge, memoryGauge, cpuGauge })
-      }, 300);
+      }, 300)
     })
 
     return {
       resourceContainerRef,
-      visible,
       cpuGaugeRef,
       memoryGaugeRef,
       bandwidthGaugeRef,
-      showResource,
-      onClose,
+      showResource
     }
   },
 })
 </script>
 
+
 <style lang="scss" scoped>
-#cpuGauge-container, #memoryGauge-container, #bandwidthGauge-container {
-  width: 120px;
-  height: 120px;
+#resource-wrapper, #resource-container {
+  width: 100%;
+  height: 100%;
+  background-color: #FFFFFF;
   position: relative;
+  border-radius: 4px;
 }
 
-#cpuGauge-container {
-  top: -260px;
-  left: 100px;
+#resource-statement-container {
+  width: 40%;
+  height: 20%;
+  position: relative;
+  top: -95%;
+  left: 60%;
 }
 
-#memoryGauge-container {
-  top: -380px;
-  left: 200px;
+#cpu-gauge-container {
+  width: 14%;
+  height: 25%;
+  position:relative;
+  top: -90%;
+  left: 20%
 }
 
-#bandwidthGauge-container {
-  top: -500px;
-  left: 300px;
+#memory-gauge-container {
+  width: 14%;
+  height: 25%;
+  position:relative;
+  top: -115%;
+  left: 40%
+}
+
+#bandwidth-gauge-container {
+  width: 14%;
+  height: 25%;
+  position:relative;
+  top: -140%;
+  left: 60%
+}
+
+.resource-statement-text {
+  float: right;
+  padding-right: 5%;
+  font-size: 1.5vh;
 }
   
-</style>
+  </style>

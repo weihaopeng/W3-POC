@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-  div(ref="networkContainerRef" id="network-container" style="width: 960px; height: 720px")
+  div(ref="networkContainerRef" id="network-container" style="width: 100%; height: 100%")
 </template>
 
 <script>
@@ -21,8 +21,7 @@ export default defineComponent({
     async function registerMap() {
       const {data: worldGeoJson} = await Promise.race([
         axios.get('https://ghproxy.com/https://raw.githubusercontent.com/apache/echarts/29a4fe91f7cf59ea347e066bb241346f0b1bde75/test/data/map/json/world.json'),
-        axios.get('https://raw.githubusercontent.com/apache/echarts/29a4fe91f7cf59ea347e066bb241346f0b1bde75/test/data/map/json/world.json'),
-        axios.get('https://cdn.githubjs.cf/apache/echarts/raw/master/test/data/map/json/world.json'),
+        axios.get('https://raw.githubusercontent.com/apache/echarts/29a4fe91f7cf59ea347e066bb241346f0b1bde75/test/data/map/json/world.json')
       ]);
       echarts.registerMap('worldCustom', worldGeoJson)
       return true
@@ -35,7 +34,7 @@ export default defineComponent({
           map: 'worldCustom',
           shading: 'realistic',
           silent: true,
-          environment: '#333',
+          environment: '#3D3F50',
           realisticMaterial: {
             roughness: 0.8,
             metalness: 0,
@@ -64,7 +63,7 @@ export default defineComponent({
             panSensitivity: 0,
           },
           itemStyle: {
-            color: '#000',
+            color: '#3D3F50',
           },
           regionHeight: 0.5,
         },
@@ -75,17 +74,18 @@ export default defineComponent({
             coordinateSystem: 'geo3D',
             effect: {
               show: true,
-              trailWidth: 1,
-              trailOpacity: 0.5,
+              trailWidth: 2,
+              trailOpacity: 1,
               trailLength: 0.2,
               constantSpeed: 5,
               // period: 1
             },
             blendMode: 'lighter',
             lineStyle: {
-              width: 0.2,
-              opacity: 0.05,
+              // width: 0.2,
+              opacity: 0,
             },
+            silent: true,
             data: [],
           },
         ],
@@ -115,7 +115,7 @@ export default defineComponent({
     onMounted(async () => {
       await registerMap()
       const networkChart = await showNetwork()
-      controller.initChart({networkChart})
+      controller.initChart({ networkChart })
     })
 
     return {

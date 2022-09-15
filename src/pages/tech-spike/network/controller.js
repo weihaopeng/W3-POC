@@ -64,7 +64,6 @@ class Controller extends EventEmitter {
   }
 
   _redrawCPU() {
-
     const now = Date.now()
     const cpuUsage = 10 * Math.random();
     const memoryUsage = 10 + 10 * Math.random();
@@ -96,7 +95,7 @@ class Controller extends EventEmitter {
   }
 
   _redrawPerformance() {
-    if (!this.performanceChart || !this.performanceWithAttackerChart) return
+    if (!this.performanceChart) return
     const now = Date.now()
 
     const departureMessagesLastSec = this.tps * (this.nodes.length - 1)
@@ -137,7 +136,7 @@ class Controller extends EventEmitter {
     const swarms = this.swarms;
     for (let swarm of swarms) {
       let nodes = swarm.nodes;
-      nodes = _.sampleSize(nodes, nodes.length < 100 ? nodes.length : (100 + (nodes.length - 100) / 20));
+      nodes = _.sampleSize(nodes, nodes.length < 50 ? nodes.length : (50 + (nodes.length - 50) / 20));
 
       let departNodesTotal = Math.floor(this.tps / swarms.length);
       departNodesTotal =departNodesTotal < 5 ? 5 : departNodesTotal > 10 ? 10 : departNodesTotal
@@ -181,8 +180,8 @@ class Controller extends EventEmitter {
     const generatedData = this.networkChartData.map((d) => {
       return {
         coords: [d.from, d.to],
-        lineStyle: { color: d.isAttackMsg ? 'red' : 'rgb(50, 50, 150)' },
-        opacity: 0.05
+        lineStyle: { color: d.isAttackMsg ? '#FF4343' : '#57F0FF' },
+        opacity: 1
       }
     })
     redrawNetworkDebounce(this.networkChart, generatedData)

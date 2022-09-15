@@ -1,145 +1,130 @@
 <template lang="pug">
-ACard(style="width: 720px; height: 360px;" :bordered="false")
-  //- template(#extra)
-  //-   a(href="#" @click="onCLose") close
-  //- template(#title)
-  //-   div(style="width: 100%") performance
-  div
-    #performance-container(ref="performanceContainerRef" style="width: 100%; height: 360px")
+#performance-title-container
+  #performance-chart-container(ref="performanceContainerRef")
+  #performance-statement-container
+    .performance-statement-text {{ Number.parseInt(config.nodeScale).toLocaleString() }} nodes in {{ Number.parseInt(config.swarmScale).toLocaleString() }} swarms
+    .performance-statement-text sample rate 20 per second
+    .performance-statement-text(v-if="config.isAttackSimulate && config.startAttackSimulate" style="color: #FF0000;")
+      | Attack Success Probability: 1/10
+      sup 15
+    .performance-statement-text(v-if="config.isAttackSimulate && config.startAttackSimulate" style="color: #FF0000;") 1 in 1.4 billion years
 </template>
 
 <script>
-import { computed, defineComponent, onMounted, ref, watch } from 'vue'
+import { defineComponent, onMounted, ref, watch } from 'vue'
 import * as echarts from 'echarts'
-import 'echarts-gl'
-import controller from "@/pages/tech-spike/network/controller.js";
+import controller from '@/pages/tech-spike/network/controller.js'
 
 export default defineComponent({
   name: 'Performance',
   props: {
-    performanceVisible: Boolean,
     config: Object
   },
-  emits: ["close"],
-  setup: (props, { emit }) => {
+  emits: ['changeConfig'],
+  setup: (props) => {
     const performanceContainerRef = ref(null)
-    const visible = ref(props.performanceVisible)
-
-    watch(
-      () => props.performanceVisible,
-      () => {
-        visible.value = props.performanceVisible
-      }
-    )
-
-    const subTitleText = computed(() => {
-      const text = [
-        `${Number.parseInt(props.config.nodeScale).toLocaleString()} nodes in ${Number.parseInt(props.config.swarmScale).toLocaleString()} swarms`,
-        `sample rate 20 per second`
-      ]
-      if (props.config.attackType)
-        text.push(
-          `{important|Attack Success Probability： 1/10}{sup|15}`,
-          `                          {important|1 in 1.4 billion} years`
-        )
-      return text;
-    })
 
     function showPerformance() {
       const performanceChart = echarts.init(performanceContainerRef.value)
-      const series = [
-        {name: 'In_all', type: 'line', showSymbol: false, data: [{name: 'init1', value: [new Date().toString(), 0]}]},
-        {name: 'Out_all', type: 'line', showSymbol: false, data: [{name: 'init2', value: [new Date().toString(), 0]}]}
-      ]
-      const legend = ['In_all', 'Out_all']
 
-      if (props.config.attackType) {
-        legend.push('In_forge', 'Out_forge')
-        series.push({name: 'In_forge', type: 'line', showSymbol: false, data: []});
-        series.push({name: 'Out_forge', type: 'line', showSymbol: false, data: []});
-      }
+      const generateOption = (isAttackSimulate) => {
+        const series = [
+          { name: 'In_all', type: 'line', symbol: 'none', data: [{ name: 'init1', value: [new Date().toString(), 0] }] },
+          { name: 'Out_all', type: 'line', symbol: 'none', data: [{ name: 'init2', value: [new Date().toString(), 0] }] }
+        ];
+        const legend = ['In_all', 'Out_all']
 
-      performanceChart.setOption({
-        title: {
-          text: 'w3 network performance',
-          subtext: subTitleText.value.join('\n'),
-          left: 'center',
-          subtextStyle: {
-            rich: {
-              important: {
-                color: 'red'
-              },
-              sup: {
-                color: 'red',
-                fontSize: 8,
-                verticalAlign: 'top'
-              }
+        if (isAttackSimulate) {
+          legend.push('In_forge', 'Out_forge')
+          series.push({ name: 'In_forge', type: 'line', symbol: 'none', data: [] });
+          series.push({ name: 'Out_forge', type: 'line', symbol: 'none', data: [] });
+        }
+        return {
+          title: {
+            text: 'W3 network performance',
+            // subtext: subTitleText.value.join('\n'),
+            left: '2.5%',
+            top: '4.6%',
+            textStyle: {
+              color: '#000000',
+              fontWeight: 'bold',
+              fontSize: Math.ceil(performanceContainerRef.value.offsetWidth / 40)
             }
-          }
-        },
-        tooltip: {
-          trigger: 'axis',
-        },
-        legend: {
-          data: legend,
-          top: props.config.attackType ? '25%' : '15%'
-        },
-        xAxis: {
-          type: 'time',
-          splitLine: {
-            show: false,
           },
-        },
-        yAxis: {
-          type: 'value',
-          boundaryGap: [0, '100%'],
-          boundaryGap: [0, '60%'],
-          splitLine: {
-            show: false,
+          tooltip: {
+            trigger: 'axis'
           },
-        },
-        grid: {
-          left: '15%'
-        },
-        series
-      })
+          legend: {
+            data: legend,
+            top: '14%',
+            left: '2.2%'
+          },
+          xAxis: {
+            type: 'time',
+            splitLine: {
+              show: false
+            }
+          },
+          yAxis: {
+            type: 'value',
+            boundaryGap: [0, '60%'],
+            splitLine: {
+              show: false
+            },
+          },
+          grid: {
+            left: '12%',
+            top: '25%'
+          },
+          series
+        }
+      }
+      performanceChart.setOption(generateOption(props.config.isAttackSimulate))
 
-      watch(() => props.config.nodeScale, () => {
-        performanceChart.setOption({
-          title: {
-            subtext: subTitleText.value.join('\n'),
-          }
-        })
+      watch(() => props.config.startAttackSimulate, () => {
+        controller.withAttacker = props.config.startAttackSimulate
+        controller.performanceWithAttackerChartInboundData = []
+        controller.performanceWithAttackerChartOutboundData = []
+        performanceChart.clear()
+        performanceChart.setOption(generateOption(props.config.isAttackSimulate))
       })
-
-      watch(() => props.config.swarmScale, () => {
-        performanceChart.setOption({
-          title: {
-            subtext: subTitleText.value.join('\n'),
-          }
-        })
-      })
-
       return performanceChart
-    }
-
-    const onClose = () => {
-      emit('close');
     }
 
     onMounted(async () => {
       setTimeout(() => {
         const performanceChart = showPerformance()
         controller.initChart({ performanceChart, withAttacker: !!props.config.attackType })
-      }, 300);
+      }, 300)
     })
 
     return {
       performanceContainerRef,
-      visible,
-      showPerformance,
-      onClose
+      showPerformance
+      
     }
   }
 })
 </script>
+
+<style lang="scss">
+  #performance-chart-container {
+    width: 100%;
+    height: 100%;
+    background-color: #FFFFFF;
+    position: relative;
+    border-radius: 4px;
+  }
+  #performance-statement-container {
+    width: 40%;
+    height: 20%;
+    position: relative;
+    top: -95%;
+    left: 60%;
+  }
+  .performance-statement-text {
+    float: right;
+    padding-right: 5%;
+    font-size: 1.5vh;
+  }
+</style>
