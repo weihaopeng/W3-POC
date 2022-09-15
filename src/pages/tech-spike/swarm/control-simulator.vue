@@ -89,7 +89,7 @@ export default defineComponent({
     const mousePos = ref({ x: 0, y: 0 })
     const initSimulatorPos = ref({})
     const route = useRoute()
-    const isPresent = ref(route.query.present)
+    const isPresent = ref(!route.query.manual)
 
     const initCheckAllTo = (checkAll = true) => {
       for (const node of nodes) {

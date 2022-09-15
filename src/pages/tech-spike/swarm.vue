@@ -83,7 +83,7 @@
           div
             span Fk 
             span.swarm-tooltip-legend__description → Chain forked
-        AButton(@click="clearSwarmPainter" type="primary" style="position: absolute; top: 0; transform: translateY(-100%)" v-if="!route.query.present") Clear All
+        AButton(@click="clearSwarmPainter" type="primary" style="position: absolute; top: 0; transform: translateY(-100%)" v-if="route.query.manual") Clear All
       
     .bp-column
       .bp-column__title bp
