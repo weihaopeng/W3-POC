@@ -1,13 +1,13 @@
 <template lang="pug">
-#performance-title-container
-  #performance-chart-container(ref="performanceContainerRef")
-  #performance-statement-container
+.performance-chart-wrapper
+  .performance-chart-container(ref="performanceContainerRef")
+  .performance-statement-container
     .performance-statement-text {{ Number.parseInt(config.nodeScale).toLocaleString() }} nodes in {{ Number.parseInt(config.swarmScale).toLocaleString() }} swarms
     .performance-statement-text sample rate 20 per second
-    .performance-statement-text(v-if="displayAttackLine" style="color: #FF0000;")
+    .performance-statement-text.highlight(v-if="displayAttackLine")
       | Attack Success Probability: 1/10
       sup 15
-    .performance-statement-text(v-if="displayAttackLine" style="color: #FF0000;") 1 in 1.4 billion years
+    .performance-statement-text.highlight(v-if="displayAttackLine") 1 in 1.4 billion years
 </template>
 
 <script>
@@ -27,6 +27,7 @@ export default defineComponent({
 
     function showPerformance() {
       const performanceChart = echarts.init(performanceContainerRef.value)
+      console.log(Math.ceil(performanceContainerRef.value.offsetWidth / 40))
 
       const generateOption = (startAttackSimulate) => {
         const series = [
@@ -49,7 +50,7 @@ export default defineComponent({
             textStyle: {
               color: '#000000',
               fontWeight: 'bold',
-              fontSize: Math.ceil(performanceContainerRef.value.offsetWidth / 40)
+              fontSize: 20
             }
           },
           tooltip: {
@@ -118,23 +119,26 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-  #performance-chart-container {
-    width: 100%;
-    height: 100%;
+  .performance-chart-wrapper {
     background-color: #FFFFFF;
     position: relative;
     border-radius: 4px;
-  }
-  #performance-statement-container {
-    width: 40%;
-    height: 20%;
-    position: relative;
-    top: -95%;
-    left: 60%;
-  }
-  .performance-statement-text {
-    float: right;
-    padding-right: 5%;
-    font-size: 1.8vh;
+    .performance-chart-container {
+      width: 100%;
+      height: 100%;
+    }
+    .performance-statement-container {
+      position: absolute;
+      top: 4.6%;
+      right: 2.5%;
+      .performance-statement-text {
+        text-align: right;
+        font-size: 20px;
+        white-space: nowrap;
+        &.highlight {
+          color: #FF1D1D;
+        }
+      }
+    }
   }
 </style>

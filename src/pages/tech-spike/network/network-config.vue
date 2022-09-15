@@ -135,6 +135,8 @@ export default defineComponent({
 
   .ant-btn {
     background: #3C7BFD;
+    border-radius: 4px;
+    min-width: 110px;
   }
 }
 

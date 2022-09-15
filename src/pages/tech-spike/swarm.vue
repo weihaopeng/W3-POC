@@ -395,7 +395,6 @@ export default defineComponent({
 </script>
   
 <style lang="scss">
-@import './swarm/basic.scss';
 @import './swarm/swarm.scss';
 .swarm {
   height: 100%;
@@ -540,12 +539,12 @@ export default defineComponent({
     border-bottom: solid 1px #1890ff;
     margin-right: 8px;
     &:hover {
-      border-color: $primary-hover-color;
-      color: $primary-hover-color;
+      border-color: #40a9ff;
+      color: #40a9ff;
     }
     &:active {
-      border-color: $primary-active-color;
-      color: $primary-active-color;
+      border-color: #096dd9;
+      color: #096dd9;
     }
   }
 }

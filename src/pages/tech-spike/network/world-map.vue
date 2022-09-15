@@ -1,6 +1,6 @@
 <template lang="pug">
-div
-  div(ref="networkContainerRef" id="network-container" style="width: 100%; height: 100%")
+.map-cvs-wrapper
+  .map-cvs(ref="networkContainerRef")
 </template>
 
 <script>
@@ -40,7 +40,7 @@ export default defineComponent({
             metalness: 0,
           },
           postEffect: {
-            enable: true,
+            enable: false,
           },
           groundPlane: {
             show: false,
@@ -127,3 +127,15 @@ export default defineComponent({
   }
 })
 </script>
+
+<style lang="scss" scoped>
+  .map-cvs-wrapper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    .map-cvs {
+      width: 100%;
+      aspect-ratio: 1.6;
+    }
+  }
+</style>

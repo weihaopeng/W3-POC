@@ -1,14 +1,17 @@
 <template lang="pug">
-#benchmark-main
-  #config-button
-    AButton(@click="showConfig")
+.network
+  .network-map-container
+    ChainInfo.network-map-header(:chain-height="config.chainHeight" :total-transactions="config.totalTransactions")
+    WorldMap.network-map-cvs(:config="config")
+  .network-line-charts-group
+    Performance.network-performance(:performance-visible="visible.performance" @close="closePerformance" :config="config")
+    Resource.network-resource(:resource-visible="visible.resource" @close="closeResource" :config="config")
+
+  .config-button
+    AButton(@click="showConfig" size="large")
       template(#icon)
         SettingOutlined
       | Config
-  BenchmarkHeader#benchmark-header(:chain-height="config.chainHeight" :total-transactions="config.totalTransactions")
-  WorldMap#benchmark-map(:config="config")
-  Performance#benchmark-performance(:performance-visible="visible.performance" @close="closePerformance" :config="config")
-  Resource#benchmark-resource(:resource-visible="visible.resource" @close="closeResource" :config="config")
 
 ADrawer.network-config-drawer(title="W3 Network Configuration" v-model:visible="configVisible" placement="left" @close="onConfigClose")
   NetworkConfig(:default-config="config" @change-config="onChangeConfig" @changeForgeAccountRatio="onChangeForgeAccountRatio")
@@ -21,7 +24,7 @@ import Performance from '@/pages/tech-spike/network/performance.vue'
 import Resource from '@/pages/tech-spike/network/resource.vue'
 import NetworkConfig from '@/pages/tech-spike/network/network-config.vue'
 import controller from '@/pages/tech-spike/network/controller.js'
-import BenchmarkHeader from '@/pages/tech-spike/network/benchmark-header.vue'
+import ChainInfo from '@/pages/tech-spike/network/chain-info.vue'
 import { SettingOutlined } from '@ant-design/icons-vue'
 import { useRoute } from 'vue-router'
 import { isNil } from 'lodash'
@@ -33,7 +36,7 @@ export default defineComponent({
     Performance,
     Resource,
     NetworkConfig,
-    BenchmarkHeader,
+    ChainInfo,
     SettingOutlined
   },
 
@@ -155,47 +158,53 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-  #benchmark-main {
-    background-color: rgb(56, 59, 85);
+  .network {
     width: 100%;
     height: 100%;
-    border-radius: 10px;
-    #benchmark-header {
+    display: flex;
+    padding: 20px 20px 40px 30px;
+    &-map-container {
+      height: 100%;
       display: flex;
-      width: 54%;
-      height: 7%;
-      background-color: #FFFFFF;
-      position: relative;
-      left: 1.5%;
-      top: 1%;
-      z-index: 1;
+      flex-direction: column;
+      flex-grow: 1;
+      .network-map-header {
+        display: flex;
+        width: 100%;
+        height: 6.7vh;
+        display: flex;
+        background-color: #FFFFFF;
+        position: relative;
+      }
+      .network-map-cvs {
+        width: 100%;
+        flex-grow: 1;
+      }
     }
-    #config-button {
+    &-line-charts-group {
+      width: 40vw;
+      height: 100%;
+      margin-left: 1.5vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      .network-performance, .network-resource {
+        width: 100%;
+        height: calc(50% - 1.25vh);
+      }
+    }
+    .config-button {
       position: absolute;
       top: 85%;
-      z-index: 1;
-    }
-    #benchmark-map {
-      width: 54%;
-      height: 65%;
-      position: relative;
-      top: 6%;
-      left: 1.5%;
-    }
-    #benchmark-performance {
-      height: 45.5%;
-      width: 40%;
-      position: relative;
-      top: -71%;
-      left: 58%
-    }
-    
-    #benchmark-resource {
-      height: 45.5%;
-      width: 40%;
-      position: relative;
-      top: -69%;
-      left: 58%
+      left: 0;
+      .ant-btn {
+        border-radius: 0 4px 4px 0;
+        border-left: none;
+        &:hover {
+          border-color: #3C7BFD;
+          color: #3C7BFD;
+        }
+      }
     }
   }
 </style>
@@ -204,6 +213,12 @@ export default defineComponent({
 .network-config-drawer {
   .ant-drawer-header {
     height: 90px;
+  }
+  .ant-drawer-body {
+    padding: 12px 30px;
+    .ant-form-item-label {
+      padding-bottom: 2px;
+    }
   }
   .ant-drawer-title {
     font-size: 20px;

@@ -1,12 +1,13 @@
 <template lang="pug">
-#resource-wrapper
-  #resource-container(ref="resourceContainerRef")
-  #resource-statement-container
+.resource-charts-group
+  .resource-chart-container(ref="resourceContainerRef")
+  .resource-statement-container
     .resource-statement-text {{ Number.parseInt(config.nodeScale).toLocaleString() }} nodes in {{ Number.parseInt(config.swarmScale).toLocaleString() }} swarms
     .resource-statement-text sample rate 20 per second
-  #cpu-gauge-container(ref="cpuGaugeRef")
-  #memory-gauge-container(ref="memoryGaugeRef")
-  #bandwidth-gauge-container(ref="bandwidthGaugeRef")
+  .gauge-charts-group
+    .cpu-gauge-container(ref="cpuGaugeRef")
+    .memory-gauge-container(ref="memoryGaugeRef")
+    .bandwidth-gauge-container(ref="bandwidthGaugeRef")
 </template>
 
 <script>
@@ -36,7 +37,7 @@ export default defineComponent({
           textStyle: {
             color: '#000000',
             fontWeight: 'bold',
-            fontSize: Math.ceil(resourceContainerRef.value.offsetWidth / 40)
+            fontSize: 20
           }
         },
         tooltip: {
@@ -88,7 +89,7 @@ export default defineComponent({
               },
             },
             detail: {
-              fontSize: Math.ceil(resourceContainerRef.value.offsetHeight / 18),
+              fontSize: 24,
                 offsetCenter: [0, '-20%'],
                 valueAnimation: true,
                 formatter: function (value) {
@@ -115,8 +116,8 @@ export default defineComponent({
                 show: false
               },
               title: {
-                fontSize: Math.ceil(resourceContainerRef.value.offsetHeight / 30),
-                offsetCenter: [0, '27%']
+                fontSize: 14,
+                offsetCenter: [0, '30%']
               },
               data: [{ value: 50, name }],
               axisLine: { lineStyle: { width: 2 ,color: [[1, color2]] } },
@@ -156,50 +157,37 @@ export default defineComponent({
 
 
 <style lang="scss" scoped>
-#resource-wrapper, #resource-container {
-  width: 100%;
-  height: 100%;
-  background-color: #FFFFFF;
-  position: relative;
-  border-radius: 4px;
-}
-
-#resource-statement-container {
-  width: 40%;
-  height: 20%;
-  position: relative;
-  top: -95%;
-  left: 60%;
-}
-
-#cpu-gauge-container {
-  width: 14%;
-  height: 25%;
-  position:relative;
-  top: -90%;
-  left: 20%
-}
-
-#memory-gauge-container {
-  width: 14%;
-  height: 25%;
-  position:relative;
-  top: -115%;
-  left: 40%
-}
-
-#bandwidth-gauge-container {
-  width: 14%;
-  height: 25%;
-  position:relative;
-  top: -140%;
-  left: 60%
-}
-
-.resource-statement-text {
-  float: right;
-  padding-right: 5%;
-  font-size: 1.8vh;
-}
-  
-  </style>
+  .resource-charts-group {
+    background-color: #FFFFFF;
+    position: relative;
+    border-radius: 4px;
+    .resource-chart-container {
+      width: 100%;
+      height: 100%;
+    }
+    .resource-statement-container {
+      position: absolute;
+      top: 4.6%;
+      right: 2.5%;
+      .resource-statement-text {
+        text-align: right;
+        font-size: 20px;
+        white-space: nowrap;
+      }
+    }
+    .gauge-charts-group {
+      position: absolute;
+      width: 100%;
+      height: 25%;
+      top: 25%;
+      padding: 0 12.5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+    }
+    .cpu-gauge-container, .memory-gauge-container, .bandwidth-gauge-container {
+      width: 14%;
+      height: 100%;
+    }
+  }
+</style>
