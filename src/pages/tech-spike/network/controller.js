@@ -54,15 +54,16 @@ class Controller extends EventEmitter {
     return _.concat(this.honestNodes, this.attackerNodes)
   }
 
-  initChart({ networkChart, performanceChart, memoryChart, withAttacker, bandwidthGauge, memoryGauge, cpuGauge }) {
+  initChart({ networkChart, performanceChart, resourceChart, withAttacker, bandwidthGauge, memoryGauge, cpuGauge }) {
     if (networkChart) this.networkChart = networkChart
     if (performanceChart) this.performanceChart = performanceChart
-    if (memoryChart) this.memoryChart = memoryChart
+    if (resourceChart) this.resourceChart = resourceChart
     if (bandwidthGauge) this.bandwidthGauge = bandwidthGauge
     if (memoryGauge) this.memoryGauge = memoryGauge
     if (cpuGauge) this.cpuGauge = cpuGauge
     if (!_.isNil(withAttacker)) (this.withAttacker = withAttacker)
     this._redrawNetwork()
+    this.bindResize()
   }
 
   _redrawCPU() {
@@ -84,7 +85,7 @@ class Controller extends EventEmitter {
       name: now.toString(),
       value: [new Date(), bandwidthUsage],
     })
-    this.memoryChart && this.memoryChart.setOption({
+    this.resourceChart && this.resourceChart.setOption({
       series: [
         { data: this.cpuData },
         { data: this.memoryData },
@@ -263,6 +264,17 @@ class Controller extends EventEmitter {
 
   stopGenerateTx() {
     if (this.timer) clearInterval(this.timer)
+  }
+
+  bindResize() {
+    window.addEventListener('resize', () => {
+      this.networkChart?.resize()
+      this.performanceChart?.resize()
+      this.resourceChart?.resize()
+      this.bandwidthGauge?.resize()
+      this.memoryGauge?.resize()
+      this.cpuGauge?.resize()
+    })
   }
 }
 

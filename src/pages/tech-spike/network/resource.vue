@@ -139,7 +139,7 @@ export default defineComponent({
     onMounted(async () => {
       setTimeout(() => {
         const { resourceChart, bandwidthGauge, memoryGauge, cpuGauge } = showResource()
-        controller.initChart({ memoryChart: resourceChart, bandwidthGauge, memoryGauge, cpuGauge })
+        controller.initChart({ resourceChart, bandwidthGauge, memoryGauge, cpuGauge })
       }, 300)
     })
 
