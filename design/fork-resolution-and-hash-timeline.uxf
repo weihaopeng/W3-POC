@@ -68,12 +68,12 @@ group=2</panel_attributes>
   <element>
     <id>Text</id>
     <coordinates>
-      <x>650</x>
+      <x>560</x>
       <y>150</y>
-      <w>300</w>
+      <w>390</w>
       <h>30</h>
     </coordinates>
-    <panel_attributes>* W3 fork resolution &amp; hash acks *
+    <panel_attributes>* W3 fork resolution &amp; Pre-Hash Acknoledgements *
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
@@ -149,7 +149,7 @@ fg=blue</panel_attributes>
     </coordinates>
     <panel_attributes>*f'*
 prove every c, w of b1 has received b1' in e1 (epoch 1), 
-i.e. show them within b1''s acks
+i.e. show them within b1''s PHAs (Pre-Hash AcknowledgementS)
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
@@ -179,114 +179,108 @@ txs
 -
 witness-records
 -
-acks: [{node, sig}]
+PHAs: [{pk, sig}]
 </panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>470</x>
+      <x>460</x>
       <y>440</y>
       <w>680</w>
       <h>30</h>
     </coordinates>
-    <panel_attributes>lt=-&gt;
-group=3</panel_attributes>
+    <panel_attributes>lt=-&gt;</panel_attributes>
     <additional_attributes>10.0;10.0;660.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>470</x>
+      <x>460</x>
       <y>570</y>
       <w>680</w>
       <h>30</h>
     </coordinates>
-    <panel_attributes>lt=-&gt;
-group=3</panel_attributes>
+    <panel_attributes>lt=-&gt;</panel_attributes>
     <additional_attributes>10.0;10.0;660.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Text</id>
     <coordinates>
-      <x>400</x>
+      <x>390</x>
       <y>440</y>
       <w>70</w>
       <h>30</h>
     </coordinates>
     <panel_attributes>*Sender*
-style=wordwrap
-group=3</panel_attributes>
+style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Text</id>
     <coordinates>
-      <x>380</x>
+      <x>370</x>
       <y>570</y>
       <w>90</w>
       <h>30</h>
     </coordinates>
     <panel_attributes>*Receiver*
-style=wordwrap
-group=3</panel_attributes>
+style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>510</x>
+      <x>500</x>
       <y>440</y>
       <w>180</w>
       <h>160</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-HM1
-Hash of Message 1
-group=3</panel_attributes>
+Hash of Message 1</panel_attributes>
     <additional_attributes>10.0;10.0;60.0;140.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>760</x>
+      <x>790</x>
       <y>440</y>
       <w>130</w>
       <h>160</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 M1
-Message 1
-group=3</panel_attributes>
+Message 1</panel_attributes>
     <additional_attributes>10.0;10.0;60.0;140.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>660</x>
+      <x>650</x>
       <y>440</y>
-      <w>80</w>
+      <w>170</w>
       <h>160</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-ack
-HM1
-group=3</panel_attributes>
+
+
+PHA
+Pre-Hash 
+Acknowledgement</panel_attributes>
     <additional_attributes>10.0;140.0;50.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Text</id>
     <coordinates>
-      <x>520</x>
+      <x>510</x>
       <y>590</y>
       <w>590</w>
       <h>60</h>
     </coordinates>
     <panel_attributes>Receiver must ack, otherwise he can't add the tx/block in the message to its chain, 
 and an ack before real message prevents Receiver cheating, otherwise it may miss acks required by its tx/block's legitimation.
-style=wordwrap
-group=3</panel_attributes>
+style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
 </diagram>
