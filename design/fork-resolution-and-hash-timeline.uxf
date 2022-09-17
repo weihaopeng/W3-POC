@@ -68,8 +68,8 @@ group=2</panel_attributes>
   <element>
     <id>Text</id>
     <coordinates>
-      <x>580</x>
-      <y>140</y>
+      <x>650</x>
+      <y>150</y>
       <w>300</w>
       <h>30</h>
     </coordinates>
@@ -145,10 +145,11 @@ fg=blue</panel_attributes>
       <x>560</x>
       <y>320</y>
       <w>540</w>
-      <h>50</h>
+      <h>60</h>
     </coordinates>
     <panel_attributes>*f'*
-prove every/most/one-of c, w of b1 has received b1' in e1 (epoch 1)
+prove every c, w of b1 has received b1' in e1 (epoch 1), 
+i.e. show them within b1''s acks
 style=wordwrap</panel_attributes>
     <additional_attributes/>
   </element>
@@ -167,9 +168,9 @@ style=wordwrap</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>770</x>
-      <y>220</y>
-      <w>160</w>
+      <x>980</x>
+      <y>230</y>
+      <w>150</w>
       <h>90</h>
     </coordinates>
     <panel_attributes>Block
@@ -178,7 +179,7 @@ txs
 -
 witness-records
 -
-acks
+acks: [{node, sig}]
 </panel_attributes>
     <additional_attributes/>
   </element>
@@ -279,12 +280,11 @@ group=3</panel_attributes>
     <coordinates>
       <x>520</x>
       <y>590</y>
-      <w>410</w>
+      <w>590</w>
       <h>60</h>
     </coordinates>
-    <panel_attributes>Receiver must ack, otherwise he can't use message
-ack in advance prevents Receiver delibarately do not ack, 
-otherwise it may miss data needed in its bp/block
+    <panel_attributes>Receiver must ack, otherwise he can't add the tx/block in the message to its chain, 
+and an ack before real message prevents Receiver cheating, otherwise it may miss acks required by its tx/block's legitimation.
 style=wordwrap
 group=3</panel_attributes>
     <additional_attributes/>
