@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>460</x>
+      <y>200</y>
+      <w>80</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>tx' &lt; tx 
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>520</x>
+      <y>240</y>
+      <w>30</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>b2
+-
+
+group=2</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>470</x>
+      <y>240</y>
+      <w>70</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+group=2</panel_attributes>
+    <additional_attributes>10.0;10.0;50.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>450</x>
+      <y>240</y>
+      <w>30</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>b1
+-
+tx
+group=2</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>400</x>
+      <y>240</y>
+      <w>70</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+group=2</panel_attributes>
+    <additional_attributes>10.0;10.0;50.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>580</x>
+      <y>140</y>
+      <w>300</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>* W3 fork resolution &amp; hash acks *
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>380</x>
+      <y>240</y>
+      <w>30</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>520</x>
+      <y>310</y>
+      <w>30</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>b2'
+-
+fg=blue</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>450</x>
+      <y>310</y>
+      <w>30</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>b1'
+-
+tx'
+fg=blue</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>400</x>
+      <y>240</y>
+      <w>70</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fg=blue</panel_attributes>
+    <additional_attributes>10.0;10.0;30.0;10.0;30.0;80.0;50.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>470</x>
+      <y>310</y>
+      <w>70</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fg=blue</panel_attributes>
+    <additional_attributes>10.0;10.0;50.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>560</x>
+      <y>320</y>
+      <w>540</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>*f'*
+prove every/most/one-of c, w of b1 has received b1' in e1 (epoch 1)
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>560</x>
+      <y>240</y>
+      <w>40</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*f*
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>770</x>
+      <y>220</y>
+      <w>160</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>Block
+-
+txs
+-
+witness-records
+-
+acks
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>470</x>
+      <y>440</y>
+      <w>680</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+group=3</panel_attributes>
+    <additional_attributes>10.0;10.0;660.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>470</x>
+      <y>570</y>
+      <w>680</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+group=3</panel_attributes>
+    <additional_attributes>10.0;10.0;660.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>400</x>
+      <y>440</y>
+      <w>70</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*Sender*
+style=wordwrap
+group=3</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>380</x>
+      <y>570</y>
+      <w>90</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>*Receiver*
+style=wordwrap
+group=3</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>510</x>
+      <y>440</y>
+      <w>180</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+HM1
+Hash of Message 1
+group=3</panel_attributes>
+    <additional_attributes>10.0;10.0;60.0;140.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>760</x>
+      <y>440</y>
+      <w>130</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+M1
+Message 1
+group=3</panel_attributes>
+    <additional_attributes>10.0;10.0;60.0;140.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>660</x>
+      <y>440</y>
+      <w>80</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+ack
+HM1
+group=3</panel_attributes>
+    <additional_attributes>10.0;140.0;50.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Text</id>
+    <coordinates>
+      <x>520</x>
+      <y>590</y>
+      <w>410</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Receiver must ack, otherwise he can't use message
+ack in advance prevents Receiver delibarately do not ack, 
+otherwise it may miss data needed in its bp/block
+style=wordwrap
+group=3</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

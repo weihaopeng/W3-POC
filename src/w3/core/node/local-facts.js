@@ -105,13 +105,6 @@ class LocalFacts extends EventEmitter2 {
     return txs.map(({ tx }) => tx).sort(Transaction.sort)
   }
 
-  async verifyAndUpdate (type, data, node, isForPreivousEpoch) {
-    return type === 'tx' ? this.verifyAndAddTx(data) :
-      type === 'bp' ? this.verifyBpAndAddTxs(data, node) :
-        type === 'block' ? this.verifyBlockAndAddTxs(data, node, isForPreivousEpoch) :
-          this.verifyForkAndAddTx(data, node)
-  }
-
   async verifyAndAddTx (tx, state = 'tx') {
     let valid = tx?.verify()
     let txRes = valid ? this.verifyThenUpdateOrAddTx(tx, state) : 'rejected'
