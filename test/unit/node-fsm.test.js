@@ -1,7 +1,8 @@
 import chai from 'chai'
 
 chai.should()
-import { FSM } from '../../lib/fsm/index.js'
+// import { FSM } from '../../lib/fsm/index.js'
+import { FSM } from '@mq/fsm'
 
 const { checkStateRoute } = FSM
 

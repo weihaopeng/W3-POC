@@ -1,6 +1,7 @@
 import { blake2b } from 'ethereum-cryptography/blake2b.js'
-import Wallet from 'ethereumjs-wallet'
+// import NodeWallet from 'ethereumjs-wallet'
 import { Account } from './core/entities/account.js'
+import '../../ethereumjs-wallet-bundle.js'
 
 const util = {
 
@@ -30,6 +31,7 @@ const util = {
   },
 
   getEthereumAccount() {
+    // const EthWallet = typeof window !== 'undefined' ? Wallet.default.generate() : NodeWallet.default.generate()
     const EthWallet = Wallet.default.generate()
     const publicKey = EthWallet.getPublicKey() // Buffer(64)
     const privateKey = EthWallet.getPrivateKey() // Buffer(32)
@@ -38,8 +40,30 @@ const util = {
     const privateKeyString = EthWallet.getPrivateKeyString() // Buffer(32)
     const addressString = EthWallet.getAddressString()
     return new Account({ address, publicKey, privateKey, addressString, publicKeyString, privateKeyString })
+    // if () {
+    //   const EthWallet = Wallet.default.generate()
+    //   const publicKey = EthWallet.getPublicKey() // Buffer(64)
+    //   const privateKey = EthWallet.getPrivateKey() // Buffer(32)
+    //   const address = EthWallet.getAddress()
+    //   const publicKeyString = EthWallet.getPublicKeyString() // Buffer(64)
+    //   const privateKeyString = EthWallet.getPrivateKeyString() // Buffer(32)
+    //   const addressString = EthWallet.getAddressString()
+    //   return new Account({ address, publicKey, privateKey, addressString, publicKeyString, privateKeyString })
+    // } else {
+    //   return new Promise((resolve, reject) => {
+    //     import('ethereumjs-wallet').then((Wallet) => {
+    //       const EthWallet = (Wallet.generate || Wallet.default.generate)()
+    //       const publicKey = EthWallet.getPublicKey()
+    //       const privateKey = EthWallet.getPrivateKey()
+    //       const address = EthWallet.getAddress()
+    //       const publicKeyString = EthWallet.getPublicKeyString()
+    //       const privateKeyString = EthWallet.getPrivateKeyString()
+    //       const addressString = EthWallet.getAddressString()
+    //       resolve(new Account({ address, publicKey, privateKey, addressString, publicKeyString, privateKeyString }))
+    //     })
+    //   })
+    // }
   }
-
 
 }
 

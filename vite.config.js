@@ -18,11 +18,15 @@ export default defineConfig({
   optimizeDeps: {
     esbuildOptions: {
       target: 'es2020'
-    }
+    },
+    include: ['@mq/fsm']
   },
   build: {
     target: 'es2020',
-    outDir: 'dist'
+    outDir: 'dist',
+    commonjsOptions: {
+      include: [/node_modules/, /lib/, /ethereumjs-util/]
+    }
   },
   plugins: [
     vue({

@@ -1,4 +1,4 @@
-import { EventEmitter } from 'node:events'
+// import { EventEmitter } from 'node:events'
 import _ from 'lodash'
 import { util } from '../util.js'
 import { W3Node } from './w3.node.js'

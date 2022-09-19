@@ -116,6 +116,8 @@ import nodes from './swarm/assets/nodes.json'
 import MessageHandler from './swarm/MessageHandler.js'
 import SwarmPainter from './swarm/painter/SwarmPainter.js'
 
+import { W3Swarm } from '@/w3/poc/index.js'
+
 export default defineComponent({
   name: 'Swarm',
   components: { ControlSimulator },
@@ -201,7 +203,21 @@ export default defineComponent({
       return baseTime.add(addTime, 'millisecond')
     }
 
-    onBeforeMount(() => mockData())
+    onBeforeMount(async () => {
+      mockData()
+
+      let NODES_AMOUNT = 16, TX_COUNT = 30,   COLLECTORS_AMOUNT = 2, WITNESSES_AMOUNT = 2
+      const EPOCH_TIME = 17 * (100 + 30)
+      const w3 = new W3Swarm({ NODES_AMOUNT })
+      const tps = TX_COUNT / (EPOCH_TIME / 1000) // @see design/w3-node-activities-and-messages.png
+      // const tps = TX_COUNT / (config.EPOCH_COLLECTING_TIME / 1000) // @see design/w3-node-activities-and-messages.png
+      const txAmount = Math.ceil(100 * tps)
+      await w3.init()
+      console.log('w3 swarm', w3, txAmount, tps)
+      await w3.sendFakeTxs(txAmount, tps)
+      w3.showCollectorsStatistic()
+      w3.showWitnessesStatistic()
+    })
 
     onMounted(() => {
       swarmPainter.value = new SwarmPainter(document.getElementById('swarm-node-cvs'), document.getElementById('swarm-tooltip-container'), document.getElementById('swarm-node-container'), nodes)

@@ -11,7 +11,7 @@ import Debug from 'debug'
 import { config } from '../../src/w3/poc/config.default.js'
 import { Epoch } from '../../src/w3/core/node/epoch/epoch.js'
 
-Debug.enable('w3:test')
+// Debug.enable('w3:test')
 const debug = Debug('w3:test')
 
 
@@ -52,7 +52,7 @@ describe('Full(Normal) Network Mode @issue#2 @issue#11', () => {
 
   after(() => w3.destroy())
 
-  it.skip('work normal to create blocks', async () => {
+  it('work normal to create blocks', async () => {
     debug('---- periodicEmitBlockMessage to send %s fake txs in %s tps, will create %s blocks, may end in %s s----', txAmount, tps, txAmount/TX_COUNT, txAmount / tps)
     await w3.sendFakeTxs(txAmount, tps)
     // await util.wait(Math.ceil(txAmount / TX_COUNT) * config.EPOCH_TIME)
