@@ -55,14 +55,14 @@ class SwarmPainter {
             color: 'transparent'
           },
           lineStyle: {
-            color: '#1890ff',
+            color: '#5b8ff9',
             width: 2,
             opacity: 0
           },
           selectedMode: 'multiple',
           select: {
             lineStyle: {
-              color: '#1890ff',
+              color: '#5b8ff9',
               opacity: 1
             }
           }

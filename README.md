@@ -7,7 +7,19 @@ A large-scale P2P application protocol testbed based on IPFS and Libp2p for test
 ![img](design/W3%20POC%20ETH%20Hackathon.png)
 
 ## Getting started
-[TODO]: usages
+### develop local
+```
+npm install
+npm run periodicEmitBlockMessage
+```
+Then visit http://localhost:3000 (default)
+### build and preview local
+```
+npm run build
+npm run serve
+```
+Then visit http://localhost:4173 (default)
+
 [TODO: add a part of how to build & deploy the whole project]: @jian
 
 ## Documentation

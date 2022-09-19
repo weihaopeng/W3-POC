@@ -406,10 +406,15 @@ export default defineComponent({
     color: #fff;
     font-size: 24px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: center;
     margin: 16px 0;
+    font-weight: 700;
     &__operation {
+      position: absolute;
+      right: 30px;
       .ant-btn {
+        vertical-align: middle;
         margin-left: 24px;
       }
       .play-btn, .stop-btn, .clear-btn {
@@ -454,7 +459,7 @@ export default defineComponent({
     flex-direction: column;
     align-items: center;
     &__config {
-      font-size: 12px;
+      font-size: 14px;
       color: rgba(255, 255, 255, 0.5);
       margin: 15px 0 12px;
       text-align: center;
@@ -498,18 +503,18 @@ export default defineComponent({
         border-width: 2px;
       }
       .ant-steps-item-process > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title::after {
-        background: rgba(#d9d9d9, 0.3);
+        background: rgba(#d9d9d9, 0.8);
       }
       .ant-steps-item-wait {
         .ant-steps-item-title {
-          color: rgba(255, 255, 255, 0.5);
+          color: rgba(255, 255, 255, 0.8);
           font-weight: normal;
         }
         .ant-steps-item-icon {
           background-color: transparent;
-          border-color: rgba(255, 255, 255, 0.5);
+          border-color: rgba(255, 255, 255, 0.8);
           .ant-steps-icon {
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 0.8);
           }
         }
       }
