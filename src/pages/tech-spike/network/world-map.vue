@@ -32,9 +32,8 @@ export default defineComponent({
       networkChart.setOption({
         geo3D: {
           map: 'worldCustom',
-          shading: 'realistic',
+          shading: 'color',
           silent: true,
-          environment: '#3D3F50',
           realisticMaterial: {
             roughness: 0.8,
             metalness: 0,
@@ -63,7 +62,7 @@ export default defineComponent({
             panSensitivity: 0,
           },
           itemStyle: {
-            color: '#3D3F50',
+            color: 'rgb(38, 40, 54)',
             borderWidth: 0
           },
           regionHeight: 0.5,

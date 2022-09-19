@@ -1,5 +1,5 @@
 <template lang="pug">
-ALayout
+ALayout(:class="{ bluebg: selectedRoute !== 'simulation' }")
   ALayoutHeader.layout-header
     .layout-header--left
       .logo(@click="goHome")
@@ -82,6 +82,8 @@ export default defineComponent({
 .ant-layout
   height: 100%
   background: #3d3f50
+  &.bluebg
+    background: #373b56
 
   .layout-header
     display: flex

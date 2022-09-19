@@ -518,6 +518,7 @@ export default defineComponent({
         max-height: 36px;
         svg path {
           stroke-width: 8;
+          stroke: rgb(101, 144, 242) !important;
         }
       }
       .ant-steps-item-finish {
@@ -527,6 +528,9 @@ export default defineComponent({
           .ant-steps-icon {
             color: #5B8FF9;
           }
+        }
+        .ant-steps-item-title::after {
+          background: #5b8ff9;
         }
       }
       .ant-steps-item-description {
