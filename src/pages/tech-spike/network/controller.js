@@ -30,11 +30,22 @@ class Controller extends EventEmitter {
     this.memoryData = []
     this.bandwidthData = []
     this.tps = 0
+    this.playing = true
 
     setInterval(() => {
-      this._redrawPerformance()
-      this._redrawCPU()
+      if (this.playing) {
+        this._redrawPerformance()
+        this._redrawCPU()
+      }
     }, 1000)
+  }
+
+  play() {
+    this.playing = true
+  }
+
+  pause() {
+    this.playing = false
   }
 
   emit(eventName, ...args) {
@@ -258,7 +269,9 @@ class Controller extends EventEmitter {
     if (tps === 0) return
 
     this.timer = setInterval(() => {
-      this._broadcastTxs.bind(this)(tps)
+      if (this.playing) {
+        this._broadcastTxs.bind(this)(tps)
+      }
     }, 1000)
   }
 

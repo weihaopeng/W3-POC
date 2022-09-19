@@ -18,7 +18,7 @@ ADrawer.network-config-drawer(title="W3 Network Configuration" v-model:visible="
 </template>
 
 <script>
-import { defineComponent, ref, watch, toRaw } from 'vue'
+import { defineComponent, onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue'
 import WorldMap from '@/pages/tech-spike/network/world-map.vue'
 import Performance from '@/pages/tech-spike/network/performance.vue'
 import Resource from '@/pages/tech-spike/network/resource.vue'
@@ -60,6 +60,7 @@ export default defineComponent({
       totalTransactions: 103123414,
       isAttackSimulate: route.name === 'security',
       startAttackSimulate: false,
+      playing: true
     })
 
     watch(() => route.name, (newRouteName) => {
@@ -93,8 +94,10 @@ export default defineComponent({
     }
 
     setInterval(() => {
-      config.value.chainHeight += config.value.tps / (40 + 10 * Math.random())
-      config.value.totalTransactions += config.value.tps
+      if(config.value.playing) {
+        config.value.chainHeight += config.value.tps / (40 + 10 * Math.random())
+        config.value.totalTransactions += config.value.tps
+      }
     }, 1000)
 
     if (config.value.isAttackSimulate && config.value.startAttackSimulate) {
@@ -140,6 +143,22 @@ export default defineComponent({
         controller.setNodesScale(config.value.nodeScale-attackerNodeScale, attackerNodeScale);
       }
     }
+
+    const onKeydown = (event) => {
+      if (event.key === 'p') {
+        config.value.playing = !config.value.playing
+        if (config.value.playing) controller.play()
+        else controller.pause()
+      }
+    }
+
+    onMounted(() => {
+      document.addEventListener('keydown', onKeydown)
+    })
+
+    onBeforeUnmount(() => {
+      document.removeEventListener('keydown', onKeydown)
+    })
 
     return {
       configVisible,
