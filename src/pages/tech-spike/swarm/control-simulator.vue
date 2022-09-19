@@ -59,10 +59,10 @@ const networkTypes = ['tx', 'bp', 'block', 'fork']
 const chainTypes = ['block on chain', 'chain fork']
 
 let COMMUNICATE_COST = 2500
-let COMMUNICATE_COST_THRESHOLD = 500 // 通信在2000~2500ms波动
+let COMMUNICATE_COST_THRESHOLD = 500 // 通信在2500 ~ 3000ms波动
 
 const CALCULATE_COST = 1000
-const CALCULATE_COST_THRESHOLD = 500 // 验证用时在500~1000ms波动
+const CALCULATE_COST_THRESHOLD = 500 // 验证用时在1000~1500ms波动
 
 export default defineComponent({
   name: 'ControlSimulator',
