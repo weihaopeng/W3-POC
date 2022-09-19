@@ -1,34 +1,34 @@
 <template lang="pug">
 AForm.network-config-form(:model="configData", :label-col="{ span: 24 }", :wrapper-col="{ span: 18 }")
   AFormItem(label="Node Scale")
-    AInputNumber(size="large" v-model:value="configData.nodeScale" style="width: auto;" :formatter="numberFormatter")
-  AFormItem(:label="`Swarms: ${swarmScale}`")
+    AInputNumber(v-model:value="configData.nodeScale" style="width: auto;" :formatter="numberFormatter")
+  AFormItem.no-control(:label="`Swarms: ${swarmScale}`")
   AFormItem(label="Latency In Swarm (ms)")
-    AInputNumber(size="large" v-model:value="configData.latencyInSwarm" addon-after="ms" :formatter="numberFormatter")
+    AInputNumber(v-model:value="configData.latencyInSwarm" addon-after="ms" :formatter="numberFormatter")
   AFormItem(label="Latency Between Swarm")
-    AInputNumber(size="large" v-model:value="configData.latencyBetweenSwarm" addon-after="ms" :formatter="numberFormatter")
+    AInputNumber(v-model:value="configData.latencyBetweenSwarm" addon-after="ms" :formatter="numberFormatter")
   AFormItem(label="Throughput")
-    AInputNumber(size="large" v-model:value="configData.tps" addon-after="TPS" :formatter="numberFormatter")
+    AInputNumber(v-model:value="configData.tps" addon-after="TPS" :formatter="numberFormatter")
   AFormItem
-    AButton(size="large" type="primary" html-type="submit" @click="onChangeConfig") Config
+    AButton(type="primary" html-type="submit" @click="onChangeConfig" size="large") Config
 
   ADivider(v-if="defaultConfig.isAttackSimulate")
   h3(v-if="defaultConfig.isAttackSimulate") Attack Simulation
 
   AFormItem(label="Attack Type" v-if="defaultConfig.isAttackSimulate")
-    ASelect(size="large" ref="select", v-model:value="configData.attackType", :options="AttackTypeList")
+    ASelect(ref="select", v-model:value="configData.attackType", :options="AttackTypeList")
 
   AFormItem(label="ForgeAccountRatio" v-if="defaultConfig.isAttackSimulate && configData.attackType === 'Sybil'")
-    AInputNumber(size="large" v-model:value="configData.forgeAccountRatio" addon-after="%")
+    AInputNumber(v-model:value="configData.forgeAccountRatio" addon-after="%")
 
   AFormItem(label="Attacked Node" v-if="defaultConfig.isAttackSimulate && configData.attackType === 'Finney'")
-    ASelect(size="large" ref="select" value="node1" :options="FinneyAttackNodeList")
+    ASelect(ref="select" value="node1" :options="FinneyAttackNodeList")
 
   AFormItem(label="Attacked Swarm" v-if="defaultConfig.isAttackSimulate && configData.attackType === 'Eclipse'")
-    ASelect(size="large" ref="select" value="swarm1" :options="EclipseNodeList")
+    ASelect(ref="select" value="swarm1" :options="EclipseNodeList")
   
   AFormItem(v-if="defaultConfig.isAttackSimulate")
-    AButton(size="large" type="primary" html-type="submit" @click="onSimulateSwitch") {{ simulateButtonName }}
+    AButton(type="primary" html-type="submit" @click="onSimulateSwitch" size="large") {{ simulateButtonName }}
 </template>
 
 <script>
@@ -116,27 +116,55 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .network-config-form {
-  :deep .ant-form-item-label > label {
-    font-size: 20px;
-    font-weight: 500;
+  margin-top: -2px;
+  .ant-form-item {
+    margin-bottom: 28px;
+    :deep .ant-form-item-label > label {
+      font-size: 20px;
+      margin: 0px 0 -4px;
+    }
+    .ant-input-number {
+      font-size: 16px;
+      width: 208px;
+    }
+    :deep .ant-input-number-group {
+      width: 240px;
+      .ant-input-number {
+        width: 100%;
+      }
+      .ant-input-number-group-addon {
+        padding: 0 5px;
+      }
+    }
+    &.no-control {
+      margin-bottom: 36px;
+    }
+
+    .ant-btn {
+      margin-top: 18px;
+      background: #3C7BFD;
+      border-radius: 4px;
+      min-width: 110px;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ant-select {
+      width: 240px;
+    }
   }
+
   h3 {
-    font-size: 30px;
-    font-weight: 600;
-  }
-  :deep .ant-input-number-group-addon {
-    font-size: 16px;
+    font-size: 20px;
+    font-weight: 900;
+    margin-bottom: 22px;
   }
 
   .ant-divider {
-    margin: 24px -24px;
+    margin: 24px -24px 42px;
     width: calc(100% + 48px);
-  }
-
-  .ant-btn {
-    background: #3C7BFD;
-    border-radius: 4px;
-    min-width: 110px;
   }
 }
 

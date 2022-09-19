@@ -214,6 +214,9 @@ export default defineComponent({
   .ant-drawer-header {
     height: 90px;
   }
+  .ant-drawer-content-wrapper {
+    width: 400px !important;
+  }
   .ant-drawer-body {
     padding: 12px 30px;
     .ant-form-item-label {
@@ -221,8 +224,9 @@ export default defineComponent({
     }
   }
   .ant-drawer-title {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 600;
+    white-space: nowrap;
   }
 }
 </style>

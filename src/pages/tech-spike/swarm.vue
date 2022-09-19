@@ -463,7 +463,6 @@ export default defineComponent({
       color: rgba(255, 255, 255, 0.5);
       margin: 15px 0 12px;
       text-align: center;
-      font-weight: 300;
     }
     .ant-steps {
       // padding: 0 200px;

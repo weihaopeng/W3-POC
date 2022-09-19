@@ -31,10 +31,10 @@ export default defineComponent({
 html,
 body {
   overflow-y: hidden;
+  font-family: ArialMT, Arial, Helvetica, sans-serif;
 }
 
 #app {
-  font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   height: 100%;
