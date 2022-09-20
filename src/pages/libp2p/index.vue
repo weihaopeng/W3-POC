@@ -12,6 +12,7 @@ div.libp2p
         td.found-peers {{ foundPeers }}
         td.connected-peers {{ connectedPeers }}
 
+  button(type="button" @click="startListen") Start Listen
   button(type="button" @click="sendMsg") Send Msg
 </template>
 
@@ -21,11 +22,15 @@ import { defineComponent, inject, toRefs } from 'vue'
 export default defineComponent({
   name: 'Libp2pExample',
   setup: () => {
-    const { state } = inject('w3.store')
+    const { state, network } = inject('w3.store')
     return {
       ...toRefs(state),
+      startListen() {
+        network.startListen()
+      },
+
       sendMsg () {
-        this.network.broadcast('w3:node:online', this.network.libp2p.peerId.toString())
+        network.broadcast('w3:node:online', network.libp2p.peerId.toString())
       }
     }
   }
@@ -38,6 +43,10 @@ export default defineComponent({
 }
 .libp2p h1 {
   color: white;
+}
+
+.libp2p button {
+  background-color: #4CAF50; /* Green */
 }
 
 </style>

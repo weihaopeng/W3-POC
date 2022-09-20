@@ -28,15 +28,17 @@ class W3Network {
     await this.pubsub.init(this.libp2p.components)
     await this.pubsub.start()
 
+    this.listenLibp2p(state)
+  }
+
+  async startListen () {
     this.listeners = await Promise.all(this.topics.map(async topic => {
-      await this.listen(topic)
+      const listener = await this.listen(topic)
       this.localSwarm?.listen(topic, (msg) => {
         this.broadcast(topic, msg)
       })
+      return { topic, listener }
     }))
-    this.localSwarm?.listen()
-
-    this.listenLibp2p(state)
   }
 
   async destroy () {
@@ -54,7 +56,7 @@ class W3Network {
     }
     this.pubsub.addEventListener(topic, listener)
     await this.pubsub.subscribe(topic)
-    return { topic, listener }
+    return listener
   }
 
   unListenAllTopics () {

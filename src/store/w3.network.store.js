@@ -1,6 +1,5 @@
 import { reactive, readonly } from 'vue'
 import { W3Network } from '../w3/poc/index.js'
-import { peerIdFromString } from '@libp2p/peer-id'
 
 const state = reactive({
   connectedPeers: 0,
@@ -9,8 +8,8 @@ const state = reactive({
 })
 
 
-state.network = new W3Network()
-state.network.init(null, state)
+const network = new W3Network()
+network.init(null, state)
 
 
-export default { state: readonly (state), network: state.network }
+export default { state: readonly (state), network }
