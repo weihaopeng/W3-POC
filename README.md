@@ -7,7 +7,7 @@ A large-scale P2P application protocol testbed based on IPFS and Libp2p for test
 ![img](design/W3%20POC%20ETH%20Hackathon.png)
 
 ## Getting started
-### develop local
+### local development
 ```
 npm install
 npm run periodicEmitBlockMessage
