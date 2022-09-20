@@ -10,7 +10,7 @@
   "type": "module",
   "description": "A large-scale P2P application protocol testbed based on IPFS and Libp2p for testing W3 which is a consensusless blockchain.",
   "scripts": {
-    "periodicEmitBlockMessage": "cross-env DEBUG=w3* vite",
+    "dev": "cross-env DEBUG=w3* vite",
     "test": "cross-env DEBUG=w3* mocha --exit --ui bdd \"./test/**/*.test.js\"",
     "deps": "depcruise --include-only \"^src\" --output-type dot src | dot -T svg > architecture.svg",
     "version": "auto-changelog -p && git add CHANGELOG.md",
@@ -45,7 +45,8 @@
     "lodash": "^4.17.21",
     "vue": "^3.0.5",
     "vue-router": "^4.0.11",
-    "wrtc": "^0.4.7"
+    "wrtc": "^0.4.7",
+    "@mq/fsm": "file:lib/fsm/"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^1.3.0",
@@ -57,7 +58,6 @@
     "chai-string": "^1.5.0",
     "dependency-cruiser": "^11.7.1",
     "ethereum-cryptography": "^1.1.2",
-    "ethereumjs-wallet": "^1.0.2",
     "fs-extra": "^10.1.0",
     "inquirer": "^8.2.4",
     "mocha": "^10.0.0",

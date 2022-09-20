@@ -4,8 +4,10 @@ Nav
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, provide } from 'vue'
 import Nav from '@/components/common/Nav.vue'
+import store from './store/w3.network.store.js'
+
 const routeMap = {
   benchmark: 'network',
 
@@ -20,6 +22,9 @@ export default defineComponent({
       if (route.name === 'security') return 'network'
       return route.fullPath
     }
+
+    provide("w3.store", store)
+
     return {
       getRoute
     }

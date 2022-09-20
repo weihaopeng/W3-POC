@@ -1,5 +1,3 @@
-import { blake2b } from 'ethereum-cryptography/blake2b.js'
-import Wallet from 'ethereumjs-wallet'
 import { Account } from './core/entities/account.js'
 
 const util = {
@@ -30,17 +28,15 @@ const util = {
   },
 
   getEthereumAccount() {
-    const EthWallet = Wallet.default.generate()
-    const publicKey = EthWallet.getPublicKey() // Buffer(64)
-    const privateKey = EthWallet.getPrivateKey() // Buffer(32)
-    const address = EthWallet.getAddress()
-    const publicKeyString = EthWallet.getPublicKeyString() // Buffer(64)
-    const privateKeyString = EthWallet.getPrivateKeyString() // Buffer(32)
-    const addressString = EthWallet.getAddressString()
-    return new Account({ address, publicKey, privateKey, addressString, publicKeyString, privateKeyString })
+    const publicKeyString = '0x' + this.getRandomHex(128)
+    return new Account({ publicKeyString })
+  },
+
+  getRandomHex (size) {
+    return [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('')
   }
 
-
 }
+
 
 export { util }

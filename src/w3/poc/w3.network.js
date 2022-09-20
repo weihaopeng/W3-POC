@@ -1,23 +1,26 @@
 /**
  * remote swarms, network outside the webpage
  */
+import { libp2p } from './libp2p.js'
+
 class W3Network {
   constructor () {
     this.remoteSwarms = []
     this.topics = ['tx', 'bp', 'block', 'fork']
   }
 
-  async init(localSwarm) {
+  async init(localSwarm, libp2pBeforeStart) {
     // TODO: @Jian-ru 完成
     this.localSwarm = localSwarm
-    await  (async () => this.libp2p = 'TODO')() //
-    this.topics.map(topic => {
-      this.listen(topic)
-      this.localSwarm.listen(topic, (msg) => {
-        this.broadcast(topic, msg)
-      })
-    })
-    this.localSwarm.listen()
+    debugger
+    this.libp2p = await libp2p.init(libp2pBeforeStart)
+    // this.topics.map(topic => {
+    //   this.listen(topic)
+    //   this.localSwarm.listen(topic, (msg) => {
+    //     this.broadcast(topic, msg)
+    //   })
+    // })
+    // this.localSwarm.listen()
   }
 
   async destroy() {
@@ -31,7 +34,7 @@ class W3Network {
 
   listen(topic) {
     // listen to remoteSwarms(libp2p)'s pub/sub topic
-    libp2p.subscribe('topic', (data) => this.localSwarm.broadcast(topic, data))
+    this.libp2p.subscribe('topic', (data) => this.localSwarm.broadcast(topic, data))
   }
 
   broadcast(topic, msg) {
