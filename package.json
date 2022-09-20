@@ -24,7 +24,7 @@
   "dependencies": {
     "@chainsafe/libp2p-noise": "^8.0.0",
     "@libp2p/bootstrap": "^2.0.0",
-    "@libp2p/mplex": "^5.1.1",
+    "@libp2p/mplex": "^5.0.0",
     "@libp2p/peer-id-factory": "^1.0.18",
     "@libp2p/webrtc-direct": "^2.0.2",
     "@libp2p/webrtc-star": "^3.0.0",
