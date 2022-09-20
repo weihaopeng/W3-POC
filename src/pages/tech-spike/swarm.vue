@@ -124,7 +124,7 @@ export default defineComponent({
     const blockList = ref([])
     const bpList = ref([])
     const bpRoundList = ref([])
-    const collectorName = ref('No.4')
+    const collectorName = ref('No.4 0x696d')
     const currentPercent = ref(0)
     const currentStep = ref(0)
     const currentStage = ref('')
@@ -307,7 +307,7 @@ export default defineComponent({
     const resetSwarm = () => {
       clearSwarmCvs()
       currentStep.value = 0
-      collectorName.value = 'No.4'
+      collectorName.value = 'No.4 0x696d'
       txRoundList.value = []
       bpRoundList.value = []
       currentStage.value = ''

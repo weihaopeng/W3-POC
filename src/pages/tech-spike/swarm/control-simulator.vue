@@ -175,18 +175,18 @@ export default defineComponent({
     }
 
     const sendArriveMsg = ({ sessionId, toList, count, block, witnessId, historyNodes, txCount, participantsCount, autoDownplay, roundId }) => {
-      let max = 0;
+      const arriveTime = [];
       for (const to of toList) {
         if (to.overtime) continue
         to.arriveTime = Math.random() * COMMUNICATE_COST_THRESHOLD + COMMUNICATE_COST
-        max = Math.max(max, to.arriveTime);
+        arriveTime.push({ id: to.node.id, cost: to.arriveTime })
         setTimeout(() => {
           const msg = createNetworkMsg({ sessionId, to: to.node.name, count, block, witnessId, isDeparture: false, historyNodes, txCount, participantsCount, roundId });
           emit('sendMsg', 'handleNetworkMessage', msg, 'arrive', autoDownplay)
           // this.messageHandler.handleNetworkMessage(msg, 'arrive');
         }, to.arriveTime)
       }
-      return max
+      return arriveTime
     }
 
     const sendVerifyMsg = (sessionId, nodeList, count, autoDownplay) => {
@@ -277,7 +277,6 @@ export default defineComponent({
       // COMMUNICATE_COST = 200;
       // COMMUNICATE_COST_THRESHOLD = 50;
       const roundId = getRandomHash()
-      emit('sendMsg', 'setRoles', [nodes[3].id], 'Collector')
       for (let i = 0; i < 3; i++) {
         if (presentStatus.value === 'stopped') break;
         // while(presentStatus.value === 'pausing') {}
@@ -287,19 +286,22 @@ export default defineComponent({
         emit('sendMsg', 'setRoles', [nodes[index].id], 'highlightNode')
         const toList = nodes.filter((node) => (node.id !== fromNodeId.value)).map((node) => ({ node, valid: true, overtime: false }));
         sendDepartureMsg({ sessionId, toList, count: i + 1, roundId });
-        sendArriveMsg({ sessionId, toList, count: i + 1, roundId });
+        const arriveTimes = sendArriveMsg({ sessionId, toList, count: i + 1, roundId });
         const collectorNode = toList.filter((to) => to.node.id === '444')
         // const res = sendVerifyMsg(sessionId, toList, i + 1);
         const res = sendVerifyMsg(sessionId, collectorNode, i + 1);
+        setTimeout(() => {
+          emit('sendMsg', 'setRoles', [nodes[3].id], 'Collector')
+        }, arriveTimes.find(item => item.id === '444').cost)
+        
         await sleep(res.cost + 2500);
         emit('sendMsg', 'clearRoles', [nodes[index].id])
+        emit('sendMsg', 'clearRoles', [nodes[3].id])
       }
-      emit('sendMsg', 'clearRoles', [nodes[3].id])
 
       networkType.value = 'bp';
       const historyNodes = [];
       for (let i = 0; i < 2; i++) {
-        emit('sendMsg', 'setRoles', [nodes[i === 0 ? 2 : 0].id], `R${i + 1} Witness`)
         if (presentStatus.value === 'stopped') break;
         // while(presentStatus.value === 'pausing') {}
         bpround.value = i + 1;
@@ -312,8 +314,11 @@ export default defineComponent({
         const witnessNode = toList.filter((to) => i === 0 ? to.node.id === '333' : to.node.id === '111')
         historyNodes.push(witnessNode[0].node)
         sendDepartureMsg({ sessionId, toList, count: i + 1, witnessId: witnessNode[0].node.id, historyNodes: JSON.parse(JSON.stringify(historyNodes)), roundId });
-        sendArriveMsg({ sessionId, toList, count: i + 1, witnessId: witnessNode[0].node.id, historyNodes: JSON.parse(JSON.stringify(historyNodes)), roundId });
+        const arriveTimes = sendArriveMsg({ sessionId, toList, count: i + 1, witnessId: witnessNode[0].node.id, historyNodes: JSON.parse(JSON.stringify(historyNodes)), roundId });
         const res = sendVerifyMsg(sessionId, witnessNode, i + 1);
+        setTimeout(() => {
+          emit('sendMsg', 'setRoles', [nodes[i === 0 ? 2 : 0].id], `R${i + 1} Witness`)
+        }, arriveTimes.find(item => item.id === (i === 0 ? '333' : '111')).cost)
         await sleep(res.cost + 2500);
         if (i === 0) {
           emit('sendMsg', 'clearRoles', [nodes[2].id, nodes[index].id])
