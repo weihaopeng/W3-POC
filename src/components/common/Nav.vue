@@ -21,6 +21,9 @@ ALayout(:class="{ bluebg: selectedRoute !== 'simulation' }")
 
   ALayoutContent
     slot
+
+  ALayoutFooter
+    | Powered by IPFS and Libp2p
 </template>
 
 <script>
@@ -146,5 +149,14 @@ export default defineComponent({
   &-content
     flex-grow: 1
 
+  &-footer
+    color: #fff
+    text-align: center
+    background: transparent
+    position: absolute
+    bottom: 0
+    left: 0
+    right: 0
+    padding-bottom: 8px
 </style>
   
