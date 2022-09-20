@@ -11,6 +11,8 @@ div.libp2p
       tr
         td.found-peers {{ foundPeers }}
         td.connected-peers {{ connectedPeers }}
+
+  button(type="button" @click="sendMsg") Send Msg
 </template>
 
 <script>
@@ -21,7 +23,10 @@ export default defineComponent({
   setup: () => {
     const { state } = inject('w3.store')
     return {
-      ...toRefs(state)
+      ...toRefs(state),
+      sendMsg () {
+        this.network.broadcast('w3:node:online', this.network.libp2p.peerId.toString())
+      }
     }
   }
 })

@@ -88,7 +88,7 @@ export default defineComponent({
     const closePerformance = () => {
        visible.value.performance = false
      }
- 
+
     const closeResource = () => {
       visible.value.resource = false
     }
@@ -125,7 +125,7 @@ export default defineComponent({
         config.value.startAttackSimulate = newConfig.startAttackSimulate;
       if (newConfig.forgeAccountRatio)
         config.value.forgeAccountRatio = newConfig.forgeAccountRatio;
-      
+
       if (!isNil(newConfig.startAttackSimulate)) {
         if (config.value.startAttackSimulate) {
           const attackerNodeScale = Math.floor(config.value.nodeScale * config.value.forgeAccountRatio / 100);

@@ -4,6 +4,12 @@ import { WebSockets } from '@libp2p/websockets'
 import { Noise } from '@chainsafe/libp2p-noise'
 import { Mplex } from '@libp2p/mplex'
 import { Bootstrap } from '@libp2p/bootstrap'
+import { GossipSub } from '@chainsafe/libp2p-gossipsub'
+
+const SIGNALING_SERVER_ADDRESS = [
+    '/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star',
+    '/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star'
+  ]
 
 const libp2p = {
   node: null,
@@ -16,10 +22,7 @@ const libp2p = {
         // Add the signaling server address, along with our PeerId to our multiaddrs list
         // libp2p will automatically attempt to dial to the signaling server so that it can
         // receive inbound connections from other peers
-        listen: [
-          '/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star',
-          '/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star'
-        ]
+        listen: SIGNALING_SERVER_ADDRESS
       },
       transports: [
         new WebSockets(),
@@ -40,11 +43,14 @@ const libp2p = {
         })
       ]
     })
-    libp2pBeforeStart && (await libp2pBeforeStart(this.node))
-    await this.node.start()
     return this.node
   },
 
+  destroy() {
+    this.node.stop()
+    this.node = null
+  }
+
 }
 
-export { libp2p }
+export { libp2p, SIGNALING_SERVER_ADDRESS }

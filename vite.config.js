@@ -19,14 +19,14 @@ export default defineConfig({
     esbuildOptions: {
       target: 'es2020'
     },
-    include: ['@mq/fsm'],
+    include: ['@mq/fsm', '@chainsafe/libp2p-gossipsub'],
     force: true
   },
   build: {
     target: 'es2020',
     outDir: 'dist',
     commonjsOptions: {
-      include: [/node_modules/, /lib/, /ethereumjs-util/]
+      include: [/node_modules/, /lib/, /ethereumjs-util/, /libp2p-gossipsub/]
     }
   },
   plugins: [
@@ -54,7 +54,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      "protobufjs": "protobufjs/dist/protobuf.min.js",
+      // "protobufjs": "protobufjs/dist/protobuf.min.js",
       '@': path.resolve(_dirname, 'src'),
     }
   },

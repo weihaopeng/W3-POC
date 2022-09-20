@@ -105,7 +105,7 @@ change fork</panel_attributes>
       <h>120</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-tx valid 
+tx valid
 &amp; isCollector</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
   </element>
@@ -132,8 +132,8 @@ fg=blue</panel_attributes>
       <h>384</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-relay 
-valid &amp; effective msg: 
+relay
+valid &amp; effective msg:
 tx, bp, block, fork
 </panel_attributes>
     <additional_attributes>10.0;10.0;10.0;300.0</additional_attributes>
@@ -147,7 +147,7 @@ tx, bp, block, fork
       <h>120</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-bp valid 
+bp valid
 &amp; isWitness</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
   </element>
@@ -234,7 +234,7 @@ fork detected</panel_attributes>
       <h>396</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-HARD_FORK 
+HARD_FORK
 detected</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;310.0</additional_attributes>
   </element>
@@ -272,7 +272,7 @@ ask for witness</panel_attributes>
       <h>156</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-send bp 
+send bp
 (new/next)</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;110.0</additional_attributes>
   </element>
@@ -702,7 +702,7 @@ append block</panel_attributes>
       <h>60</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-can't AFW 
+can't AFW
 anymore
 fg=gray</panel_attributes>
     <additional_attributes>10.0;20.0;440.0;20.0</additional_attributes>
@@ -754,7 +754,7 @@ fg=blue</panel_attributes>
       <h>48</h>
     </coordinates>
     <panel_attributes>lt=.&gt;
-can't AFW 
+can't AFW
 fg=gray</panel_attributes>
     <additional_attributes>10.0;20.0;370.0;20.0</additional_attributes>
   </element>
