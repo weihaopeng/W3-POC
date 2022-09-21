@@ -27,9 +27,9 @@ const libp2p = {
 
     // Create our libp2p node
     const peerId = await libp2p.selectPeerId()
-    const peersIds = this.getLocalPeersFromLocalStorage()
+    const peersIds = this.getLocalPeersFromLocalStorage().filter(p => p !== peerId.toString())
     const localPeersAddresses = peersIds.map(peerId => getPeerAddress(peerId)).flat()
-    const localPeers = await Promise.all(peersIds.filter(p => p !== peerId.toString()).map(async peerId => {
+    const localPeers = await Promise.all(peersIds.map(async peerId => {
       const multiaddrs = getPeerAddress(peerId).map(addr => {
         return new Multiaddr(addr)
       })
