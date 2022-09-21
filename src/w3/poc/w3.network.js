@@ -21,7 +21,7 @@ class W3Network {
     this.localSwarm = localSwarm
     this.libp2p = await libp2p.init()
     await this.libp2p.start()
-    console.log('******* rpc from **** this.libp2p peerId: ', this.libp2p.peerId.toString())
+    state.status = 'libp2p started as: ' + this.libp2p.peerId.toString()
     await this.initPubsub()
 
     this.listenLibp2p(state)
@@ -89,13 +89,6 @@ class W3Network {
       const connection = evt.detail
       console.info(`Connected to ${connection.remotePeer.toString()}`)
       state.connectedPeers++
-
-      const { remotePeer, remoteAddr } = connection;
-      const peerId = peerIdFromString(remotePeer.toString())
-      await this.libp2p.peerStore.addressBook.set(peerId, [remoteAddr]);
-      await this.libp2p.dial(peerId);
-      this.pubsub.connect(peerId.toString())
-      console.info(`dial and add to addressBook:  ${peerId.toString()}`)
     })
 
     // Listen for peers disconnecting

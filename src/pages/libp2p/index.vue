@@ -1,7 +1,7 @@
 <template lang="pug">
 div.libp2p
   header
-    h1#status Starting libp2p...
+    h1 {{ status }}
   table#output
     thead
       tr

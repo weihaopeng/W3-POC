@@ -4,7 +4,7 @@ import { W3Network } from '../w3/poc/index.js'
 const state = reactive({
   connectedPeers: 0,
   foundPeers: 0,
-  network: null,
+  status: 'Starting libp2p',
 })
 
 
