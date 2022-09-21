@@ -19,24 +19,22 @@ const util = {
     return num
   },
 
-  exponentialRandom(lamda) {
+  exponentialRandom (lamda) {
     return -Math.log(1 - Math.random()) / lamda
   },
 
-  wait(ms){
-    return new Promise(r => setTimeout(r, ms ))
+  wait (ms) {
+    return new Promise(r => setTimeout(r, ms))
   },
 
-  getEthereumAccount() {
+  getEthereumAccount () {
     const publicKeyString = '0x' + this.getRandomHex(128)
     return new Account({ publicKeyString })
   },
 
   getRandomHex (size) {
     return [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('')
-  }
-
+  },
 }
-
 
 export { util }

@@ -47,6 +47,7 @@
     "libp2p": "^0.39.0",
     "lodash": "^4.17.21",
     "protobufjs": "^6.11.3",
+    "uint8arrays": "^3.1.0",
     "vue": "^3.0.5",
     "vue-router": "^4.0.11",
     "wrtc": "^0.4.7"
