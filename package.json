@@ -25,7 +25,7 @@
     "@chainsafe/libp2p-gossipsub": "^4.1.1",
     "@chainsafe/libp2p-noise": "^8.0.0",
     "@libp2p/bootstrap": "^2.0.0",
-    "@libp2p/mplex": "^5.0.0",
+    "@libp2p/mplex": "5.2.2",
     "@libp2p/peer-id": "^1.1.15",
     "@libp2p/peer-id-factory": "^1.0.18",
     "@libp2p/webrtc-direct": "^2.0.2",

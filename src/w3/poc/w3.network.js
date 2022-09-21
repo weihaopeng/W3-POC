@@ -21,14 +21,18 @@ class W3Network {
     this.localSwarm = localSwarm
     this.libp2p = await libp2p.init()
     await this.libp2p.start()
+    console.log('******* rpc from **** this.libp2p peerId: ', this.libp2p.peerId.toString())
+    await this.initPubsub()
 
+    this.listenLibp2p(state)
+  }
+
+  async initPubsub () {
     this.pubsub = new GossipSub()
     // this.pubsub = new GossipSub({allowPublishToZeroPeers: true}) // 这里设置为true，为了压制 `InsufficientPeers` 错误
     // 按照 https://github.com/ChainSafe/js-libp2p-gossipsub/issues/309 说法，js-libp2p@0.38 应该没有这个问题了，可实际上我们还是会遇到
     await this.pubsub.init(this.libp2p.components)
     await this.pubsub.start()
-
-    this.listenLibp2p(state)
   }
 
   async startListen () {
@@ -86,9 +90,12 @@ class W3Network {
       console.info(`Connected to ${connection.remotePeer.toString()}`)
       state.connectedPeers++
 
-      // const { remotePeer, remoteAddr } = connection
-      // const peerId = peerIdFromString(remotePeer.toString())
-
+      const { remotePeer, remoteAddr } = connection;
+      const peerId = peerIdFromString(remotePeer.toString())
+      await this.libp2p.peerStore.addressBook.set(peerId, [remoteAddr]);
+      await this.libp2p.dial(peerId);
+      this.pubsub.connect(peerId.toString())
+      console.info(`dial and add to addressBook:  ${peerId.toString()}`)
     })
 
     // Listen for peers disconnecting
