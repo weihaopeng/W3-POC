@@ -7,6 +7,7 @@ const state = reactive({
   foundPeers: 0,
   status: 'Starting libp2p',
   mint: false,
+  remoteSwarms: [],
 })
 
 

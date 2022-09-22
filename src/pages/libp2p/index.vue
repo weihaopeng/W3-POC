@@ -7,14 +7,16 @@ div.libp2p
       tr
         th Found Peers
         th Connected Peers
+        th Connected Swarms
     tbody
       tr
         td.found-peers {{ foundPeers }}
         td.connected-peers {{ connectedPeers }}
+        td.connected-peers {{ remoteSwarms.length }}
 
   //button(type="button" @click="startListenPubsub") Start Listen
-  button(type="button" @click="sendMsg") Send Msg
-  button(type="button" @click="toggleTwoStagesMint" :class="{ mint }") {{ mint ? 'Stop' : 'Start'}} two stage mint
+  button(type="button" @click="sendMsg" :class="{ connected }") Send Msg
+  button(type="button" @click="toggleTwoStagesMint" :class="{ mint, connected }") {{ mint ? 'Stop' : 'Start'}} two stage mint
 </template>
 
 <script>
@@ -31,13 +33,23 @@ export default defineComponent({
       },
 
       sendMsg () {
-        const data = { origin:  network.libp2p.peerId.toString(), event: 'libp2p:online'}
-        network.broadcast('libp2p:online', data)
+        if (this.connected) {
+          const data = { origin:  network.libp2p.peerId.toString(), event: 'libp2p:online'}
+          network.broadcast('libp2p:online', data)
+        }
       },
 
       toggleTwoStagesMint() {
-        this.mint ? stopTwoStagesMint(): startTwoStagesMint()
+        if (this.connected) {
+          this.mint ? stopTwoStagesMint(): startTwoStagesMint()
+        }
       },
+    }
+  },
+
+  computed: {
+    connected () {
+      return this.remoteSwarms.length > 0
     }
   }
 })
@@ -52,6 +64,10 @@ export default defineComponent({
 }
 
 .libp2p button {
+  background-color: #8c8c8c; /* Gray */
+}
+
+.libp2p button.connected {
   background-color: #4CAF50; /* Green */
 }
 

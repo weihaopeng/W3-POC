@@ -4,12 +4,14 @@
 import { libp2p } from './libp2p.js'
 import { toString, fromString } from 'uint8arrays'
 
+
 class W3Network {
+  static HEARTBEAT_INTERVAL = 1000 * 3 // 3 seconds
   constructor (localSwarm, reactState) {
     this.localSwarm = localSwarm
     this.reactState = reactState
-    this.remoteSwarms = []
-    this.topics = ['tx', 'bp', 'block', 'fork', 'swarm:init', 'libp2p:online']
+    this.remoteSwarms = this.reactState.remoteSwarms
+    this.topics = ['tx', 'bp', 'block', 'fork', 'swarm:init', 'libp2p:online', 'libp2p:heartbeat',]
     this.inboundListener = this.dispatchPubsub.bind(this)
   }
 
@@ -17,6 +19,9 @@ class W3Network {
     return this.topics.filter(t => !t.startsWith('libp2p:')) // libp2p.online is used by libp2p
   }
 
+  get peerId() {
+    return this.libp2p.peerId.toString()
+  }
 
   async init () {
     this.libp2p = await libp2p.init()
@@ -25,11 +30,13 @@ class W3Network {
     await this.startListenPubsub()
     this.listenLibp2p() // for debug libp2p connection and state
     // this.localSwarm?.init(this) // TODO: currently the epoch without tx should be fixed
-    this.reactState.status = 'libp2p started as: ' + this.libp2p.peerId.toString()
+    this.reactState.status = 'libp2p started as: ' + this.peerId
     await this.startListenLocalSwarm()
+    this.startHeartbeat()
   }
 
   async destroy () {
+    this.stopHeartbeat()
     this.stopListenLocalSwarm()
     this.localSwarm?.destroy()
     this.reactState.status = 'libp2p stopped'
@@ -69,7 +76,8 @@ class W3Network {
     let { data, topic } = evt.detail
     data = JSON.parse(toString(evt.detail.data))
     console.log(`--- on topic '${topic} %o'`, data)
-    this.localSwarm?.broadcast(topic, data, 'network')
+    this.swarmTopics.includes(topic) ? this.localSwarm?.broadcast(topic, data, 'network')
+      : this.handleLibp2pTopics(topic, data)
   }
 
   broadcast (topic, data) {
@@ -94,9 +102,35 @@ class W3Network {
     // Listen for peers disconnecting
     this.libp2p.connectionManager.addEventListener('peer:disconnect', (evt) => {
       const connection = evt.detail
-      console.info(`Disconnected from ${connection.remotePeer.toString()}`)
+      const peerId = connection.remotePeer.toString()
+      console.info(`Disconnected from ${peerId}`)
       this.reactState.connectedPeers--
+      this.remoteSwarms.splice(this.remoteSwarms.indexOf(peerId), 1)
     })
+  }
+
+  // 注意：节点非正常离开未做处理，因为这样的代价比较大，现在还没有必要。
+  // 正常离开后，会自动断开连接，从而触发peer:disconnect事件，在上面处理了。
+  startHeartbeat () {
+    this.heartBeatTimer = setInterval(() => {
+      const data = { origin:  this.peerId, event: 'libp2p:heartbeat'}
+      this.broadcast('libp2p:heartbeat', data)
+    }, this.constructor.HEARTBEAT_INTERVAL)
+  }
+
+  stopHeartbeat () {
+    clearInterval(this.heartBeatTimer)
+  }
+
+  handleLibp2pTopics(topic, data) {
+    switch (topic) {
+      case 'libp2p:online':
+      case 'libp2p:heartbeat':
+        this.remoteSwarms.includes(data.origin) || this.remoteSwarms.push(data.origin)
+        break
+      default:
+        console.error('unknown topic', topic, data)
+    }
   }
 }
 
