@@ -28,6 +28,8 @@ declare module '@vue/runtime-core' {
     ASpace: typeof import('ant-design-vue/es')['Space']
     AStep: typeof import('ant-design-vue/es')['Step']
     ASteps: typeof import('ant-design-vue/es')['Steps']
+    ATag: typeof import('ant-design-vue/es')['Tag']
+    ATooltip: typeof import('ant-design-vue/es')['Tooltip']
     Nav: typeof import('./src/components/common/Nav.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

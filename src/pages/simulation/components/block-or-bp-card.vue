@@ -1,47 +1,52 @@
 <template lang="pug">
 .data-card(:class="dataCardClass")
-  ASpace.data-info.data-info__round-count(v-if="type === 'bp'")
-    span Witness Round
-    span {{ witnessRound }}
-  ASpace
-    .data-info.data-info__i
-      span i
-      span {{ data.data.i }}
-    .data-info.data-info__height
-      span height
-      span {{ data.data.height }}
-  .data-info.data-info__hash {{ data.data.hash || data.data.tailHash }}
-  ASpace.data-info.data-info__departure-time
-    span Departure at: 
-    span {{ getDepartureTime(data) }}
-  ASpace.data-info.data-info__arrive-time
-    span Departure at: 
-    span {{ getArrivalTime(data) }}
+  div(style="display: flex;" :style="{ 'flex-direction': type === 'bp' ? 'column' : 'column-reverse'}")
+    ASpace(:size="8")
+      ASpace.data-info.data-info__round-count(v-if="type === 'bp'")
+        span Witness Round
+        span {{ witnessRound }}
+      ASpace
+        ASpace.data-info.data-info__i
+          span i: 
+          span {{ data.data.i }}
+        ASpace.data-info.data-info__height
+          span height: 
+          span {{ data.data.height }}
+    ASpace.data-info.data-info__hash(style="display: flex;")
+      span Hash: 
+      span {{ data.data.hash || data.data.tailHash }}
+  //- ASpace.data-info.data-info__departure-time(v-if="type === 'bp'")
+  //-   span Departure at: 
+  //-   span {{ getDepartureTime(data) }}
+  //- ASpace.data-info.data-info__arrive-time(v-if="type === 'bp'")
+  //-   span Arrival at: 
+  //-   span {{ getArrivalTime(data) }}
 
   .data-info.data-info__tx-links
     span Txs({{ txs.length }}): 
-    APopover(v-for="tx in txs" :title="`tx_${tx.i}`" trigger="click")
+    APopover(v-for="tx in txs" trigger="hover" color="#fff7e6" arrowPointAtCenter)
       template(#content)
         .tx-info__hash {{ tx.hash }}
         ASpace.tx-info__from
           span from:
-          .node-link {{ tx.from.account.addressString }}
+          .node-info {{ tx.from.addressString }}
         ASpace.tx-info__to
           span to:
-          .node-link {{ tx.to.account.addressString }}
-      .tx-link tx_{{ tx.i }}
+          .node-info {{ tx.to.addressString }}
+      .tx-link tx{{ tx.i }}
 
-  ASpace.bp-info.nodes(v-if="type === 'bp'" v-for="(node, index) in nodes")
-    span(v-if="index === 0") Collector: 
-    span(v-else) Witness{{ index + 1 }}: 
-    .node-link {{ getNodeLabel(node) }}
-  ASpace.block-info.node-links(v-else)
-    span Nodes({{nodes.length}}): 
-    .node-link(v-for="node in nodes") {{ node.account.addressString }}
-
-  ASpace.block-info.mint-node(v-if="type === 'block'")
-    span Mint Node: 
-    .node-link {{ mintNodeAddr }}
+  .bp-info.nodes(v-if="type === 'bp'")
+    ASpace(v-for="(node, index) in participants")
+      span(v-if="index === 0") Collector: 
+      span(v-else) Witness{{ index }}: 
+      .node-info {{ getNodeAddr(node) }}
+  .block-info.nodes(v-else)
+    span Nodes({{participants.length}}): 
+    ATooltip(v-for="(node, index) in participants" placement="bottomLeft" :overlayStyle="{ 'white-space': 'nowrap', 'max-width': 'unset' }" arrowPointAtCenter)
+      template(#title)
+        span {{ getNodeAddr(node, false) }}
+      span.node-link(v-if="index === 0" style="white-space: nowrap;") C
+      span.node-link(v-else) W{{ index }}
 
 </template>
 
@@ -57,11 +62,15 @@ export default defineComponent({
     selectedHash: {
       type: String,
       default: ''
+    },
+    nodes: {
+      type: Array,
+      required: true
     }
   },
   setup: (props, { emit }) => {
     const highlight = computed(() => {
-      return props.data.highlight
+      return !!props.data.highlight
     })
     const selected = computed(() => {
       return props.data.data.hash === props.selectedHash || props.data.data.tailHash === props.selectedHash
@@ -70,23 +79,56 @@ export default defineComponent({
       return props.data.type
     })
     const txs = computed(() => {
-      return []
+      return props.data.data.txs
     })
-    const getNodeLabel = (node) => {
-      return `No.${1} ${node.publicKeyString}`
+    const getNodeAddr = (node, brief = true) => {
+      const index = props.nodes.findIndex((nodeItem) => nodeItem.publicKey === node.publicKeyString)
+      let address = props.nodes[index].address
+      address = brief ? address.substring(0, 6) + '...' : address
+      return `No.${index + 1}: ${address}`
     }
+
+    const participants = computed(() => {
+      let records
+      if (type.value === 'bp') records = props.data.data.witnessRecords
+      else records = props.data.data.bp.witnessRecords
+      const list = []
+      list.push(records[0].asker)
+      for (const record of records) {
+        list.push(record.witness)
+      }
+      return list
+    })
+
+    const witnessRound = computed(() => {
+      return props.data.data.witnessRecords.length
+    })
 
     const dataCardClass = computed(() => {
       const list = []
       if (highlight.value) list.push('highlight')
       if (selected.value) list.push('selected')
       list.push(`${type.value}-card`)
-      return []
+      return list
     })
+
+    const getDepartureTime = () => {
+      return '2022-09-22'
+    }
+
+    const getArrivalTime = () => {
+      return '2022-09-22'
+    }
+
     return {
       dataCardClass,
       type,
-      txs
+      txs,
+      participants,
+      witnessRound,
+      getDepartureTime,
+      getArrivalTime,
+      getNodeAddr
     }
   }
 })
@@ -152,4 +194,28 @@ $block-hover-bg-color-map: (
 }
 
 @include card('chain', 'block', 'bp');
+.data-card > * {
+  margin-bottom: 2px;
+}
+.tx-info__from, .tx-info__to {
+  display: flex;
+}
+.node-info {
+  max-width: 150px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.tx-link, .node-link {
+  display: inline-block;
+  color: #1890ff;
+  border-bottom: solid 1px #1890ff;
+  margin: 0 4px;
+  padding: 0 2px;
+  line-height: 1em;
+  &:hover {
+    color: #40a9ff;
+    border-bottom-color: #40a9ff;
+  }
+}
 </style>

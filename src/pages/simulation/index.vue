@@ -17,12 +17,12 @@
     .chain-container
       .chain-container__header chain
       .chain-block-card-list(ref="chainBlockList")
-        BlockOrBpCard(v-for="block in chainBlocks" :data="block" @select="handleSelectBlock")
+        BlockOrBpCard(v-for="block in chainBlocks" :data="block" :nodes="w3Nodes" @click="handleSelectBlock")
 
     .block-container
       .block-container__header block
       .block-card-list(ref="blockList")
-        BlockOrBpCard(v-for="block in blocks" :data="block" @select="handleSelectBlock")
+        BlockOrBpCard(v-for="block in blocks" :data="block" :nodes="w3Nodes" @click="handleSelectBlock")
     
     .swarm-container
       .swarm-container__header
@@ -41,12 +41,12 @@
                 span(v-else) Mint
 
       .swarm-container__content
-        SwarmGraph(:nodes="w3?.nodes || []" ref="swarmGraph" :playing="playing")
+        SwarmGraph(:nodes="w3Nodes" ref="swarmGraph" :playing="playing")
       
     .bp-container
       .bp-container__header bp
       .bp-card-list(ref="bpList")
-        BlockOrBpCard(v-for="bp in bps" :data="bp" @select="handleSelectBp")
+        BlockOrBpCard(v-for="bp in bps" :nodes="w3Nodes" :data="bp" @click="handleSelectBp")
 
     SimulationConfig(@start="startSimulate" @stop="stopSimulate")
 </template>
@@ -82,6 +82,7 @@ export default defineComponent({
     const initHeight = Math.floor(Math.random() * 100)
     const playing = ref(false)
     const w3 = ref(null)
+    const w3Nodes = ref([])
 
     const chainBlocks = ref([])
     const blocks = ref([])
@@ -107,9 +108,51 @@ export default defineComponent({
       }
     })
 
+    const initHistoryData = () => {
+
+    }
+
+    const addBpCard = (msg) => {
+      // const data = msg.data
+      bps.value.push(Object.assign({ type: 'bp', highlight: true }, msg))
+    }
+
+    const addBlockCard = (msg) => {
+      blocks.value.push(Object.assign({ type: 'block', highlight: true }, msg))
+    }
+
+    const addChainBlockCard = (msg) => {
+      chainBlocks.value.push(Object.assign({ type: 'chain', highlight: true }, msg))
+    }
+
+    const downplayBpCard = (msg) => {
+      const bpI = msg.data.i
+      const relatedBps = bps.value.filter((bp) => bp.data.i === bpI)
+      for (const relatedBp of relatedBps) {
+        relatedBp.highlight = false
+      }
+    }
+    
+    const downplayBlockCard = (msg) => {
+      const blockI = msg.data.i
+      const relatedBlocks = blocks.value.filter((block) => block.data.i === blockI)
+      for (const relatedBlock of relatedBlocks) {
+        relatedBlock.highlight = false
+      }
+    }
+
+    const downplayChainBlockCard = (msg) => {
+      const blockI = msg.data.i
+      const relatedBlocks = blocks.value.filter((block) => block.data.i === blockI)
+      for (const relatedBlock of relatedBlocks) {
+        relatedBlock.highlight = false
+      }
+    }
+
     const bindW3Listener = () => {
       w3.value.events.on('simulation.init', (msg) => {
-        console.log('!!!, init', msg)
+        w3Nodes.value = msg.nodes
+        initHistoryData()
         // TODO: add nodes, init swarm graph; init block, bp history data.
       })
       w3.value.events.on('network.msg.departure', (msg) => {
@@ -117,6 +160,7 @@ export default defineComponent({
         const notAutoRemove = !manualMode.value && msg.type === 'block'
         addMsg(msg, 'network.msg.departure', !notAutoRemove)
         // TODO: bp and block type, add to bp and block column
+        if (msg.type === 'block') addBlockCard(msg)
       })
       w3.value.events.on('network.msg.arrival', (msg) => {
         console.log('!!!, arrival', msg)
@@ -124,14 +168,19 @@ export default defineComponent({
       })
       w3.value.events.on('node.role', (msg) => {
         addMsg(msg, 'node.role')
+        if (msg.role === 'witness') addBpCard(msg)
       })
       w3.value.events.on('node.verify', (msg) => {
         console.log('!!!, verify', msg)
         const autoDownplay = manualMode.value || msg.type !== 'block'
         addMsg(msg, 'node.verify', autoDownplay)
+        if (msg.type === 'bp') downplayBpCard(msg)
       })
       w3.value.events.on('chain.block.added', (msg) => {
         console.log('!!!, add block', msg)
+        addChainBlockCard(msg)
+        downplayBlockCard(msg)
+        if (manualMode.value) setTimeout(() => downplayChainBlockCard(msg), 2000)
       })
       w3.value.events.on('chain.fork', (msg) => {
         console.log('!!!, fork chain', msg)
@@ -151,11 +200,13 @@ export default defineComponent({
       await w3.value.sendFakeTxs(txAmount, config.tps)
       w3.value.destroy()
       swarmGraph.value.reDrawNode()
+      stopSimulate()
     }
 
     const presentSimulate = async () => {
       await swarmExecute()
       swarmGraph.value.reDrawNode()
+      stopSimulate()
       // w3.value.destroy()
     }
 
@@ -165,6 +216,14 @@ export default defineComponent({
     }
 
     const clearSwarmPainter = () => {
+
+    }
+
+    const handleSelectBlock = () => {
+
+    }
+
+    const handleSelectBp = () => {
 
     }
     
@@ -184,14 +243,16 @@ export default defineComponent({
       currentPercent,
       currentStep,
       currentStage,
-      w3,
+      w3Nodes,
 
       swarmGraph,
       presentSimulate,
 
       startSimulate,
       stopSimulate,
-      clearSwarmPainter
+      clearSwarmPainter,
+      handleSelectBlock,
+      handleSelectBp
     }
   }
 })

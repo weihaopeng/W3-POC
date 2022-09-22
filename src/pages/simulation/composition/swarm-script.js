@@ -32,6 +32,16 @@ export default function (height, w3, playing) {
     await w3.value.init(5)
     w3.value.reset(height)
     console.log(w3.value)
+    setTimeout(() => {
+      const briefNodes = w3.value.nodes.map((node) => { 
+        return {
+          address: node.account.addressString,
+          i: node.i,
+          publicKey: node.account.publicKeyString
+        }
+      })
+      w3.value.emitW3Event('simulation.init', { nodes: briefNodes })
+    })
     return w3.value.config
   }
 

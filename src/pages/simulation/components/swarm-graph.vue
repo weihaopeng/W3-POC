@@ -51,11 +51,12 @@ export default defineComponent({
 
     const calcSwarmNodes = () => {
       swarmNodes.value = props.nodes.map((node, index) => {
-        const addrStr = node.account.addressString
-        const pubKey = node.account.publicKeyString
+        const addrStr = node.address
+        const pubKey = node.publicKey
         return {
           id: addrStr,
           pubKey,
+          i: node.i,
           number: index + 1,
           name: `${addrStr.substring(0, 6)}`,
           tooltips: [], // tooltip: { id, content, data: { from, to, title }, valid }
@@ -105,6 +106,7 @@ export default defineComponent({
     }
 
     const reDrawNode = () => {
+      console.log('redraw', props.playing)
       if (!props.playing) return
       for (const node of swarmNodes.value) {
         const { role, round } = calcNodeRoleInfo(node.id, node.pubKey)

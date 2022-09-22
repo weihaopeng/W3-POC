@@ -104,7 +104,6 @@ const ifValid = (msg) => {
   const verifiedMsg = store.state.msgList.find((msgItem) => {
     return msgItem.event === 'node.verify' && msgItem.type === msg.type && msgItem.data.i === msg.data.i && msgItem.node.account.addressString === (msg.to && msg.to.address)
   })
-  // if (store.state.msgList.length > 10) debugger
   if (!verifiedMsg) return null
   return verifiedMsg.valid
 }
