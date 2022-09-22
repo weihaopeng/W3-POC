@@ -1,0 +1,48 @@
+.chain-container, .block-container, .bp-container, .swarm-container {
+  display: flex;
+  flex-direction: column;
+  margin-right: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  position: relative;
+}
+
+.chain-container, .block-container, .bp-container {
+  width: 270px;
+  overflow-y: auto;
+  max-height: 100%;
+  &__header {
+    color: #fff;
+    font-size: 20px;
+    text-align: left;
+    margin: 10px 16px 15px;
+    font-weight: 900;
+  }
+  &::after {
+    position: absolute;
+    content: '';
+    bottom: 0;
+    width: 100%;
+    height: 12px;
+    background: linear-gradient(180deg,rgba(61,63,80,0.00), rgba(61,63,80,0.90));
+    border-radius: 0px 0px 4px 4px;
+  }
+}
+
+.bp-container  {
+  margin-right: 0;
+}
+
+.swarm-container {
+  flex-grow: 1;
+}
+
+.chain-block-card-list, .block-card-list, .bp-card-list {
+  overflow-y: auto;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

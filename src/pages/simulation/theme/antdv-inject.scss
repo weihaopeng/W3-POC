@@ -1,0 +1,78 @@
+.simulation :deep .ant-steps {
+  justify-content: center;
+  .ant-steps-item {
+    cursor: default;
+    width: 350px;
+    max-width: 350px;
+    &:last-child {
+      width: 400px;
+      max-width: 400px;
+    }
+    .ant-steps-item-title {
+      color: #fff;
+      font-weight: 900;
+      font-size: 24px;
+      &::after {
+        height: 2px
+      }
+    }
+    .ant-progress-circle-trail {
+      display: none;
+    }
+    .ant-steps-item-description {
+      max-width: 360px;
+      font-size: 14px;
+      color: #fff;
+    }
+    .ant-steps-item-icon {
+      background: #5B8FF9;
+      border-color: #5B8FF9;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+    }
+    &:not(.ant-steps-item-process) .ant-steps-item-icon {
+      border-width: 2px;
+    }
+    &.ant-steps-item-process {
+      & > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title::after {
+        background: rgba(#d9d9d9, 0.8);
+      }
+      .ant-progress-inner {
+        max-width: 36px;
+        max-height: 36px;
+        svg path {
+          stroke-width: 8;
+          stroke: rgb(101, 144, 242) !important;
+        }
+      }
+    }
+    &.ant-steps-item-wait {
+      .ant-steps-item-title {
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: normal;
+      }
+      .ant-steps-item-icon {
+        background-color: transparent;
+        border-color: rgba(255, 255, 255, 0.8);
+        .ant-steps-icon {
+          color: rgba(255, 255, 255, 0.8);
+        }
+      }
+    }
+    &.ant-steps-item-finish {
+      .ant-steps-item-icon {
+        background-color: transparent;
+        border-color: #5B8FF9;
+        .ant-steps-icon {
+          color: #5B8FF9;
+        }
+      }
+      .ant-steps-item-title::after {
+        background: #5b8ff9;
+      }
+    }
+  }
+}
