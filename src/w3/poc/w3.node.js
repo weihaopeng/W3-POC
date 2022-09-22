@@ -17,7 +17,7 @@ class W3Node extends Node {
   }
 
   get briefObj () {
-    return { i: this.i, address: this.account.addressString }
+    return { i: this.i, address: this.account.addressString, publicKeyString: this.account.publicKeyString }
   }
 
   _isCollector (publicKeyString, tailHash) {
@@ -30,7 +30,8 @@ class W3Node extends Node {
   }
 
   toJSON() {
-    _.omit(this, ['network', 'localFacts', '_fsm'])
+    return this.briefObj
+    // return _.omit(this, ['network', 'localFacts', '_fsm'])
   }
 }
 

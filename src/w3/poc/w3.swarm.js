@@ -38,11 +38,6 @@ class W3Swarm extends EventEmitter2 {
 
     this.destroied = false
 
-    // TODO: wire the network @Jian-ru
-    // if (network) {
-    //   await network.init(this)
-    //   this.network = network
-    // }
   }
 
   reset(height=0) {
@@ -60,7 +55,7 @@ class W3Swarm extends EventEmitter2 {
   }
 
   listen (event, cb, target) {
-    this.on(event, ({ origin, data, network }) => {
+    this.on(event, ({ origin, data }) => {
       // node calls back immediately in its own event in single node mode to make two-stages-mint move forward
       if (this.config.SINGLE_NODE_MODE) this._listenCb(cb, data, origin, target, event)
 

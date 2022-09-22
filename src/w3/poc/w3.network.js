@@ -9,12 +9,12 @@ class W3Network {
     this.localSwarm = localSwarm
     this.reactState = reactState
     this.remoteSwarms = []
-    this.topics = ['tx', 'bp', 'block', 'fork', 'node:online']
+    this.topics = ['tx', 'bp', 'block', 'fork', 'swarm:init', 'libp2p:online']
     this.inboundListener = this.dispatchPubsub.bind(this)
   }
 
-  get localTopics () {
-    return this.topics.filter(t => !t.startsWith('node:'))
+  get swarmTopics () {
+    return this.topics.filter(t => !t.startsWith('libp2p:')) // libp2p.online is used by libp2p
   }
 
 
@@ -39,7 +39,7 @@ class W3Network {
   }
 
   startListenLocalSwarm() {
-    this.outboundListeners = this.localTopics.map(topic => {
+    this.outboundListeners = this.swarmTopics.map(topic => {
       const listener = ({origin, data, network }) => {
         if (origin !== 'network') this.broadcast(topic, {origin, data}) // 来自network的消息，要避免echo回发
       }

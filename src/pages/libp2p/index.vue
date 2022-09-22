@@ -31,8 +31,8 @@ export default defineComponent({
       },
 
       sendMsg () {
-        const data = { origin:  network.libp2p.peerId.toString(), event: 'node:online'}
-        network.broadcast('node:online', data)
+        const data = { origin:  network.libp2p.peerId.toString(), event: 'libp2p:online'}
+        network.broadcast('libp2p:online', data)
       },
 
       toggleTwoStagesMint() {

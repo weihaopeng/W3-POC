@@ -19,6 +19,13 @@ const swarm = new W3Swarm({ NODES_AMOUNT, W3_EVENTS_ON: true })
 const startTwoStagesMint = async () => {
   state.mint = true
   await swarm.init()
+
+  // @weihaopeng #19 as you wish
+  swarm.emit('swarm:init', {
+    origin: { type: 'swarm', peerId: network.libp2p.peerId.toString() },
+    data: { node: swarm.nodes }
+  })
+
   return swarm.sendFakeTxs(txAmount, 2 * tps)
 }
 
