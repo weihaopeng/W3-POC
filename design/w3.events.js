@@ -1,7 +1,7 @@
 /**
  * events used in dashboard for visualization of W3
  */
-const w3Events = {
+ const w3Events = {
   /**
    * w3内的消息传递，适合在swarm视图使用。在network视图中，性能消耗过大，不适合。
    * 绘制消息发送路径动画时，时间很重要。例如：节点在收到bp的消息之后，方可进行verify，然后才有下一轮bp消息。
@@ -46,4 +46,14 @@ const w3Events = {
     node: { address: 'node.account.addressString', i: '序号便于在开发调试中识认' },
     valid: true
   },
+
+  'node.role': {
+    type: 'collector',  // collector | witness
+    data: {}, // witness of which bp
+    node: { address: 'node.account.addressString', i: '序号便于在开发调试中识认' }
+  },
+
+  'simulation.init': {
+    nodes: [{ address: 'node.account.addressString', i: '序号便于在开发调试中识认', publicKey: 'node.account.publicKeyString' }]
+  }
 }
