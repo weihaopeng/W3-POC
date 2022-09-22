@@ -4,6 +4,8 @@ import { WebSockets } from '@libp2p/websockets'
 import { Noise } from '@chainsafe/libp2p-noise'
 import { Mplex } from '@libp2p/mplex'
 import { Bootstrap } from '@libp2p/bootstrap'
+import { FloodSub } from '@libp2p/floodsub'
+import { GossipSub } from '@chainsafe/libp2p-gossipsub'
 
 const libp2p = {
   node: null,
@@ -43,7 +45,10 @@ const libp2p = {
         autoDial: true, // Auto connect to discovered peers (limited by ConnectionManager minConnections)
         // The `tag` property will be searched when creating the instance of your Peer Discovery service.
         // The associated object, will be passed to the service when it is instantiated.
-      }
+      },
+
+      // pubsub: new FloodSub()
+      pubsub: new GossipSub()
 
     })
 

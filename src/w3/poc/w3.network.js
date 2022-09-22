@@ -2,8 +2,8 @@
  * remote swarms, node outside the webpage
  */
 import { libp2p } from './libp2p.js'
-import { peerIdFromString } from '@libp2p/peer-id'
-import { GossipSub } from '@chainsafe/libp2p-gossipsub'
+import { toString, fromString } from 'uint8arrays'
+
 
 // const GossipSub = require('@chainsafe/libp2p-gossipsub')
 //
@@ -13,7 +13,6 @@ class W3Network {
   constructor () {
     this.remoteSwarms = []
     this.topics = ['tx', 'bp', 'block', 'fork', 'w3:node:online']
-    this.encoder = new TextEncoder()
   }
 
   async init (localSwarm, state) {
@@ -22,8 +21,11 @@ class W3Network {
     this.libp2p = await libp2p.init()
     await this.libp2p.start()
     state.status = 'libp2p started as: ' + this.libp2p.peerId.toString()
-    await this.initPubsub()
 
+    this.pubsub = this.libp2p.pubsub
+    // await this.initPubsub()
+
+    this.startListen()
     this.listenLibp2p(state)
   }
 
@@ -53,12 +55,13 @@ class W3Network {
 
   async listen (topic) {
     // listen to remoteSwarms(libp2p)'s pub/sub topic
-    const listener = (data) => {
-      debugger
+    const listener = (evt) => {
+      console.log(`node1 received: ${(evt.detail.data)} on topic ${evt.detail.topic}`)
+      const data = toString(evt.detail.data)
       console.log('--- on topic', topic, data)
       this.localSwarm?.broadcast(topic, data)
     }
-    this.pubsub.addEventListener(topic, listener)
+    this.pubsub.addEventListener('message', listener)
     await this.pubsub.subscribe(topic)
     return listener
   }
@@ -71,7 +74,7 @@ class W3Network {
   }
 
   broadcast (topic, msg) {
-    this.pubsub.publish(topic, this.encoder.encode(msg))
+    this.pubsub.publish(topic, fromString(msg))
       // .catch(e => {
       //   console.log('--- broadcast error', e)
       // })

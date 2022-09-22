@@ -1,4 +1,4 @@
-import { createEd25519PeerId } from '@libp2p/peer-id-factory'
+import { createEd25519PeerId, createRSAPeerId } from '@libp2p/peer-id-factory'
 import fs from 'node:fs'
 import { toString } from 'uint8arrays'
 
@@ -14,7 +14,7 @@ const peerIdToJSON = (peerId) => {
 
 
 const savePeerIdsInFile = async (n) => {
-  const jsons = await Promise.all([...new Array(n)].map(_ => createEd25519PeerId()))
+  const jsons = await Promise.all([...new Array(n)].map(_ => createRSAPeerId()))
   fs.writeFileSync( './fixtures/peer.ids.json', JSON.stringify(jsons.map(peerIdToJSON)))
 }
 
