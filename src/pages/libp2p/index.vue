@@ -12,10 +12,9 @@ div.libp2p
         td.found-peers {{ foundPeers }}
         td.connected-peers {{ connectedPeers }}
 
-  button(type="button" @click="startListenPubsub") Start Listen
+  //button(type="button" @click="startListenPubsub") Start Listen
   button(type="button" @click="sendMsg") Send Msg
-  button(type="button" @click="startTwoStagesMint") Start two stage mint
-  button(type="button" @click="stopTwoStagesMint") Stop two stage mint
+  button(type="button" @click="toggleTwoStagesMint" :class="{ mint }") {{ mint ? 'Stop' : 'Start'}} two stage mint
 </template>
 
 <script>
@@ -36,13 +35,9 @@ export default defineComponent({
         network.broadcast('node:online', data)
       },
 
-      startTwoStagesMint() {
-        startTwoStagesMint()
+      toggleTwoStagesMint() {
+        this.mint ? stopTwoStagesMint(): startTwoStagesMint()
       },
-
-      stopTwoStagesMint() {
-        stopTwoStagesMint()
-      }
     }
   }
 })
@@ -58,6 +53,10 @@ export default defineComponent({
 
 .libp2p button {
   background-color: #4CAF50; /* Green */
+}
+
+.libp2p button.mint {
+  background-color: #f44336; /* Red */
 }
 
 </style>

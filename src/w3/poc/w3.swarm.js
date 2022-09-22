@@ -51,9 +51,9 @@ class W3Swarm extends EventEmitter2 {
     Chain.reset()
   }
 
-  destroy () {
+  destroy (keepListen=false) {
     this.nodes = null
-    this.removeAllListeners()
+    keepListen || this.removeAllListeners()
     Chain.reset()
     Epoch.destroy()
     this.destroied = true

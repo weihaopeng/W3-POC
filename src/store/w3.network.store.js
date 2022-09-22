@@ -6,6 +6,7 @@ const state = reactive({
   connectedPeers: 0,
   foundPeers: 0,
   status: 'Starting libp2p',
+  mint: false,
 })
 
 
@@ -16,12 +17,14 @@ const txAmount = Math.ceil(100 * tps)
 const swarm = new W3Swarm({ NODES_AMOUNT, W3_EVENTS_ON: true })
 
 const startTwoStagesMint = async () => {
+  state.mint = true
   await swarm.init()
   return swarm.sendFakeTxs(txAmount, 2 * tps)
 }
 
 const stopTwoStagesMint = async () => {
-  await swarm.destroy()
+  state.mint = false
+  await swarm.destroy(true)
 }
 
 const network = new W3Network(swarm, state)
