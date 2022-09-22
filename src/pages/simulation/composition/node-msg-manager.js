@@ -42,8 +42,8 @@ const updateHistoryMsg = (msg, autoRemove = true) => {
     const msgs = filterMsgAboutData(msg.data, msg.type, false)
     const verifyCount = msgs.filter((msgItem) => msgItem.event === 'node.verify').length
     const arrivalMsgs = msgs.filter((msgItem) => msgItem.event === 'network.msg.arrival')
-    console.log(msg.type === 'tx', verifyCount, verifyCount === store.state.collectorsAmount)
-    if ((msg.type === 'tx' && verifyCount === store.state.collectorsAmount) || (msg.type === 'bp' && verifyCount === store.state.witnessesAmount)) {
+    if (!autoRemove) return
+    if ((msg.type === 'tx' && verifyCount === store.state.collectorsAmount) || (msg.type === 'bp' && verifyCount >= store.state.witnessesAmount)) {
       // remove all msg when the verify count equals with collector count or witness count.
       for (const arrivalMsg of arrivalMsgs) {
         clearMsgTimeoutAndRemove(arrivalMsg)
@@ -81,12 +81,13 @@ const removeMsg = (msg, timeout) => {
 const ifMsgAboutNode = (msg, nodeKey, onlyNetworkMsg = true) => {
   if (msg.remove) return false
   if (onlyNetworkMsg && msg.event.indexOf('network') === -1) return false // or chain event msg
-  if (!msg.to && msg.from.address === nodeKey) return true
+  if (!msg.to && !msg.from && msg.node && msg.node.account.addressString === nodeKey) return true
+  if (!msg.to && msg.from && msg.from.address === nodeKey) return true
   if (msg.to && msg.to.address === nodeKey) return true
 }
 
-const filterMsgAboutNode = (nodeKey) => {
-  return store.state.msgList.filter((msg) => ifMsgAboutNode(msg, nodeKey))
+const filterMsgAboutNode = (nodeKey, onlyNetworkMsg) => {
+  return store.state.msgList.filter((msg) => ifMsgAboutNode(msg, nodeKey, onlyNetworkMsg))
 }
 
 const ifMsgAboutData = (msg, data, type, onlyNetworkMsg = true) => {
@@ -108,13 +109,15 @@ const ifValid = (msg) => {
   return verifiedMsg.valid
 }
 
-const calcNodeRoleInfo = (nodeKey) => {
-  const msgs = filterMsgAboutNode(nodeKey)
-  const collectorMsgCount = msgs.filter((msg) => msg.event === 'node.chosenAs' && msg.role === 'collector').length // TODO, this msg hasn't implemented.
-  const witnessMsgCount = msgs.filter((msg) => msg.event === 'node.chosenAs' && msg.role === 'witness').length
+const calcNodeRoleInfo = (nodeAddr, nodePubKey) => {
+  const msgs = filterMsgAboutNode(nodeAddr, false)
+  // TODO: remove old role when a new role is seted related to the old role's data.
+  // e.g., tx1 -> node1 collector, set node1 collector; bp1 -> tx1 -> node3 witness, set node3 witness and remove node1's role.
+  const collectorMsgCount = msgs.filter((msg) => msg.event === 'node.role' && msg.role === 'collector').length // TODO, this msg hasn't implemented.
+  const witnessMsgs = msgs.filter((msg) => msg.event === 'node.role' && msg.role === 'witness')
   const departureMsgCount = msgs.filter((msg) => msg.event === 'network.msg.departure').length
   if (collectorMsgCount) return { role: 'Collector' }
-  if (witnessMsgCount) return { role: 'Witness', round: witnessMsgCount }
+  if (witnessMsgs.length) return { role: 'Witness', round: (witnessMsgs[witnessMsgs.length - 1].data.witnessRecords?.findIndex((record) => record.witness && record.witness.publicKeyString === nodePubKey) || 0) + 1 }
   if (departureMsgCount) return { role: 'sender' }
   return { role: 'default' }
 }

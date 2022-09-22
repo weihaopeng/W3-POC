@@ -41,7 +41,7 @@
                 span(v-else) Mint
 
       .swarm-container__content
-        SwarmGraph(:nodes="w3?.nodes || []" ref="swarmGraph")
+        SwarmGraph(:nodes="w3?.nodes || []" ref="swarmGraph" :playing="playing")
       
     .bp-container
       .bp-container__header bp
@@ -108,11 +108,8 @@ export default defineComponent({
     })
 
     const bindW3Listener = () => {
-      // messageHandler.value = new MessageHandler({
-      //   swarmPainter: swarmPainter.value,
-      //   nodes: w3.value.nodes
-      // })
-      w3.value.events.on('network.swarm.init', (msg) => {
+      w3.value.events.on('simulation.init', (msg) => {
+        console.log('!!!, init', msg)
         // TODO: add nodes, init swarm graph; init block, bp history data.
       })
       w3.value.events.on('network.msg.departure', (msg) => {
@@ -120,21 +117,18 @@ export default defineComponent({
         const notAutoRemove = !manualMode.value && msg.type === 'block'
         addMsg(msg, 'network.msg.departure', !notAutoRemove)
         // TODO: bp and block type, add to bp and block column
-        // swarmGraph.value.
-        // messageHandler.value.handleNetworkDeparture(msg)
       })
       w3.value.events.on('network.msg.arrival', (msg) => {
         console.log('!!!, arrival', msg)
         addMsg(msg, 'network.msg.arrival')
-        // messageHandler.value.handleNetworkArrive(msg)
       })
-      w3.value.events.on('node.chosenAs', (msg) => {
-        // TODO: set node role.
+      w3.value.events.on('node.role', (msg) => {
+        addMsg(msg, 'node.role')
       })
       w3.value.events.on('node.verify', (msg) => {
         console.log('!!!, verify', msg)
-        addMsg(msg, 'node.verify')
-        // messageHandler.value.handleNodeVerify2(msg)
+        const autoDownplay = manualMode.value || msg.type !== 'block'
+        addMsg(msg, 'node.verify', autoDownplay)
       })
       w3.value.events.on('chain.block.added', (msg) => {
         console.log('!!!, add block', msg)
@@ -162,6 +156,7 @@ export default defineComponent({
     const presentSimulate = async () => {
       await swarmExecute()
       swarmGraph.value.reDrawNode()
+      // w3.value.destroy()
     }
 
     const stopSimulate = () => {

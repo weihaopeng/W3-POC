@@ -2,6 +2,7 @@ import { ref, computed } from "vue";
 import { W3Swarm } from '@/w3/poc/w3.swarm.js'
 import { util } from '@/w3/util.js'
 import { Transaction } from '@/w3/core/entities/transaction.js'
+import { Block } from '@/w3/core/entities/block.js'
 
 export default function (height, w3, playing) {
   const NODES_AMOUNT = 5
@@ -44,10 +45,12 @@ export default function (height, w3, playing) {
     playing.value = true
     let j = 0
     const collectorNode = w3.value.nodes[3]
+    const txs = []
     for (let i = 0; i < 3; i++) {
       if (!playing.value) break;
       const randomIndex = Math.random() < 0.5 ? 1 : 4;
       const tx = w3.value.createFakeTx(j)
+      txs.push(tx)
       const from = w3.value.nodes[randomIndex]
       w3.value.emitW3EventMsgDeparture({ event: 'tx', data: tx, origin: from, target: null })
       j++
@@ -57,10 +60,12 @@ export default function (height, w3, playing) {
         const arriveLatency = util.gaussRandom(LATENCY_LOWER_BOUND, LATENCY_UPPER_BOUND)
         setTimeout(() => {
           w3.value.emitW3EventMsgArrival({ event: 'tx', data: tx, origin: from, target: node })
-          const verifyLatency = util.gaussRandom(1000, LOCAL_COMPUTATION_LATENCY)
           if (node === collectorNode) {
+            if (i === 0) w3.value.emitW3Event('node.role', { role: 'collector', node, data: tx })
+
+            const verifyLatency = util.gaussRandom(1000, LOCAL_COMPUTATION_LATENCY)
             setTimeout(() => {
-              w3.value.emitW3Event('node.verify', { type: 'tx', data: tx, node: node, valid: true })
+              w3.value.emitW3Event('node.verify', { type: 'tx', data: tx, node, valid: true })
             }, verifyLatency)
           }
         }, arriveLatency)
@@ -68,8 +73,61 @@ export default function (height, w3, playing) {
       })
       await sleep(LATENCY_UPPER_BOUND + LOCAL_COMPUTATION_LATENCY + 1300); // 1000 for valid view timeout and 300 for remove animation.
     }
+
+    let bp
     for (let i = 0; i < 2; i++) {
       if (!playing.value) break;
+      const index = i === 0 ? 3 : 2;
+      const witnessIndex = i === 0 ? 2 : 0;
+      const from = w3.value.nodes[index]
+      const witnessNode = w3.value.nodes[witnessIndex]
+      if (i === 0) bp = from.createBlockProposal(txs)
+      else bp.askForWitness(from)
+      w3.value.emitW3EventMsgDeparture({ event: 'bp', data: bp, origin: from })
+      const otherNodes = w3.value.nodes.filter((node, i) => i !== index)
+
+      otherNodes.map((node) => {
+        const arriveLatency = util.gaussRandom(LATENCY_LOWER_BOUND, LATENCY_UPPER_BOUND)
+        setTimeout(async () => {
+          w3.value.emitW3EventMsgArrival({ event: 'bp', data: bp, origin: from, target: node })
+          if (node === witnessNode) {
+            await bp.witness(node)
+            w3.value.emitW3Event('node.role', { role: 'witness', node, data: bp })
+
+            const verifyLatency = util.gaussRandom(1000, LOCAL_COMPUTATION_LATENCY)
+            setTimeout(() => {
+              w3.value.emitW3Event('node.verify', { type: 'bp', data: bp, node, valid: true })
+            }, verifyLatency)
+          }
+        }, arriveLatency)
+        
+      })
+      await sleep(LATENCY_UPPER_BOUND + LOCAL_COMPUTATION_LATENCY + 1300);
+    }
+
+    const lastWitnessIndex = 0;
+    const lastWitness = w3.value.nodes[lastWitnessIndex]
+    const block = Block.mint(bp, lastWitness.epoch.tailHash)
+    if (playing.value) {
+      w3.value.emitW3EventMsgDeparture({ event: 'block', data: block, origin: lastWitness })
+      const otherNodes = w3.value.nodes.filter((node, i) => i !== lastWitnessIndex)
+
+      otherNodes.map((node) => {
+        const arriveLatency = util.gaussRandom(LATENCY_LOWER_BOUND, LATENCY_UPPER_BOUND)
+        setTimeout(() => {
+          w3.value.emitW3EventMsgArrival({ event: 'block', data: block, origin: lastWitness, target: node })
+          const verifyLatency = util.gaussRandom(1000, LOCAL_COMPUTATION_LATENCY)
+          setTimeout(() => {
+            w3.value.emitW3Event('node.verify', { type: 'block', data: block, node, valid: true })
+          }, verifyLatency)
+        }, arriveLatency)
+        
+      })
+      await sleep(LATENCY_UPPER_BOUND + LOCAL_COMPUTATION_LATENCY + 1300);
+    }
+
+    if (playing.value) {
+      w3.value.emitW3Event('chain.block.added', { data: block })
     }
   }
 

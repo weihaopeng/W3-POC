@@ -37,6 +37,10 @@ export default defineComponent({
     nodes: {
       type: Array,
       default: () => []
+    },
+    playing: {
+      type: Boolean,
+      default: false
     }
   },
   setup: (props) => {
@@ -48,8 +52,10 @@ export default defineComponent({
     const calcSwarmNodes = () => {
       swarmNodes.value = props.nodes.map((node, index) => {
         const addrStr = node.account.addressString
+        const pubKey = node.account.publicKeyString
         return {
           id: addrStr,
+          pubKey,
           number: index + 1,
           name: `${addrStr.substring(0, 6)}`,
           tooltips: [], // tooltip: { id, content, data: { from, to, title }, valid }
@@ -95,18 +101,16 @@ export default defineComponent({
 
     const type2Title = (type) => {
       if (type.length === 2) return type.toLocaleUpperCase()
-      return type[0].toLocaleUpperCase() + type[type.length - 1].tolocaleLowerCase()
+      return type[0].toLocaleUpperCase() + type[type.length - 1].toLocaleLowerCase()
     }
 
     const reDrawNode = () => {
-      console.log('?????? redraw')
+      if (!props.playing) return
       for (const node of swarmNodes.value) {
-        const { role, round } = calcNodeRoleInfo(node.id)
+        const { role, round } = calcNodeRoleInfo(node.id, node.pubKey)
         node.role = role
         if (round) node.rolePrefix = `R${round}`
         const msgs = filterMsgAboutNode(node.id)
-        // tooltip: { id, content, data: { from, to, title }, valid }
-        if (node.number === 1) console.log(msgs)
         node.tooltips = msgs.map((msg) => {
           return {
             id: msg.data.i,
@@ -121,7 +125,6 @@ export default defineComponent({
           }
         }).reverse()
       }
-      console.log(swarmNodes.value)
     }
 
     watch(() => nodeMsgStore.state.msgList, () => {
