@@ -563,8 +563,9 @@ export default defineComponent({
     top: 0;
     left: 30px;
     color: #fff;
+    font-weight: 900;
     .swarm-tooltip-legend__description {
-      font-weight: 300;
+      font-weight: 400;
     }
   }
   .node-info__link {

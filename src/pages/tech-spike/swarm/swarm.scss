@@ -144,7 +144,11 @@ $tooltip-valid-bg-map: (
           color: #fff;
           border-radius: 4px;
           position: relative;
+          font-weight: 900;
           @include tooltip-bg('tx', 'bp', 'block', 'fork', 'invalid');
+          & > div:not(:first-child) {
+            font-weight: 400;
+          }
           &.valid::before {
             content: '';
             position: absolute;
@@ -196,8 +200,10 @@ $tooltip-valid-bg-map: (
         display: flex;
         flex-direction: column;
         color: #fff;
-        font-size: 16px;
+        font-size: 20px;
+        line-height: 23px;
         white-space: nowrap;
+        font-weight: 900;
       }
       img {
         width: 50%
