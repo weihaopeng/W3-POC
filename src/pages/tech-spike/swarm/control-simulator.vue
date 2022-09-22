@@ -296,11 +296,11 @@ export default defineComponent({
         
         await sleep(res.cost + 2500);
         emit('sendMsg', 'clearRoles', [nodes[index].id])
-        emit('sendMsg', 'clearRoles', [nodes[3].id])
       }
 
       networkType.value = 'bp';
       const historyNodes = [];
+      emit('sendMsg', 'clearRoles', [nodes[3].id])
       for (let i = 0; i < 2; i++) {
         if (presentStatus.value === 'stopped') break;
         // while(presentStatus.value === 'pausing') {}

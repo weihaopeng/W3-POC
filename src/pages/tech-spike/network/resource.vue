@@ -31,7 +31,7 @@ export default defineComponent({
       const resourceChart = echarts.init(resourceContainerRef.value)
       resourceChart.setOption({
         title: {
-          text: 'w3 node resource consumption (avg.)',
+          text: 'W3 node resource consumption (avg.)',
           left: '2.5%',
           top: '4.6%',
           textStyle: {
