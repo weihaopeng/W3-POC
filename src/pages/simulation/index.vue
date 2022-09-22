@@ -102,8 +102,8 @@ export default defineComponent({
       if (!manualMode.value) {
         const config = await swarmInit()
         bindW3Listener()
-        const { NODES_AMOUNT, LATENCY_UPPER_BOUND, LOCAL_COMPUTATION_LATENCY } = config
-        updateConfig(NODES_AMOUNT, LATENCY_UPPER_BOUND, LOCAL_COMPUTATION_LATENCY)
+        const { NODES_AMOUNT, LATENCY_UPPER_BOUND, LOCAL_COMPUTATION_LATENCY, WITNESSES_AMOUNT, COLLECTORS_AMOUNT } = config
+        updateConfig(NODES_AMOUNT, LATENCY_UPPER_BOUND, LOCAL_COMPUTATION_LATENCY, WITNESSES_AMOUNT, COLLECTORS_AMOUNT)
       }
     })
 
@@ -112,6 +112,9 @@ export default defineComponent({
       //   swarmPainter: swarmPainter.value,
       //   nodes: w3.value.nodes
       // })
+      w3.value.events.on('network.swarm.init', (msg) => {
+        // TODO: add nodes, init swarm graph; init block, bp history data.
+      })
       w3.value.events.on('network.msg.departure', (msg) => {
         console.log('!!!, departure', msg)
         const notAutoRemove = !manualMode.value && msg.type === 'block'
@@ -124,6 +127,9 @@ export default defineComponent({
         console.log('!!!, arrival', msg)
         addMsg(msg, 'network.msg.arrival')
         // messageHandler.value.handleNetworkArrive(msg)
+      })
+      w3.value.events.on('node.chosenAs', (msg) => {
+        // TODO: set node role.
       })
       w3.value.events.on('node.verify', (msg) => {
         console.log('!!!, verify', msg)
@@ -139,8 +145,8 @@ export default defineComponent({
     }
 
     const startSimulate = async (config) => {
-      const { NODES_AMOUNT, LATENCY_UPPER_BOUND, LOCAL_COMPUTATION_LATENCY } = config
-      updateConfig(NODES_AMOUNT, LATENCY_UPPER_BOUND, LOCAL_COMPUTATION_LATENCY)
+      const { NODES_AMOUNT, LATENCY_UPPER_BOUND, LOCAL_COMPUTATION_LATENCY, WITNESSES_AMOUNT, COLLECTORS_AMOUNT } = config
+      updateConfig(NODES_AMOUNT, LATENCY_UPPER_BOUND, LOCAL_COMPUTATION_LATENCY, WITNESSES_AMOUNT, COLLECTORS_AMOUNT)
       if (w3.value?.nodes) w3.value.destroy()
       w3.value = new W3Swarm(config)
       const txAmount = Math.ceil(2 * config.tps)

@@ -5,6 +5,8 @@ import { Transaction } from '@/w3/core/entities/transaction.js'
 
 export default function (height, w3, playing) {
   const NODES_AMOUNT = 5
+  const WITNESSES_AMOUNT = 1
+  const COLLECTORS_AMOUNT = 1
   const LATENCY_LOWER_BOUND = 2500
   const LATENCY_UPPER_BOUND = 3000
   const LOCAL_COMPUTATION_LATENCY = 1000
@@ -14,6 +16,8 @@ export default function (height, w3, playing) {
       NODES_AMOUNT,
       LATENCY_LOWER_BOUND,
       LATENCY_UPPER_BOUND,
+      WITNESSES_AMOUNT,
+      COLLECTORS_AMOUNT,
       LOCAL_COMPUTATION_LATENCY,
       W3_EVENTS_ON: true,
       WITNESS_AND_MINT_LATENCY: 4 * (LATENCY_UPPER_BOUND + LOCAL_COMPUTATION_LATENCY),
@@ -62,7 +66,7 @@ export default function (height, w3, playing) {
         }, arriveLatency)
         
       })
-      await sleep(LATENCY_UPPER_BOUND + LOCAL_COMPUTATION_LATENCY + 1000);
+      await sleep(LATENCY_UPPER_BOUND + LOCAL_COMPUTATION_LATENCY + 1300); // 1000 for valid view timeout and 300 for remove animation.
     }
     for (let i = 0; i < 2; i++) {
       if (!playing.value) break;

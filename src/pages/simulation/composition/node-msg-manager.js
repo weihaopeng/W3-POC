@@ -7,14 +7,18 @@ const store = reactive({
     nodesAmount: 5,
     latencyUpperBound: 100,
     localComputationLatency: 100,
+    witnessesAmount: 2,
+    collectorsAmount: 2,
     msgList: []
   }
 })
 
-const updateConfig = (NODES_AMOUNT, LATENCY_UPPER_BOUND, LOCAL_COMPUTATION_LATENCY) => {
+const updateConfig = (NODES_AMOUNT, LATENCY_UPPER_BOUND, LOCAL_COMPUTATION_LATENCY, WITNESSES_AMOUNT, COLLECTORS_AMOUNT) => {
   store.state.nodesAmount = NODES_AMOUNT
   store.state.latencyUpperBound = LATENCY_UPPER_BOUND
   store.state.localComputationLatency = LOCAL_COMPUTATION_LATENCY
+  store.state.witnessesAmount = WITNESSES_AMOUNT
+  store.state.collectorsAmount = COLLECTORS_AMOUNT
 }
 
 const addMsg = (msg, event, autoRemove) => {
@@ -35,15 +39,29 @@ const updateHistoryMsg = (msg, autoRemove = true) => {
     if (autoRemove) msg.timeoutTimer = setTimeout(() => timeoutMsg(msg), store.state.localComputationLatency + store.state.latencyUpperBound) // remove if not valid before latency.
   }
   if (msg.event === 'node.verify') {
-    const msgs = filterMsgAboutData(msg.data, msg.type)
-    // TODO: remove msg when the verify count equals with collector count or witness count.
-    const arrivalMsg = msgs.find((msgItem) => msgItem.to && msgItem.to.address === msg.node.account.addressString)
-    clearTimeout(arrivalMsg.timeoutTimer)
-    setTimeout(() => removeMsg(arrivalMsg), validTimeout)
+    const msgs = filterMsgAboutData(msg.data, msg.type, false)
+    const verifyCount = msgs.filter((msgItem) => msgItem.event === 'node.verify').length
+    const arrivalMsgs = msgs.filter((msgItem) => msgItem.event === 'network.msg.arrival')
+    console.log(msg.type === 'tx', verifyCount, verifyCount === store.state.collectorsAmount)
+    if ((msg.type === 'tx' && verifyCount === store.state.collectorsAmount) || (msg.type === 'bp' && verifyCount === store.state.witnessesAmount)) {
+      // remove all msg when the verify count equals with collector count or witness count.
+      for (const arrivalMsg of arrivalMsgs) {
+        clearMsgTimeoutAndRemove(arrivalMsg)
+      }
+    } else {
+      // remove this node's arrival msg related to the verify msg.
+      const arrivalMsg = arrivalMsgs.find((msgItem) => msgItem.to && msgItem.to.address === msg.node.account.addressString)
+      clearMsgTimeoutAndRemove(arrivalMsg)
+    }
   }
   if (msg.event === 'network.msg.departure' && autoRemove) {
     setTimeout(() => timeoutMsg(msg), store.state.latencyUpperBound)
   }
+}
+
+const clearMsgTimeoutAndRemove = (msg) => {
+  clearTimeout(msg.timeoutTimer)
+  setTimeout(() => removeMsg(msg), validTimeout)
 }
 
 const timeoutMsg = (msg) => {
@@ -60,9 +78,9 @@ const removeMsg = (msg, timeout) => {
   }, removeTimeout)
 }
 
-const ifMsgAboutNode = (msg, nodeKey, isNetworkMsg = true) => {
+const ifMsgAboutNode = (msg, nodeKey, onlyNetworkMsg = true) => {
   if (msg.remove) return false
-  if (isNetworkMsg && msg.event.indexOf('network') === -1) return false // or chain event msg
+  if (onlyNetworkMsg && msg.event.indexOf('network') === -1) return false // or chain event msg
   if (!msg.to && msg.from.address === nodeKey) return true
   if (msg.to && msg.to.address === nodeKey) return true
 }
@@ -71,14 +89,14 @@ const filterMsgAboutNode = (nodeKey) => {
   return store.state.msgList.filter((msg) => ifMsgAboutNode(msg, nodeKey))
 }
 
-const ifMsgAboutData = (msg, data, type, isNetworkMsg = true) => {
+const ifMsgAboutData = (msg, data, type, onlyNetworkMsg = true) => {
   if (msg.remove) return false
-  if (isNetworkMsg && msg.event.indexOf('network') === -1) return false
+  if (onlyNetworkMsg && msg.event.indexOf('network') === -1) return false
   if (msg.data.i === data.i && msg.type === type) return true
 }
 
-const filterMsgAboutData = (data, type) => {
-  return store.state.msgList.filter((msg) => ifMsgAboutData(msg, data, type))
+const filterMsgAboutData = (data, type, onlyNetworkMsg) => {
+  return store.state.msgList.filter((msg) => ifMsgAboutData(msg, data, type, onlyNetworkMsg))
 }
 
 const ifValid = (msg) => {
