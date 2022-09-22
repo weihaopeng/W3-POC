@@ -36,6 +36,8 @@ class W3Swarm extends EventEmitter2 {
     // TODO：add network connect/disconnect periodicEmitBlockMessage/stop observer
     await Promise.all(this.nodes.map(node => node.connect()))
 
+    this.destroied = false
+
     // TODO: wire the network @Jian-ru
     // if (network) {
     //   await network.init(this)
@@ -54,10 +56,11 @@ class W3Swarm extends EventEmitter2 {
     this.removeAllListeners()
     Chain.reset()
     Epoch.destroy()
+    this.destroied = true
   }
 
   listen (event, cb, target) {
-    this.on(event, ({ origin, data }) => {
+    this.on(event, ({ origin, data, network }) => {
       // node calls back immediately in its own event in single node mode to make two-stages-mint move forward
       if (this.config.SINGLE_NODE_MODE) this._listenCb(cb, data, origin, target, event)
 
@@ -81,7 +84,7 @@ class W3Swarm extends EventEmitter2 {
 
   broadcast (event, data, origin) {
     this.emit(event, { origin, data}) // use the origin to prevent origin's listen
-    this.config.W3_EVENTS_ON && this.emitW3EventMsgDeparture({ origin, target: null, event, data })
+    this.config.W3_EVENTS_ON && this.emitW3EventMsgDeparture({ origin, target: null, event, data})
   }
 
   async sendFakeTxs (n, tps = 1, badTx= 0) { // transaction per second, is the lamda of the Poisson Distribution
@@ -91,6 +94,7 @@ class W3Swarm extends EventEmitter2 {
     debug('*********** tps: %s, avg possionLatencies: %s', tps, possionLatencies.reduce((a, b) => a + b) / possionLatencies.length)
     const badIndexs = _.sampleSize([...new Array(n)].map((_, i) => i), badTx)
     for (let i = 0; i < n; i++) {
+      if (this.destroied) break // 中断执行
       i % 100 === 0 && console.log('---send %s fake txs, time used: %s ms', i, Date.now() - time)
       const possionLatency = util.exponentialRandom(tps / 1000)
       // debug('--- sendFakeTx latency: %s ms', possionLatency)
@@ -106,6 +110,7 @@ class W3Swarm extends EventEmitter2 {
   }
 
   _sendFakeTx (tx) {
+    if (this.destroied) return
     const origin = _.sample(this.nodes) // simulating where the tx from
     // origin.handleTx(tx)
     debug('---node %s broadcast tx %s ', origin.i, tx)

@@ -47,8 +47,8 @@ const libp2p = {
         // The associated object, will be passed to the service when it is instantiated.
       },
 
-      // pubsub: new FloodSub()
-      pubsub: new GossipSub()
+      pubsub: new FloodSub()
+      // pubsub: new GossipSub() // Be careful with this, subscribe topics after peer connected.
 
     })
 

@@ -1,7 +1,6 @@
 import { blake2b } from 'ethereum-cryptography/blake2b.js'
 
 import Debug from 'debug'
-
 const debug = Debug('w3:algorithm')
 
 const w3Algorithm = {
