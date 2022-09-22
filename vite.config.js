@@ -55,7 +55,13 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      // "protobufjs": "protobufjs/dist/protobuf.min.js",
+      /**
+       * When vite compiles, directly use the `protobufjs` package file to bundle, there will be an exception in the order of dependent functions inside the package.
+       * We need to use the min file in this package directly instead. But in another library there is a file using `protobufjs/minimal`,
+       * the vite will find the file in the root directory of the project. So we need to add the first line to keep it as it is.
+       */
+      "protobufjs/minimal": "protobufjs/minimal",
+      "protobufjs": "protobufjs/dist/protobuf.min.js",
       '@': path.resolve(_dirname, 'src'),
     }
   },
