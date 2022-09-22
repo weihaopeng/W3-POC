@@ -199,13 +199,13 @@ export default defineComponent({
 
       await w3.value.sendFakeTxs(txAmount, config.tps)
       w3.value.destroy()
-      swarmGraph.value.reDrawNode()
+      swarmGraph.value.reRender()
       stopSimulate()
     }
 
     const presentSimulate = async () => {
       await swarmExecute()
-      swarmGraph.value.reDrawNode()
+      swarmGraph.value.reRender()
       stopSimulate()
       // w3.value.destroy()
     }

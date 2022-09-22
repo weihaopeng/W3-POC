@@ -105,8 +105,12 @@ export default defineComponent({
       return type[0].toLocaleUpperCase() + type[type.length - 1].toLocaleLowerCase()
     }
 
+    const reRender = () => {
+      reDrawNode()
+      highlightLine()
+    }
+
     const reDrawNode = () => {
-      console.log('redraw', props.playing)
       if (!props.playing) return
       for (const node of swarmNodes.value) {
         const { role, round } = calcNodeRoleInfo(node.id, node.pubKey)
@@ -130,7 +134,7 @@ export default defineComponent({
     }
 
     watch(() => nodeMsgStore.state.msgList, () => {
-      reDrawNode()
+      reRender()
     }, { deep: true })
 
     const initChart = () => {
@@ -189,23 +193,39 @@ export default defineComponent({
       }
     }
 
-    const highlightNode = () => {
-
-    }
-
     const highlightLine = () => {
-
-    }
-
-    const setNodeTooltip = () => {
-
+      const goingDepartureMsgs = nodeMsgStore.state.msgList.filter((msgItem) => {
+        return msgItem.event === 'network.msg.departure' && !msgItem.remove
+      })
+      const dataIndex = []
+      for (const departureMsg of goingDepartureMsgs) {
+        const fromNodeAddr = departureMsg.from.address
+        const fromIndex = swarmNodes.value.findIndex((node) => node.id === fromNodeAddr)
+        const goingArrivalMsgs = nodeMsgStore.state.msgList.filter((msgItem) => {
+          return msgItem.event === 'network.msg.arrival' && !msgItem.remove && msgItem.from.address === fromNodeAddr
+        })
+        // departure and no one arrival.
+        if (goingArrivalMsgs.length === 0) {
+          for (let i = 0; i < links.value.length; i++) {
+            if (links.value[i].source === fromIndex) dataIndex.push(i)
+          }
+        }
+        for (const arrivalMsg of goingArrivalMsgs) {
+          const toNodeAddr = arrivalMsg.to.address
+          const toIndex = swarmNodes.value.findIndex((node) => node.id === toNodeAddr)
+          const lineIndex = links.value.findIndex((link) => link.source === fromIndex && link.target === toIndex)
+          dataIndex.push(lineIndex)
+        }
+      }
+      chart.value.dispatchAction({ type: 'unselect', dataIndex: links.value.map((link, index) => index), dataType: 'edge' })
+      chart.value.dispatchAction({ type: 'select', dataIndex, dataType: 'edge' })
     }
 
     return {
       swarmCvs,
       swarmNodes,
       swarmCircleStyle,
-      reDrawNode
+      reRender
     }
   }
 })

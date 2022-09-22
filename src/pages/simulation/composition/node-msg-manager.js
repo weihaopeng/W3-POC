@@ -32,13 +32,19 @@ const addMsg = (msg, event, autoRemove) => {
 
 const updateHistoryMsg = (msg, autoRemove = true) => {
   if (msg.event === 'network.msg.arrival') {
-    const msgs = filterMsgAboutData(msg, msg.type)
-    // 1 departure, other all arrival. Then mark departure as remove.
-    if (msgs.length === store.state.nodesAmount)
-      removeMsg(msgs.find((msg) => msg.event === 'network.msg.departure'))
+    // const msgs = filterMsgAboutData(msg, msg.type)
+    // // 1 departure, other all arrival. Then mark departure as remove.
+    // if (msgs.length === store.state.nodesAmount)
+    //   removeMsg(msgs.find((msg) => msg.event === 'network.msg.departure'))
     if (autoRemove) msg.timeoutTimer = setTimeout(() => timeoutMsg(msg), store.state.localComputationLatency + store.state.latencyUpperBound) // remove if not valid before latency.
   }
   if (msg.event === 'node.verify') {
+    const networkMsgs = filterMsgAboutData(msg.data, msg.type)
+    // 1 departure, other all arrival. Then mark departure as remove.
+    console.log('verify related network msg', networkMsgs)
+    if (networkMsgs.length === store.state.nodesAmount)
+      clearMsgTimeoutAndRemove(networkMsgs.find((msg) => msg.event === 'network.msg.departure'))
+
     const msgs = filterMsgAboutData(msg.data, msg.type, false)
     const verifyCount = msgs.filter((msgItem) => msgItem.event === 'node.verify').length
     const arrivalMsgs = msgs.filter((msgItem) => msgItem.event === 'network.msg.arrival')
@@ -55,7 +61,7 @@ const updateHistoryMsg = (msg, autoRemove = true) => {
     }
   }
   if (msg.event === 'network.msg.departure' && autoRemove) {
-    setTimeout(() => timeoutMsg(msg), store.state.latencyUpperBound)
+    msg.timeoutTimer = setTimeout(() => timeoutMsg(msg), store.state.latencyUpperBound + store.state.localComputationLatency)
   }
 }
 
