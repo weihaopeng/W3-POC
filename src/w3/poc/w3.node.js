@@ -4,6 +4,7 @@ import Debug from 'debug'
 import { w3Algorithm } from './w3.algorithm.js'
 import { createFsm } from '../core/node/node-fsm.js'
 import { util } from '../util.js'
+import _ from 'lodash'
 
 const debug = Debug('w3:poc:node')
 
@@ -16,7 +17,7 @@ class W3Node extends Node {
   }
 
   get briefObj () {
-    return { i: this.i, address: this.account.addressString }
+    return { i: this.i, address: this.account.addressString, publicKeyString: this.account.publicKeyString }
   }
 
   _isCollector (publicKeyString, tailHash) {
@@ -26,6 +27,11 @@ class W3Node extends Node {
 
   _isWitness (bp, publicKeyString) {
     return w3Algorithm.isRandomSelected(this.network.distanceFn, bp, publicKeyString, this.network.config.WITNESSES_AMOUNT)
+  }
+
+  toJSON() {
+    return this.briefObj
+    // return _.omit(this, ['network', 'localFacts', '_fsm'])
   }
 }
 

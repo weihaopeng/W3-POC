@@ -4,25 +4,23 @@ import { WebSockets } from '@libp2p/websockets'
 import { Noise } from '@chainsafe/libp2p-noise'
 import { Mplex } from '@libp2p/mplex'
 import { Bootstrap } from '@libp2p/bootstrap'
+import { FloodSub } from '@libp2p/floodsub'
 import { GossipSub } from '@chainsafe/libp2p-gossipsub'
-
-const SIGNALING_SERVER_ADDRESS = [
-    '/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star',
-    '/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star'
-  ]
 
 const libp2p = {
   node: null,
+
   async init (libp2pBeforeStart) {
     const webRtcStar = new WebRTCStar()
-
-    // Create our libp2p node
     this.node = await createLibp2p({
       addresses: {
         // Add the signaling server address, along with our PeerId to our multiaddrs list
         // libp2p will automatically attempt to dial to the signaling server so that it can
         // receive inbound connections from other peers
-        listen: SIGNALING_SERVER_ADDRESS
+        listen: [
+          '/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star',
+          '/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star'
+        ]
       },
       transports: [
         new WebSockets(),
@@ -41,16 +39,28 @@ const libp2p = {
             '/dnsaddr/bootstrap.libp2p.io/p2p/QmcZf59bWwK5XFi76CZX8cbJ4BhTzzA3gU1ZjYZcYW3dwt'
           ]
         })
-      ]
+      ],
+
+      connectionManager: {
+        autoDial: true, // Auto connect to discovered peers (limited by ConnectionManager minConnections)
+        // The `tag` property will be searched when creating the instance of your Peer Discovery service.
+        // The associated object, will be passed to the service when it is instantiated.
+      },
+
+      pubsub: new FloodSub()
+      // pubsub: new GossipSub() // Be careful with this, subscribe topics after peer connected.
+
     })
+
     return this.node
   },
 
-  destroy() {
+  destroy () {
     this.node.stop()
     this.node = null
-  }
+  },
 
 }
 
-export { libp2p, SIGNALING_SERVER_ADDRESS }
+
+export { libp2p}

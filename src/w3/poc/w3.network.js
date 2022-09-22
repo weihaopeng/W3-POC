@@ -2,109 +2,101 @@
  * remote swarms, node outside the webpage
  */
 import { libp2p } from './libp2p.js'
-import { peerIdFromString } from '@libp2p/peer-id'
-import { GossipSub } from '@chainsafe/libp2p-gossipsub'
-
-// const GossipSub = require('@chainsafe/libp2p-gossipsub')
-//
-// const gsub = new GossipSub(libp2p, options)
+import { toString, fromString } from 'uint8arrays'
 
 class W3Network {
-  constructor () {
+  constructor (localSwarm, reactState) {
+    this.localSwarm = localSwarm
+    this.reactState = reactState
     this.remoteSwarms = []
-    this.topics = ['tx', 'bp', 'block', 'fork', 'w3:node:online']
-    this.encoder = new TextEncoder()
+    this.topics = ['tx', 'bp', 'block', 'fork', 'swarm:init', 'libp2p:online']
+    this.inboundListener = this.dispatchPubsub.bind(this)
   }
 
-  async init (localSwarm, state) {
-    // TODO: @Jian-ru 完成
-    this.localSwarm = localSwarm
+  get swarmTopics () {
+    return this.topics.filter(t => !t.startsWith('libp2p:')) // libp2p.online is used by libp2p
+  }
+
+
+  async init () {
     this.libp2p = await libp2p.init()
     await this.libp2p.start()
-    console.log('******* rpc from **** this.libp2p peerId: ', this.libp2p.peerId.toString())
-    await this.initPubsub()
-
-    this.listenLibp2p(state)
-  }
-
-  async initPubsub () {
-    this.pubsub = new GossipSub()
-    // this.pubsub = new GossipSub({allowPublishToZeroPeers: true}) // 这里设置为true，为了压制 `InsufficientPeers` 错误
-    // 按照 https://github.com/ChainSafe/js-libp2p-gossipsub/issues/309 说法，js-libp2p@0.38 应该没有这个问题了，可实际上我们还是会遇到
-    await this.pubsub.init(this.libp2p.components)
-    await this.pubsub.start()
-  }
-
-  async startListen () {
-    this.listeners = await Promise.all(this.topics.map(async topic => {
-      const listener = await this.listen(topic)
-      this.localSwarm?.listen(topic, (msg) => {
-        this.broadcast(topic, msg)
-      })
-      return { topic, listener }
-    }))
+    this.pubsub = this.libp2p.pubsub
+    await this.startListenPubsub()
+    this.listenLibp2p() // for debug libp2p connection and state
+    // this.localSwarm?.init(this) // TODO: currently the epoch without tx should be fixed
+    this.reactState.status = 'libp2p started as: ' + this.libp2p.peerId.toString()
+    await this.startListenLocalSwarm()
   }
 
   async destroy () {
-    this.unListenAllTopics()
-    this.libp2p && this.libp2p.stop()
-    this.libp2p = null
+    this.stopListenLocalSwarm()
+    this.localSwarm?.destroy()
+    this.reactState.status = 'libp2p stopped'
+    this.libp2p.removeAllListeners()
+    this.stopListenPubsub()
+    this.libp2p.destroy()
   }
 
-  async listen (topic) {
-    // listen to remoteSwarms(libp2p)'s pub/sub topic
-    const listener = (data) => {
-      debugger
-      console.log('--- on topic', topic, data)
-      this.localSwarm?.broadcast(topic, data)
-    }
-    this.pubsub.addEventListener(topic, listener)
-    await this.pubsub.subscribe(topic)
-    return listener
-  }
-
-  unListenAllTopics () {
-    this.listeners.map(({ topic, listener }) => {
-      this.pubsub.removeEventListener(topic, listener)
-      this.pubsub.unsubscribe(topic)
+  startListenLocalSwarm() {
+    this.outboundListeners = this.swarmTopics.map(topic => {
+      const listener = ({origin, data, network }) => {
+        if (origin !== 'network') this.broadcast(topic, {origin, data}) // 来自network的消息，要避免echo回发
+      }
+      this.localSwarm?.on(topic, listener)
+      return { topic, listener }
     })
   }
 
-  broadcast (topic, msg) {
-    this.pubsub.publish(topic, this.encoder.encode(msg))
-      // .catch(e => {
-      //   console.log('--- broadcast error', e)
-      // })
+  stopListenLocalSwarm() {
+    this.outboundListeners.forEach(({topic, listener}) => {
+      this.localSwarm?.off(topic, listener)
+    })
   }
 
-  listenLibp2p (state) {
+  async startListenPubsub () {
+    this.pubsub.addEventListener('message', this.inboundListener)
+    return Promise.all(this.topics.map(topic => this.pubsub.subscribe(topic)))
+  }
+
+  async stopListenPubsub () {
+    this.pubsub.removeEventListener('message', this.inboundListener)
+    return Promise.all(this.topics.map(topic => this.pubsub.unsubscribe(topic)))
+  }
+
+
+  async dispatchPubsub(evt) {
+    let { data, topic } = evt.detail
+    data = JSON.parse(toString(evt.detail.data))
+    console.log(`--- on topic '${topic} %o'`, data)
+    this.localSwarm?.broadcast(topic, data, 'network')
+  }
+
+  broadcast (topic, data) {
+    data = fromString(JSON.stringify(data))
+    this.pubsub.publish(topic, data)
+  }
+
+  listenLibp2p () {
     this.libp2p.addEventListener('peer:discovery', (evt) => {
       const peer = evt.detail
       // console.info(`Found peer ${peer.id.toString()}`)
-      state.foundPeers++
+      this.reactState.foundPeers++
     })
 
     // Listen for new connections to peers
     this.libp2p.connectionManager.addEventListener('peer:connect', async (evt) => {
       const connection = evt.detail
       console.info(`Connected to ${connection.remotePeer.toString()}`)
-      state.connectedPeers++
-
-      const { remotePeer, remoteAddr } = connection;
-      const peerId = peerIdFromString(remotePeer.toString())
-      await this.libp2p.peerStore.addressBook.set(peerId, [remoteAddr]);
-      await this.libp2p.dial(peerId);
-      this.pubsub.connect(peerId.toString())
-      console.info(`dial and add to addressBook:  ${peerId.toString()}`)
+      this.reactState.connectedPeers++
     })
 
     // Listen for peers disconnecting
     this.libp2p.connectionManager.addEventListener('peer:disconnect', (evt) => {
       const connection = evt.detail
       console.info(`Disconnected from ${connection.remotePeer.toString()}`)
-      state.connectedPeers--
+      this.reactState.connectedPeers--
     })
-
   }
 }
 

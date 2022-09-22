@@ -1,7 +1,7 @@
 <template lang="pug">
 div.libp2p
   header
-    h1#status Starting libp2p...
+    h1 {{ status }}
   table#output
     thead
       tr
@@ -12,8 +12,9 @@ div.libp2p
         td.found-peers {{ foundPeers }}
         td.connected-peers {{ connectedPeers }}
 
-  button(type="button" @click="startListen") Start Listen
+  //button(type="button" @click="startListenPubsub") Start Listen
   button(type="button" @click="sendMsg") Send Msg
+  button(type="button" @click="toggleTwoStagesMint" :class="{ mint }") {{ mint ? 'Stop' : 'Start'}} two stage mint
 </template>
 
 <script>
@@ -22,7 +23,7 @@ import { defineComponent, inject, toRefs } from 'vue'
 export default defineComponent({
   name: 'Libp2pExample',
   setup: () => {
-    const { state, network } = inject('w3.store')
+    const { state, network, startTwoStagesMint, stopTwoStagesMint } = inject('w3.store')
     return {
       ...toRefs(state),
       startListen() {
@@ -30,8 +31,13 @@ export default defineComponent({
       },
 
       sendMsg () {
-        network.broadcast('w3:node:online', network.libp2p.peerId.toString())
-      }
+        const data = { origin:  network.libp2p.peerId.toString(), event: 'libp2p:online'}
+        network.broadcast('libp2p:online', data)
+      },
+
+      toggleTwoStagesMint() {
+        this.mint ? stopTwoStagesMint(): startTwoStagesMint()
+      },
     }
   }
 })
@@ -47,6 +53,10 @@ export default defineComponent({
 
 .libp2p button {
   background-color: #4CAF50; /* Green */
+}
+
+.libp2p button.mint {
+  background-color: #f44336; /* Red */
 }
 
 </style>
