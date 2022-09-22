@@ -121,7 +121,7 @@ class W3Swarm extends EventEmitter2 {
 
   createFakeTx (i, bad = false) {
     const [from, to] = [util.getEthereumAccount(), util.getEthereumAccount()]
-    return  Transaction.createFake({ i, from, to, value: 10000 * Math.random(), nonce: bad ? -1 : null })
+    return  Transaction.createFake({ i, from, to, value: 10000 * Math.random(), nonce: bad ? -1 : i })
   }
 
   createFakeDoubleSpendingTxs (first, i) {
@@ -174,7 +174,9 @@ class W3Swarm extends EventEmitter2 {
     this.emitW3Event('network.msg.arrival', {
       from: origin.briefObj,
       to: target.briefObj,
-      type: event, data, arrivalTime: new Date()
+      type: event, data, arrivalTime: new Date(),
+      role: event === 'tx' && target.isCollector() ? 'collector' :
+        event === 'bp' && target.isWitness(data) ? 'witness' : null
     })
   }
 

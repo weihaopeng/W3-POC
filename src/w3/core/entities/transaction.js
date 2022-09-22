@@ -21,7 +21,7 @@ class Transaction {
   }
 
   toString() {
-    return `< i: ${this.i}, from: ${this.from.i}, to: ${this.to.i}, value: ${this.value} >`
+    return `< i: ${this.i}, from: ${this.from.i}, nonce: ${this.nonce}, to: ${this.to.i}, value: ${this.value} >`
   }
 
   /**
@@ -85,6 +85,8 @@ class Transaction {
   }
 
   resolveDoubleSpending (other) {
+    return this.compareTo(other) <= 0 ? this : other // for simplify debugging, use in dev only
+
     return this.to.lt(other.to) ? this : this.to.gt(other.to) ? other :
       this.value <= other.value ? this : other
   }

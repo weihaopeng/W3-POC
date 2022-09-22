@@ -25,7 +25,7 @@ describe('Single Node Network Mode @issue#2', () => {
   after(() => w3.destroy())
 
   describe('normal creation & bad tx ', () => {
-    it('normal creation of zblocks', async () => {
+    it('normal creation of blocks', async () => {
       await w3.sendFakeTxs(10, 100) // only two block to drive the single node mode dev.
       await util.wait(1 * config.EPOCH_TIME)
       w3.showCollectorsStatistic()

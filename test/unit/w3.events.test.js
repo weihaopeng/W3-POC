@@ -26,6 +26,7 @@ describe('w3.events  @issue#8', () => {
         from: data.from.i,
         to: data.to?.i,
         type: data.type,
+        role: data.role,
         departureTime: data.departureTime,
         arrivalTime: data.arrivalTime
       })

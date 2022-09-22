@@ -102,7 +102,7 @@ class Node {
     tx = new Transaction(tx)
     const { valid, txRes } = await this.localFacts.verifyAndAddTx(tx)
     this.network.emitW3Event('node.verify', {type: 'tx', data: tx, node: this, valid})
-    // debug('--- txRes: ', txRes)
+    debug('--- txRes: ', txRes)
     valid && this.isCollector() && await this.collect(tx) // TODO: only for debug, may remove in future
   }
 
@@ -157,7 +157,7 @@ class Node {
     // TODO: 按其中的消息，检查chain
   }
 
-  isCollector (pks = this.account.publicKeyString, tailHash) {
+  isCollector (pks = this.account.publicKeyString, tailHash=this.epoch.tailHash) {
     return this._isCollector(pks, tailHash)
     // return this.isSingleNode || this._isCollector(pks)
   }
