@@ -1,4 +1,5 @@
 import Debug from 'debug'
+import { Account } from './account.js'
 const debug = Debug('w3:tx')
 
 class Transaction {
@@ -12,6 +13,8 @@ class Transaction {
   }
 
   constructor ({ i, to, from, nonce, value, sig='sig' }) { // we ignore sig for now
+    to = to instanceof Account ? to : new Account(to)
+    from = from instanceof Account ? from: new Account(from)
     Object.assign(this, { i, to, from, nonce, value, sig })
     this.hash = 'hash-' + i // for simplify debugging, use in dev only
   }

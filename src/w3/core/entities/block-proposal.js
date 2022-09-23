@@ -9,9 +9,11 @@ const debug = Debug('w3:bp')
 class BlockProposal {
   static index = 0 // TODO: currently only used for theory test
   constructor ({i, height, tailHash, txs, collector, witnessRecords = [] }) { // collector : {publicKeyString, i}
+    if (_.isNil(height) || !tailHash || !txs || !collector) throw new Error(`can't create a BlockProposal, check the params`)
+    height = parseInt(height)
     txs = txs.map(tx => tx instanceof Transaction ? tx : new Transaction(tx))
     Object.assign(this, { height, tailHash, collector, txs, witnessRecords: [...witnessRecords] })
-    this.i = i !== undefined ? i : this.constructor.index++  // TODO: currently only used for theory test
+    this.i = i !== undefined ? parseInt(i) : this.constructor.index++  // TODO: currently only used for theory test
   }
 
   askForWitness (node) {
@@ -113,10 +115,6 @@ class BlockProposal {
 
   shallowCopy () {
     return new BlockProposal(this)
-  }
-
-  toJSON () { // make distanceFn has same results for different bp instances transferred by network
-    return _.omit(this, 'i')
   }
 
 

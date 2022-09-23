@@ -17,7 +17,7 @@ class Account {
 
   constructor ({i, address, publicKey, privateKey, addressString, publicKeyString, privateKeyString }) {
     Object.assign(this, { address, publicKey, privateKey, addressString, publicKeyString, privateKeyString })
-    this.i = i !== undefined ? i : this.constructor.index++ // TODO: currently only used for theory test
+    this.i = i !== undefined ? parseInt(i) : this.constructor.index++ // TODO: currently only used for theory test
     this.nonce = 0
   }
 
@@ -41,9 +41,9 @@ class Account {
     return this.address === other.address
   }
 
-  toJSON() {
-    return _.omit(this, 'nonce') // 注意！这里必须要omit nonce，否则会导致verifyWitness时，同一account，其nonce不同，导致验证失败。
-  }
+  // toJSON() {
+  //   return _.omit(this, 'nonce') // 注意！这里必须要omit nonce，否则会导致verifyWitness时，同一account，其nonce不同，导致验证失败。
+  // }
 }
 
 

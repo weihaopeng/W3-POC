@@ -89,8 +89,13 @@ const w3Algorithm = {
   },
 
   simpleNHashDistance (n) {
-    return (v1, v2) => Math.abs(this.simpleHash(JSON.stringify(v1)) - this.simpleHash(JSON.stringify(v2))) % n
-  }
+    return (v1, v2) => Math.abs(this.simpleHash(this.serialize(v1)) - this.simpleHash(this.serialize(v2))) % n
+  },
+
+  serialize: function (v1) {
+    delete v1.i // i is only a sequence number used in testing to make things clear, and not a part of the identity
+    return JSON.stringify(v1)
+  },
 }
 
 export { w3Algorithm }

@@ -28,8 +28,12 @@ const util = {
   },
 
   getEthereumAccount () {
-    const publicKeyString = '0x' + this.getRandomHex(128)
+    const publicKeyString = this.getPublicKeyString()
     return new Account({ publicKeyString })
+  },
+
+  getPublicKeyString: function () {
+    return '0x' + this.getRandomHex(128)
   },
 
   getRandomHex (size) {

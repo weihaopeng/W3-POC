@@ -12,9 +12,10 @@ class Block {
   }
 
   constructor ({ preHash, bp, i, hash }) { // TODO: currently only used for theory test
+    if (!preHash || !bp) throw new Error(`can't create a Block, check the params`)
     this.preHash = bp.height === 1 ? 'genesis' : preHash
     this.bp = bp instanceof BlockProposal ? bp : new BlockProposal(bp)
-    this.i = i !== undefined ? i : this.constructor.index++ // TODO: currently only used for theory test
+    this.i = i !== undefined ? parseInt(i) : this.constructor.index++ // TODO: currently only used for theory test
     this.hash = hash !== undefined ? hash : 'h-' + bp.superBrief // make debug easy in theory test
     // this.hash = w3Algorithm.hash(this)
   }
@@ -43,12 +44,12 @@ class Block {
     return `[${this.bp.superBrief}]`
   }
 
-  toJSON() {
+  toHash() {
     /**
      * remove unnecessary properties, especially when calculating hash, collector and witnessRecords will be removed,
      * by this means the block mint by different nodes with same txPool and prehash will have the same hash.
      */
-    return _.omit(this.bp, ['i', 'collector', 'witnessRecords'])
+    return {...this, bp: _.omit(this.bp, ['i', 'collector', 'witnessRecords'])}
   }
 
   lt(other) {

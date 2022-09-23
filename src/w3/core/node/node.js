@@ -1,9 +1,5 @@
-import { Chain } from '../entities/chain.js'
+import { Account, Transaction, BlockProposal, Block, Chain, Fork } from '../entities/index.js'
 import { LocalFacts } from './local-facts.js'
-import { Transaction } from '../entities/transaction.js'
-import { Block } from '../entities/block.js'
-import { Fork } from '../entities/fork.js'
-import { BlockProposal } from '../entities/block-proposal.js'
 
 import Debug from 'debug'
 import { Epoch } from './epoch/epoch.js'
@@ -12,7 +8,8 @@ const debug = Debug('w3:node')
 class Node {
   static index = 0
   constructor ({ account, swarm, isSingleNode=false }) {
-    if (!account || !swarm) throw new Error(`can't create node, check the params`)
+    if (!account || !swarm) throw new Error(`can't create a node, check the params`)
+    account = account instanceof Account ? account : new Account(account)
     this.i = this.constructor.index++ // sequence number used in dev and debug
     this.account = account
     this.swarm = swarm
@@ -20,6 +17,11 @@ class Node {
     this.isSingleNode = isSingleNode // is the only node in the swarm, used to separate the concern of two-stages-mint and the collaborations among nodes.
     this.startAnswerQuery()
   }
+
+  toJSON() {
+    _.omit(this, ['swarm', 'localFacts', 'epoch', 'chain'])
+  }
+
 
   reset(height) {
     this.epoch.reset(height)

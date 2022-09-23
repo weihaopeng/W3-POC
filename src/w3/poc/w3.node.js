@@ -30,8 +30,8 @@ class W3Node extends Node {
   }
 
   toJSON() {
-    return this.briefObj
-    // return _.omit(this, ['swarm', 'localFacts', '_fsm'])
+    // return this.briefObj
+    return _.omit(super.toJSON(), [])
   }
 }
 

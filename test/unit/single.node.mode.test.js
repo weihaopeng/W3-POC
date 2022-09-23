@@ -50,14 +50,16 @@ describe('Single Node Network Mode @issue#2', () => {
 
   describe('bad bp message', () => {
     it('drop a bad bp which has an invalid tx', async () => {
-      w3.sendFakeBp(new BlockProposal({
+      const badBp = new BlockProposal({
         height: 3,
         collector: {publicKeyString: util.getEthereumAccount().publicKeyString, i: 0},
         tailHash: w3.nodes[0].chain.tailHash,
-        txs: [1, 2, 3, 4].map(i => w3.createFakeTx(i)).concat('bad-tx')
-      }))
+        txs: [1, 2, 3, 4].map(i => w3.createFakeTx(i))
+      })
+      badBp.txs.push = 'bad tx'
+      w3.sendFakeBp()
       await util.wait(config.WITNESS_AND_MINT_LATENCY)
-      w3.nodes[0].localFacts.txPool.should.have.length(4)
+      w3.nodes[0].localFacts.txPool.should.have.length(0)
     })
 
     it('drop a bad bp which has an invalid collector', async () => {
@@ -89,14 +91,17 @@ describe('Single Node Network Mode @issue#2', () => {
 
   describe('bad block message', () => {
     it('drop a bad block which has an invalid tx', async () => {
+      const badBp = new BlockProposal({
+        height: 3,
+        collector: {publicKeyString: util.getEthereumAccount().publicKeyString, i: 0},
+        tailHash: w3.nodes[0].chain.tailHash,
+        txs: [1, 2, 3, 4].map(i => w3.createFakeTx(i))
+      })
+      badBp.txs.push = 'bad tx'
       w3.sendFakeBlock(new Block({
         preHash: 'fakeHash',
         height: 1,
-        bp: new BlockProposal({
-          height: 3,
-          tailHash: w3.nodes[0].chain.tailHash,
-          txs: [1, 2, 3, 4].map(i => w3.createFakeTx(i)).concat('bad-tx')
-        })
+        bp: badBp
       }))
       await util.wait(config.WITNESS_AND_MINT_LATENCY)
       w3.nodes[0].localFacts.txPool.should.have.length(4)
@@ -110,7 +115,8 @@ describe('Single Node Network Mode @issue#2', () => {
         bp: new BlockProposal({
           height: 3,
           tailHash: w3.nodes[0].chain.tailHash,
-          txs: [1, 2, 3, 4, 5].map(i => w3.createFakeTx(i))
+          txs: [1, 2, 3, 4, 5].map(i => w3.createFakeTx(i)),
+          collector: { publicKeyString: 'illPublicKeyString', i: 0 }
         })
       }))
       await util.wait(config.WITNESS_AND_MINT_LATENCY)
@@ -125,6 +131,7 @@ describe('Single Node Network Mode @issue#2', () => {
           height: 3,
           tailHash: w3.nodes[0].chain.tailHash,
           txs: [1, 2, 3, 4, 5].map(i => w3.createFakeTx(i)),
+          collector: { publicKeyString: util.getPublicKeyString(), i: 0 },
           witnessRecords: [
             { asker: 'bad-witness', witness: 'bad-witness', signature: 'bad-witness' }
           ]
