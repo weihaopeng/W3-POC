@@ -47,7 +47,7 @@ class W3Network {
 
   startListenLocalSwarm() {
     this.outboundListeners = this.swarmTopics.map(topic => {
-      const listener = ({origin, data, network }) => {
+      const listener = ({origin, data }) => {
         if (this.isOutboundMsg(origin)) this.broadcast(topic, {origin, data}) // 要避免echo回发来自network的消息
       }
       this.localSwarm?.on(topic, listener)
