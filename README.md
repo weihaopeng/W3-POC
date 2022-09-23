@@ -6,6 +6,16 @@
 A large-scale P2P application protocol testbed based on IPFS and Libp2p for testing W3 which is a consensusless blockchain.    
 ![img](design/W3%20POC%20ETH%20Hackathon.png)
 
+## Access now
+
+Access from our IPFS Gateway:
+
+http://3.112.126.56:8080/ipfs/QmdSdPsZ8JTpgPDwNT9oAde6ha6ERSuaxKPX2HCeARNPo1
+
+Access from public IPFS Gateway:
+
+https://ipfs.io/ipfs/QmdSdPsZ8JTpgPDwNT9oAde6ha6ERSuaxKPX2HCeARNPo1
+
 ## Getting started
 ### local development
 ```
