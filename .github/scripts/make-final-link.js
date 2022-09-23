@@ -10,16 +10,25 @@ if (!inputFile || !outputFile) {
   process.exit(1)
 }
 
-const baseUrl = 'http://3.112.126.56:8080/ipfs'
 const content = fs.readFileSync(inputFile, 'utf-8')
-const textLines = content
-  .split('\n')
-  .map((line) => line.trim())
-  .filter((line) => line && true)
-const newContent = textLines
-  .map((line) => {
+const finalContent = [
+  'Access from our IPFS Gateway:',
+  makeNewContent('http://3.112.126.56:8080/ipfs', content),
+  'Access from public IPFS Gateway:',
+  makeNewContent('https://ipfs.io/ipfs', content)
+].join('\n\n')
+fs.writeFileSync(outputFile, finalContent)
+
+function makeNewContent(baseUrl, content) {
+  const textLines = content
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line && true)
+  const newLines = textLines.map((line) => {
     const [_, id, filename] = line.split(/\s+/)
-    return `${baseUrl}/${id}?filename=${encodeURIComponent(filename)}`
+    // return `${baseUrl}/${id}?filename=${encodeURIComponent(filename)}`
+    return `${baseUrl}/${id}`
   })
-  .join('\n')
-fs.writeFileSync(outputFile, newContent)
+  // only need last line (index.html)
+  return newLines[newLines.length - 1]
+}
