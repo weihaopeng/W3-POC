@@ -27,7 +27,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
-    - run: npm run build --if-present
+    - run: npm run build:ipfs
     - run: npm test
     - run: wget https://dist.ipfs.tech/kubo/v0.15.0/kubo_v0.15.0_linux-amd64.tar.gz && tar -xzf kubo_v0.15.0_linux-amd64.tar.gz && cd kubo && sudo bash install.sh
     - run: ipfs --version
