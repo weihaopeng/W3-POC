@@ -8,11 +8,6 @@ import { defineComponent, provide } from 'vue'
 import Nav from '@/components/common/Nav.vue'
 import store from './store/w3.network.store.js'
 
-const routeMap = {
-  benchmark: 'network',
-
-}
-
 export default defineComponent({
   name: 'App',
   components: { Nav },

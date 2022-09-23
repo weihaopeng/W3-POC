@@ -1,5 +1,5 @@
 <template lang="pug">
-.data-card(:class="dataCardClass")
+.data-card(ref="card" :class="dataCardClass" @click="handleClick")
   div(style="display: flex;" :style="{ 'flex-direction': type === 'bp' ? 'column' : 'column-reverse'}")
     ASpace(:size="8")
       ASpace.data-info.data-info__round-count(v-if="type === 'bp'")
@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import { computed, defineComponent, onBeforeMount, onMounted, ref } from 'vue'
+import { computed, defineComponent, onBeforeMount, onMounted, ref, watch } from 'vue'
 export default defineComponent({
   name: 'BlockOrBpCard',
   props: {
@@ -59,9 +59,9 @@ export default defineComponent({
       type: Object,
       required: true
     },
-    selectedHash: {
-      type: String,
-      default: ''
+    selectedBpI: {
+      type: Number,
+      default: -1
     },
     nodes: {
       type: Array,
@@ -69,11 +69,14 @@ export default defineComponent({
     }
   },
   setup: (props, { emit }) => {
+    const card = ref(null)
     const highlight = computed(() => {
       return !!props.data.highlight
     })
     const selected = computed(() => {
-      return props.data.data.hash === props.selectedHash || props.data.data.tailHash === props.selectedHash
+      if (type.value === 'bp') return props.data.data.i === props.selectedBpI
+      return props.data.data.bp.i === props.selectedBpI
+      // return props.data.data.hash === props.selectedHash || props.data.data.tailHash === props.selectedHash
     })
     const type = computed(() => {
       return props.data.type
@@ -95,7 +98,8 @@ export default defineComponent({
       const list = []
       list.push(records[0].asker)
       for (const record of records) {
-        list.push(record.witness)
+        if (record.witness) list.push(record.witness)
+        else list.push(props.data.to)
       }
       return list
     })
@@ -120,15 +124,26 @@ export default defineComponent({
       return '2022-09-22'
     }
 
+    const handleClick = () => {
+      if (selected.value) emit('unselect')
+      else emit('select', props.data)
+    }
+
+    watch(() => selected.value, (val) => {
+      if (val) card.value.scrollIntoViewIfNeeded()
+    })
+
     return {
       dataCardClass,
       type,
       txs,
       participants,
       witnessRound,
+      card,
       getDepartureTime,
       getArrivalTime,
-      getNodeAddr
+      getNodeAddr,
+      handleClick
     }
   }
 })

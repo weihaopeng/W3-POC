@@ -33,14 +33,14 @@ export default function (height, w3, playing) {
     w3.value.reset(height)
     console.log(w3.value)
     setTimeout(() => {
-      const briefNodes = w3.value.nodes.map((node) => { 
+      const briefNodes = w3.value.nodes.map((node) => {
         return {
           address: node.account.addressString,
           i: node.i,
           publicKey: node.account.publicKeyString
         }
       })
-      w3.value.emitW3Event('simulation.init', { nodes: briefNodes })
+      w3.value.emit('swarm:init', { nodes: briefNodes, config: w3.value.config })
     })
     return w3.value.config
   }
@@ -49,6 +49,51 @@ export default function (height, w3, playing) {
     return new Promise((resolve, reject) => {
       setTimeout(() => resolve('done'), time)
     });
+  }
+
+  const mockBlockAndBp = async (n = 42) => {
+    const mockChainBlocks = []
+    const mockBlocks = []
+    const mockBps = []
+
+    let t = 0
+    for (let i = 0; i < n; i++) {
+      const txs = []
+      for (let j = 0; j < 3; j++) {
+        const tx = w3.value.createFakeTx(t)
+        txs.push(tx)
+        t++
+      }
+      const indexList = [0, 1, 2, 3, 4].sort(() => Math.random() - 0.5)
+
+      const collector = w3.value.nodes[indexList[0]]
+      const bp = collector.createBlockProposal(txs)
+
+      const w1 = w3.value.nodes[indexList[1]]
+      mockBps.push({ type: 'bp', data: bp, from: collector.briefObj, to: w1.briefObj, arrivalTime: new Date(), role: 'witness' })
+      await bp.witness(w1)
+
+      const w2 = w3.value.nodes[indexList[2]]
+      bp.askForWitness(w2)
+      mockBps.push({ type: 'bp', data: bp, from: w1.briefObj, to: w2.briefObj, arrivalTime: new Date(), role: 'witness' })
+      await bp.witness(w2)
+
+      const block = Block.mint(bp, w2.epoch.tailHash)
+      mockBlocks.push({ type: 'block', data: block, from: w2.briefObj })
+
+      if (Math.random() > 0.5) {
+        mockChainBlocks.push({ type: 'chain', data: block })
+        for (const node of w3.value.nodes) {
+          node.chain.addOrReplaceBlock(block, 'mintBlock')
+        }
+      }
+    }
+
+    return {
+      mockChainBlocks,
+      mockBlocks,
+      mockBps
+    }
   }
 
   const swarmExecute = async () => {
@@ -69,9 +114,14 @@ export default function (height, w3, playing) {
       otherNodes.map((node) => {
         const arriveLatency = util.gaussRandom(LATENCY_LOWER_BOUND, LATENCY_UPPER_BOUND)
         setTimeout(() => {
-          w3.value.emitW3EventMsgArrival({ event: 'tx', data: tx, origin: from, target: node })
+          const role = (node === collectorNode ? 'collector' : null)
+          // w3.value.emitW3EventMsgArrival({ event: 'tx', data: tx, origin: from, target: node, role })
+          w3.value.emitW3Event('network.msg.arrival', {
+            type: 'tx', data: tx, from: from.briefObj, to: node.briefObj, arrivalTime: new Date(), role
+          })
+          console.log('tx collector!!', node, collectorNode, node === collectorNode, role)
           if (node === collectorNode) {
-            if (i === 0) w3.value.emitW3Event('node.role', { role: 'collector', node, data: tx })
+            // if (i === 0) w3.value.emitW3Event('node.role', { role: 'collector', node, data: tx })
 
             const verifyLatency = util.gaussRandom(1000, LOCAL_COMPUTATION_LATENCY)
             setTimeout(() => {
@@ -95,14 +145,17 @@ export default function (height, w3, playing) {
       else bp.askForWitness(from)
       w3.value.emitW3EventMsgDeparture({ event: 'bp', data: bp, origin: from })
       const otherNodes = w3.value.nodes.filter((node, i) => i !== index)
-
       otherNodes.map((node) => {
         const arriveLatency = util.gaussRandom(LATENCY_LOWER_BOUND, LATENCY_UPPER_BOUND)
         setTimeout(async () => {
-          w3.value.emitW3EventMsgArrival({ event: 'bp', data: bp, origin: from, target: node })
+          const role = (node === witnessNode ? 'witness' : null)
+          // w3.value.emitW3EventMsgArrival({ event: 'bp', data: bp, origin: from, target: node, role })
+          w3.value.emitW3Event('network.msg.arrival', {
+            type: 'bp', data: bp, from: from.briefObj, to: node.briefObj, arrivalTime: new Date(), role
+          })
           if (node === witnessNode) {
             await bp.witness(node)
-            w3.value.emitW3Event('node.role', { role: 'witness', node, data: bp })
+            // w3.value.emitW3Event('node.role', { role: 'witness', node, data: bp })
 
             const verifyLatency = util.gaussRandom(1000, LOCAL_COMPUTATION_LATENCY)
             setTimeout(() => {
@@ -137,12 +190,13 @@ export default function (height, w3, playing) {
     }
 
     if (playing.value) {
-      w3.value.emitW3Event('chain.block.added', { data: block })
+      w3.value.emit('chain.block.added', { data: block })
     }
   }
 
   return {
     swarmInit,
-    swarmExecute
+    swarmExecute,
+    mockBlockAndBp
   }
 }

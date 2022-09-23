@@ -29,12 +29,18 @@ const util = {
 
   getEthereumAccount () {
     const publicKeyString = this.getPublicKeyString()
-    return new Account({ publicKeyString })
+    const addressString = this.getAddressKeyString()
+    return new Account({ publicKeyString, addressString })
   },
 
   getPublicKeyString: function () {
     return '0x' + this.getRandomHex(128)
   },
+
+  getAddressKeyString: function () {
+    return '0x' + this.getRandomHex(32)
+  },
+
 
   getRandomHex (size) {
     return [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('')

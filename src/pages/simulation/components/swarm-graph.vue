@@ -133,9 +133,22 @@ export default defineComponent({
       }
     }
 
-    watch(() => nodeMsgStore.state.msgList, () => {
-      reRender()
+    watch(() => nodeMsgStore.state.msgList, (val) => {
+      if (!val.length) resetSwarm()
+      else reRender()
     }, { deep: true })
+
+    const resetSwarm = () => {
+      calcSwarmNodes()
+      setNodesCoordinates()
+      chart.value.dispatchAction({ type: 'unselect', dataIndex: links.value.map((link, index) => index), dataType: 'edge' })
+    }
+
+    const customRenderNode = (nodeI, role, round) => {
+      const node = swarmNodes.value.find((node) => node.i === nodeI)
+      node.role = role
+      if (round) node.rolePrefix = `R${round}`
+    }
 
     const initChart = () => {
       const option = {
@@ -148,7 +161,7 @@ export default defineComponent({
             layout: 'circular',
             animation: false,
             edgeSymbol: ['circle', 'arrow'],
-            edgeSymbolSize: [4, 10],
+            edgeSymbolSize: [1, 10],
             circular: {
               rotateLabel: false
             },
@@ -225,7 +238,9 @@ export default defineComponent({
       swarmCvs,
       swarmNodes,
       swarmCircleStyle,
-      reRender
+      reRender,
+      resetSwarm,
+      customRenderNode
     }
   }
 })

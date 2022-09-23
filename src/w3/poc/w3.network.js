@@ -11,7 +11,7 @@ class W3Network {
     this.localSwarm = localSwarm
     this.reactState = reactState
     this.remoteSwarms = this.reactState.remoteSwarms
-    this.topics = ['tx', 'bp', 'block', 'fork', 'swarm:init', 'libp2p:online', 'libp2p:heartbeat',]
+    this.topics = ['tx', 'bp', 'block', 'fork', 'swarm:init', 'chain.block.added', 'libp2p:online', 'libp2p:heartbeat',]
     this.inboundListener = this.dispatchPubsub.bind(this)
   }
 
