@@ -10,11 +10,11 @@ A large-scale P2P application protocol testbed based on IPFS and Libp2p for test
 
 Access from our IPFS Gateway:
 
-http://3.112.126.56:8080/ipfs/QmdSdPsZ8JTpgPDwNT9oAde6ha6ERSuaxKPX2HCeARNPo1
+https://3.112.126.56/ipfs/Qma3RzSZiTFUGYPqYokbhcjFaLKdhG4DEM9ZSpQZ1dqxZB
 
 Access from public IPFS Gateway:
 
-https://ipfs.io/ipfs/QmdSdPsZ8JTpgPDwNT9oAde6ha6ERSuaxKPX2HCeARNPo1
+https://ipfs.io/ipfs/Qma3RzSZiTFUGYPqYokbhcjFaLKdhG4DEM9ZSpQZ1dqxZB
 
 ## Getting started
 ### local development
