@@ -4,6 +4,7 @@ const should = chai.should()
 
 import Debug from 'debug'
 import { Account, Transaction, BlockProposal, Block, Chain, Fork } from '../../../src/w3/core/entities/index.js'
+import { W3Swarm } from '../../../src/w3/poc/index.js'
 import { util } from '../../../src/w3/util.js'
 
 const debug = Debug('w3:test')
