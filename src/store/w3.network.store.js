@@ -24,7 +24,7 @@ const startTwoStagesMint = async () => {
   // @weihaopeng #19 as you wish
   swarm.emit('swarm:init', {
     origin: { type: 'swarm', peerId: network.libp2p.peerId.toString() },
-    data: { node: swarm.nodes.map(node), config: swarm.config },
+    data: { nodes: swarm.nodes.map(node), config: swarm.config },
   })
 
   return swarm.sendFakeTxs(txAmount, 2 * tps)
