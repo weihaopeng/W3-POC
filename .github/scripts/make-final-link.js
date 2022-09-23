@@ -13,7 +13,7 @@ if (!inputFile || !outputFile) {
 const content = fs.readFileSync(inputFile, 'utf-8')
 const finalContent = [
   'Access from our IPFS Gateway:',
-  makeNewContent('http://3.112.126.56:8080/ipfs', content),
+  makeNewContent('https://3.112.126.56/ipfs', content),
   'Access from public IPFS Gateway:',
   makeNewContent('https://ipfs.io/ipfs', content)
 ].join('\n\n')
