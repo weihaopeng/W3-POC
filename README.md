@@ -10,11 +10,11 @@ A large-scale P2P application protocol testbed based on IPFS and Libp2p for test
 
 Access from our IPFS Gateway:
 
-https://3.112.126.56/ipfs/Qma3RzSZiTFUGYPqYokbhcjFaLKdhG4DEM9ZSpQZ1dqxZB
+https://3.112.126.56/ipfs/QM-Test-Url
 
 Access from public IPFS Gateway:
 
-https://ipfs.io/ipfs/Qma3RzSZiTFUGYPqYokbhcjFaLKdhG4DEM9ZSpQZ1dqxZB
+https://ipfs.io/ipfs/QM-Test-Url
 
 ## Getting started
 ### local development
@@ -29,8 +29,6 @@ npm run build
 npm run serve
 ```
 Then visit http://localhost:4173 (default)
-
-[TODO: add a part of how to build & deploy the whole project]: @jian
 
 ## Documentation
 [阐明无共识区块链，给出相关paper和博文，博客]: 注释
