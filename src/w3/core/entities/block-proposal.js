@@ -64,7 +64,7 @@ class BlockProposal {
     const isValidWitness = Account.isValidPublicKeyString(wr.witness.publicKeyString) && node.isWitness(bpAskForWitness, wr.witness.publicKeyString)
     if (!isValidWitness) {
       debug('--- FATAL: not valid witness: %s', wr.witness)
-      // node.network.debug.invalidWitness.push({ node: wr.witness, bp: bpAskForWitness })
+      // node.swarm.debug.invalidWitness.push({ node: wr.witness, bp: bpAskForWitness })
       return false
     }
 
@@ -81,7 +81,7 @@ class BlockProposal {
   }
 
   isAllWitnessed (node) {
-    return this.witnessRecords.length === node.network.config.WITNESS_ROUNDS_AMOUNT && this.witnessRecords.every(wr => wr.wr.witness)
+    return this.witnessRecords.length === node.swarm.config.WITNESS_ROUNDS_AMOUNT && this.witnessRecords.every(wr => wr.wr.witness)
   }
 
   sig (privateKeyString) {

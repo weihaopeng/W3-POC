@@ -90,10 +90,11 @@ class W3Swarm extends EventEmitter2 {
     const badIndexs = _.sampleSize([...new Array(n)].map((_, i) => i), badTx)
     for (let i = 0; i < n; i++) {
       if (this.destroied) break // 中断执行
-      i % 100 === 0 && console.log('---send %s fake txs, time used: %s ms', i, Date.now() - time)
-      const possionLatency = util.exponentialRandom(tps / 1000)
-      // debug('--- sendFakeTx latency: %s ms', possionLatency)
-      await util.wait(possionLatency)
+      // i % 100 === 0 && console.log('---send %s fake txs, latency time: %s ms, time used: %s ms',
+      //   i, possionLatencies.slice(i - 100, i).reduce((p, c) => p + c, 0), Date.now() - time)
+      console.log('---send %s fake txs, latency time: %s ms, time used: %s ms', i, possionLatencies[i - 1], Date.now() - time)
+      time = Date.now()
+      await util.wait(possionLatencies[i])
       this.sendFakeTx(i, badIndexs.includes(i))
     }
     await util.wait(2 * this.config.LATENCY_UPPER_BOUND) // wait for all txPool to be collected

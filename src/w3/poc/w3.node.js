@@ -10,9 +10,9 @@ const debug = Debug('w3:poc:node')
 
 class W3Node extends Node {
 
-  constructor (network, isSingleNode = false) {
+  constructor (swarm, isSingleNode = false) {
     const account = util.getEthereumAccount()
-    super({ account, network, isSingleNode })
+    super({ account, swarm, isSingleNode })
     createFsm(this)
   }
 
@@ -22,16 +22,16 @@ class W3Node extends Node {
 
   _isCollector (publicKeyString, tailHash) {
     tailHash = tailHash ? tailHash : this.epoch.tailHash
-    return w3Algorithm.isRandomSelected(this.network.distanceFn, tailHash, publicKeyString, this.network.config.COLLECTORS_AMOUNT)
+    return w3Algorithm.isRandomSelected(this.swarm.distanceFn, tailHash, publicKeyString, this.swarm.config.COLLECTORS_AMOUNT)
   }
 
   _isWitness (bp, publicKeyString) {
-    return w3Algorithm.isRandomSelected(this.network.distanceFn, bp, publicKeyString, this.network.config.WITNESSES_AMOUNT)
+    return w3Algorithm.isRandomSelected(this.swarm.distanceFn, bp, publicKeyString, this.swarm.config.WITNESSES_AMOUNT)
   }
 
   toJSON() {
     return this.briefObj
-    // return _.omit(this, ['network', 'localFacts', '_fsm'])
+    // return _.omit(this, ['swarm', 'localFacts', '_fsm'])
   }
 }
 

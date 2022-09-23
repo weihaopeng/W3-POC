@@ -48,9 +48,9 @@ class ResetableEpoch extends EventEmitter2 {
   constructor (node, { collectTime, witnessAndMintTime } = {}) {
     super()
     this.node = node
-    this.collectTime = collectTime || node.network.config.EPOCH_COLLECTING_TIME
-    this.witnessAndMintTime = witnessAndMintTime || node.network.config.EPOCH_WITNESS_AND_MINT_TIME
-    this.time = collectTime && witnessAndMintTime ? collectTime + witnessAndMintTime : node.network.config.EPOCH_TIME
+    this.collectTime = collectTime || node.swarm.config.EPOCH_COLLECTING_TIME
+    this.witnessAndMintTime = witnessAndMintTime || node.swarm.config.EPOCH_WITNESS_AND_MINT_TIME
+    this.time = collectTime && witnessAndMintTime ? collectTime + witnessAndMintTime : node.swarm.config.EPOCH_TIME
   }
 
   start(height) {

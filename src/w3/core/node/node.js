@@ -11,13 +11,13 @@ const debug = Debug('w3:node')
 
 class Node {
   static index = 0
-  constructor ({ account, network, isSingleNode=false }) {
-    if (!account || !network) throw new Error(`can't create node, check the params`)
+  constructor ({ account, swarm, isSingleNode=false }) {
+    if (!account || !swarm) throw new Error(`can't create node, check the params`)
     this.i = this.constructor.index++ // sequence number used in dev and debug
     this.account = account
-    this.network = network
+    this.swarm = swarm
     this.localFacts = new LocalFacts()
-    this.isSingleNode = isSingleNode // is the only node in the network, used to separate the concern of two-stages-mint and the collaborations among nodes.
+    this.isSingleNode = isSingleNode // is the only node in the swarm, used to separate the concern of two-stages-mint and the collaborations among nodes.
     this.startAnswerQuery()
   }
 
@@ -32,11 +32,11 @@ class Node {
   }
 
   async syncChain () {
-    // TODO: sync chain info from network
-    // const chain = await this.network.queryPeers?.({})
-    // return chain ? chain : new Promise((r, j) => setTimeout(() => r(this.initChain()), this.network.config.INIT_CHAIN_INTERVAL))
+    // TODO: sync chain info from swarm
+    // const chain = await this.swarm.queryPeers?.({})
+    // return chain ? chain : new Promise((r, j) => setTimeout(() => r(this.initChain()), this.swarm.config.INIT_CHAIN_INTERVAL))
 
-    // local swarm network, never disconnected
+    // local swarm swarm, never disconnected
     this.chain = await Chain.create(this)
     this.epoch = Epoch.create(this)
     this.localFacts.init(this.chain)
@@ -45,7 +45,7 @@ class Node {
   async boot () { //
     // this.chain = await Chain.create()
     // const block = new Block(null, 'FIRST_BLOCK')
-    // this.network.broadcast('block', block, this) //this used in theory test to avoid of react on its own message
+    // this.swarm.broadcast('block', block, this) //this used in theory test to avoid of react on its own message
   }
 
   onConnected() {
@@ -67,7 +67,7 @@ class Node {
   }
 
   startAnswerQuery () { // answers only by adjacent peers
-    this.network.listen('query', async (msg, ack) => {
+    this.swarm.listen('query', async (msg, ack) => {
       if (msg.event === 'query') {
         const res = await this.query(msg.query)
         ack(res)
@@ -76,13 +76,13 @@ class Node {
   }
 
   startTwoStagesBlockGeneration () {
-    this.network.listen('tx', (tx) => this.handleTx(tx), this) // this is the target used in theory test to avoid of react on its own message
+    this.swarm.listen('tx', (tx) => this.handleTx(tx), this) // this is the target used in theory test to avoid of react on its own message
 
-    this.network.listen('bp', (bp) => this.handleWitness(bp), this)
+    this.swarm.listen('bp', (bp) => this.handleWitness(bp), this)
 
-    this.network.listen('block',  (block, origin) => this.handleNewBlock(block, origin), this)
+    this.swarm.listen('block',  (block, origin) => this.handleNewBlock(block, origin), this)
 
-    this.network.listen('fork',  (fork) => this.handleForkWins(fork), this)
+    this.swarm.listen('fork',  (fork) => this.handleForkWins(fork), this)
 
     this.epoch.on('stage',  async ({ stage }) => {
       if (stage === 'witness-and-mint') { // updatedState, replaced, rejected means the count of txPool in the pool is not change
@@ -101,8 +101,8 @@ class Node {
   async handleTx (tx) {
     tx = new Transaction(tx)
     const { valid, txRes } = await this.localFacts.verifyAndAddTx(tx)
-    this.network.emitW3Event('node.verify', {type: 'tx', data: tx, node: this, valid})
-    debug('--- txRes: ', txRes)
+    this.swarm.emitW3Event('node.verify', {type: 'tx', data: tx, node: this, valid})
+    // debug('--- txRes: ', txRes)
     valid && this.isCollector() && await this.collect(tx) // TODO: only for debug, may remove in future
   }
 
@@ -110,7 +110,7 @@ class Node {
     bp = new BlockProposal(bp)
     let epoch = this.getEpoch(bp)
     const { valid } = await this.localFacts.verifyBpAndAddTxs(bp, this, epoch)
-    this.network.emitW3Event('node.verify', {type: 'bp', data: bp, node: this, valid})
+    this.swarm.emitW3Event('node.verify', {type: 'bp', data: bp, node: this, valid})
     if (valid) {
       if (!this.epoch.canWitness(bp.height))
         return debug('--- FATAL: receive invalid bp height: %s, not for this epoch %s', bp.height, this.epoch.height, bp.brief)
@@ -127,7 +127,7 @@ class Node {
 
     const { valid } = await this.localFacts.verifyBlockAndAddTxs(block, this,epoch)
     if (!valid) debug('--- FATAL: receive invalid block', block.brief)
-    this.network.emitW3Event('node.verify', {type: 'block', data: block, node: this, valid})
+    this.swarm.emitW3Event('node.verify', {type: 'block', data: block, node: this, valid})
 
     if (valid && (this !== origin || this.isSingleNode)) {
       this.chain.addOrReplaceBlock(block, 'handleNewBlock')
@@ -149,7 +149,7 @@ class Node {
   async handleForkWins (fork) { // { _blocks }
     fork = new Fork(fork)
     const { valid } = await this.localFacts.verifyForkAndAddTx(fork, this)
-    this.network.events.emit('node.verify', {type: 'fork', data: fork, node: this, valid})
+    this.swarm.events.emit('node.verify', {type: 'fork', data: fork, node: this, valid})
 
     if (!valid) {
       debug('fork is invalid, skip it', fork)
@@ -176,15 +176,15 @@ class Node {
 
   async collect (tx) {
     debug('--- node %s collect tx %s ', this.account.i, tx)
-    this.network.recordCollector(tx, this)
+    this.swarm.recordCollector(tx, this)
     // the tx is not only collected from tx messages, but also collected from bp, block, fork messages containing valid txPool
     // therefore refactor the ASF logic to the localFacts' tx-added event handler
   }
 
   async witnessAndMint (bp) {
     debug('--- node %s witness bp %s ', this.i, bp.brief)
-    this.network.recordWitness(bp, this)
-    // this.network.debug.witnesses.push({bp, node: this})
+    this.swarm.recordWitness(bp, this)
+    // this.swarm.debug.witnesses.push({bp, node: this})
     await bp.witness(this)
     this.isNeedMoreRoundOfWitness(bp) ? await this.continueWitnessAndMint(bp) :
       await this.mintBlock(bp)
@@ -193,7 +193,7 @@ class Node {
   async askForWitnessAndMint (txs) {
     const bp = this.createBlockProposal(txs)
     this.localFacts.updateTxsState(txs, 'bp')
-    this.network.broadcast('bp', bp, this) //this used in theory test to avoid of react on its own message
+    this.swarm.broadcast('bp', bp, this) //this used in theory test to avoid of react on its own message
   }
 
   createBlockProposal (txs) {
@@ -206,12 +206,12 @@ class Node {
   }
 
   isNeedMoreRoundOfWitness (bp) {
-    return bp.witnessRecords.length < this.network.config.WITNESS_ROUNDS_AMOUNT
+    return bp.witnessRecords.length < this.swarm.config.WITNESS_ROUNDS_AMOUNT
   }
 
   async continueWitnessAndMint (bp) {
     bp.askForWitness(this)
-    this.network.broadcast('bp', bp, this) //this used in theory test to avoid of react on its own message
+    this.swarm.broadcast('bp', bp, this) //this used in theory test to avoid of react on its own message
   }
 
   async mintBlock (bp) {
@@ -219,7 +219,7 @@ class Node {
 
     // debug('--- WARN: node %s mint block %s ', this.i, block.superBrief)
     if (!this.isSingleNode) this.chain.addOrReplaceBlock(block, 'mintBlock')// verifyThenUpdateOrAddTx to local chain before broadcast, singleNodeMode will verifyThenUpdateOrAddTx it in handleNewBlock
-    this.network.broadcast('block', block, this) //this used in theory test to avoid of react on its own message
+    this.swarm.broadcast('block', block, this) //this used in theory test to avoid of react on its own message
   }
 
   async query (query) {

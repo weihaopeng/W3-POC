@@ -48,11 +48,15 @@ class W3Network {
   startListenLocalSwarm() {
     this.outboundListeners = this.swarmTopics.map(topic => {
       const listener = ({origin, data, network }) => {
-        if (origin !== 'network') this.broadcast(topic, {origin, data}) // 来自network的消息，要避免echo回发
+        if (this.isOutboundMsg(origin)) this.broadcast(topic, {origin, data}) // 要避免echo回发来自network的消息
       }
       this.localSwarm?.on(topic, listener)
       return { topic, listener }
     })
+  }
+
+  isOutboundMsg (origin) {
+    return typeof origin !== 'string' || !origin.startsWith('network') // 本地消息的origin，通常是Node对象。
   }
 
   stopListenLocalSwarm() {
@@ -76,7 +80,7 @@ class W3Network {
     let { data, topic } = evt.detail
     data = JSON.parse(toString(evt.detail.data))
     console.log(`--- on topic '${topic} %o'`, data)
-    this.swarmTopics.includes(topic) ? this.localSwarm?.broadcast(topic, data, 'network')
+    this.swarmTopics.includes(topic) ? this.localSwarm?.broadcast(topic, data.data, `network:${data.origin}`)
       : this.handleLibp2pTopics(topic, data)
   }
 
