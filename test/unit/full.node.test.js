@@ -52,7 +52,7 @@ describe('Full(Normal) Network Mode @issue#2 @issue#11', () => {
 
   after(() => w3.destroy())
 
-  it('work normal to create blocks', async () => {
+  it.skip('work normal to create blocks', async () => {
     debug('---- periodicEmitBlockMessage to send %s fake txs in %s tps, will create %s blocks, may end in %s s----', txAmount, tps, txAmount/TX_COUNT, txAmount / tps)
     await w3.sendFakeTxs(txAmount, 2 * tps)
     // await util.wait(Math.ceil(txAmount / TX_COUNT) * config.EPOCH_TIME)
