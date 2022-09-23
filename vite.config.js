@@ -15,6 +15,7 @@ const _dirname = typeof __dirname !== 'undefined'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '', // important, do not generate static absolute path, not working for ipfs
   optimizeDeps: {
     esbuildOptions: {
       target: 'es2020'
