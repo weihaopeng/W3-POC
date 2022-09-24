@@ -8,9 +8,19 @@ bin/example/*
 test_result
 public/*
 dist
+components.d.ts
 
 # temp
 ~*
 .npmrc
 
 test/results
+
+# CI temp
+
+ipfs.md
+ipfs.txt
+kubo
+kubo*
+*.tar.gz
+w3-poc
