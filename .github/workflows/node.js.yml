@@ -32,7 +32,9 @@ jobs:
     - run: wget https://dist.ipfs.tech/kubo/v0.15.0/kubo_v0.15.0_linux-amd64.tar.gz && tar -xzf kubo_v0.15.0_linux-amd64.tar.gz && cd kubo && sudo bash install.sh
     - run: ipfs --version
     - run: ipfs add -r ./dist --api /ip4/3.112.126.56/tcp/5001 > ipfs.txt
+    - run: cat ipfs.txt
     - run: node .github/scripts/make-final-link.js ipfs.txt ipfs.md
+    - run: node .github/scripts/update.readme.js ipfs.txt
     - run: mv dist w3-poc && tar cvf w3-poc.tar.gz w3-poc
     - name: Automatic Releases
       uses: marvinpinto/action-automatic-releases@v1.2.1
