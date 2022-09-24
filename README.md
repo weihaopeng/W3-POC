@@ -29,8 +29,8 @@ and the web3.storage will be used soon to record/publish the testing results.
 
 ### Snapshot
 
-* Project Gateway https://3.112.126.56/ipfs/Qm-Test-Url
-* IPFS Gateway https://ipfs.io/ipfs/Qm-Test-Url
+* Project Gateway https://3.112.126.56/ipfs/QmbfX4rTKiJG2nPhDz7YbLUDxZ6KfBNfnVCsTT8MMxK3md
+* IPFS Gateway https://ipfs.io/ipfs/QmbfX4rTKiJG2nPhDz7YbLUDxZ6KfBNfnVCsTT8MMxK3md
 
 ## Getting started
 ### development
