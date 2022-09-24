@@ -47,3 +47,6 @@ jobs:
         files: |
           w3-poc.tar.gz
           ipfs.md
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v4
+      commit-message: "update readme.md - latest ipfs address"
