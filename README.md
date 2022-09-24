@@ -1,41 +1,53 @@
 # w3-poc
-[本文按照 https://github.com/testground/testground进行编排，文中预留了很多待完成部分，用注释标出，并给出TODO标识]: 注释
+W3 POC is a large-scale P2P application protocol testbed based on IPFS and Libp2p for testing W3.   
 
-[TODO insert bages: madeby, nodejs, ……]: 注释
+W3 is a in new kind of blockchain, i.e. Consensusless Blockchain. It drops the most expensive part of traditional blockchains, 
+the consensus, and therefore simpler, cheaper and faster. 
 
-A large-scale P2P application protocol testbed based on IPFS and Libp2p for testing W3 which is a consensusless blockchain.    
+## How does it work?
+Basically W3 POC is a javascript DApp, it implements the W3 consensusless blockchain protocol with a swarm of W3 Nodes 
+within a webpage and then connected all swarms into a large testbed. Nodes pass messages through EventEmitter2 within 
+a swarm and then through libp2p across swarms. 
+
 ![img](design/W3%20POC%20ETH%20Hackathon.png)
+
+
+Vue and ECharts are used for visualization. Meanwhile, a Github CI/CD action is setup for automatically distribute the whole DApp via IPFS, 
+and the web3.storage will be used soon to record/publish the testing results.
+
+## Features
+* [x] illustration & debug for the W3 protocol
+* [x] benchmark of performance & resource consumption
+* [ ] simulation on security attacks (in process)
 
 ## Access now
 
-Access from our IPFS Gateway:
+### GA
+ ... available soon ...
 
-https://3.112.126.56/ipfs/QM-Test-Url
+### Snapshot
 
-Access from public IPFS Gateway:
-
-https://ipfs.io/ipfs/QM-Test-Url
+* Project Gateway https://3.112.126.56/ipfs/QM-Test-Url
+* IPFS Gateway https://ipfs.io/ipfs/QM-Test-Url
 
 ## Getting started
-### local development
+### development
 ```
 npm install
-npm run periodicEmitBlockMessage
+npm run dev
 ```
 Then visit http://localhost:3000 (default)
-### build and preview local
+### build and preview
 ```
 npm run build
 npm run serve
 ```
 Then visit http://localhost:4173 (default)
 
-## Documentation
-[阐明无共识区块链，给出相关paper和博文，博客]: 注释
-
-## How does it work?
-
-## Features
+## References
+1. [W3 Whitepaper](https://wiki.mq-ai.cn/display/WEB3/W3+Whitepaper) (beta release soon)
+2. [Consensusless Blockchain: A Promising High-Performance Blockchain without Consensus](https://arxiv.org/abs/2208.12381)   
+3. [区块链不需要挖矿——无共识区块链](https://zhuanlan.zhihu.com/p/557733758) (Chinese)   
 
 ## Contributing
 
