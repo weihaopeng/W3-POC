@@ -49,4 +49,6 @@ jobs:
           ipfs.md
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v4
-      commit-message: "update readme.md - latest ipfs address"
+      with:
+        commit-message: "update readme.md with latest ipfs address"
+        title: Update README.md with latest IPFS address
