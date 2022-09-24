@@ -35,6 +35,7 @@ jobs:
     - run: cat ipfs.txt
     - run: node .github/scripts/make-final-link.js ipfs.txt ipfs.md
     - run: node .github/scripts/update.readme.js ipfs.txt
+    - run: cat README.md
     - run: mv dist w3-poc && tar cvf w3-poc.tar.gz w3-poc
     - name: Automatic Releases
       uses: marvinpinto/action-automatic-releases@v1.2.1
