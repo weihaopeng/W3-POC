@@ -6,7 +6,7 @@ Nav
 <script>
 import { defineComponent, provide } from 'vue'
 import Nav from '@/components/common/Nav.vue'
-import store from './store/w3.network.store.js'
+// import store from './store/w3.network.store.js'
 
 export default defineComponent({
   name: 'App',
@@ -18,7 +18,7 @@ export default defineComponent({
       return route.fullPath
     }
 
-    provide("w3.store", store)
+    // provide("w3.store", store)
 
     return {
       getRoute

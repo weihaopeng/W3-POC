@@ -1,8 +1,16 @@
-import { ref, computed } from "vue";
-import { W3Swarm } from '@/w3/poc/w3.swarm.js'
+import { ref, reactive } from "vue";
+import { W3Network, W3Swarm } from '@/w3/poc/index.js'
 import { util } from '@/w3/util.js'
 import { Transaction } from '@/w3/core/entities/transaction.js'
 import { Block } from '@/w3/core/entities/block.js'
+
+const state = reactive({
+  connectedPeers: 0,
+  foundPeers: 0,
+  status: 'Starting libp2p',
+  mint: false,
+  remoteSwarms: [],
+})
 
 export default function (height, w3, playing) {
   const NODES_AMOUNT = 5
@@ -12,6 +20,7 @@ export default function (height, w3, playing) {
   const LATENCY_UPPER_BOUND = 3000
   const LOCAL_COMPUTATION_LATENCY = 1000
 
+  let network
   const swarmInit = async () => {
     const config = {
       NODES_AMOUNT,
@@ -30,19 +39,24 @@ export default function (height, w3, playing) {
     }
     w3.value = new W3Swarm(config)
     await w3.value.init(5)
-    w3.value.reset(height)
-    console.log(w3.value)
-    setTimeout(() => {
-      const briefNodes = w3.value.nodes.map((node) => {
-        return {
-          address: node.account.addressString,
-          i: node.i,
-          publicKey: node.account.publicKeyString
-        }
-      })
-      w3.value.emit('swarm:init', { nodes: briefNodes, config: w3.value.config })
-    })
+    network = new W3Network(w3.value, state)
+    network.init().then(_ => console.log('*** network initialized ***'))
     return w3.value.config
+  }
+
+  const syncConfig = () => {
+    const briefNodes = w3.value.nodes.map((node) => {
+      return {
+        address: node.account.addressString,
+        i: node.i,
+        publicKey: node.account.publicKeyString
+      }
+    })
+    w3.value.emitW3Event('swarm:init', { nodes: briefNodes, config: w3.value.config })
+    w3.value.emit('swarm:init', {
+      origin: { type: 'swarm', peerId: network.libp2p.peerId.toString() },
+      data: { nodes: briefNodes, config: w3.value.config },
+    })
   }
 
   const sleep = (time) => {
@@ -51,7 +65,13 @@ export default function (height, w3, playing) {
     });
   }
 
-  const mockBlockAndBp = async (n = 42) => {
+  const mockBlockAndBp = async (nodes, n = 42) => {
+    for (const node of nodes) {
+      const w3Node = w3.value.nodes.find((n) => n.i === node.i)
+      w3Node.account.addressString = node.address
+      w3Node.account.publicKeyString = node.publicKey
+    }
+
     const mockChainBlocks = []
     const mockBlocks = []
     const mockBps = []
@@ -98,6 +118,7 @@ export default function (height, w3, playing) {
 
   const swarmExecute = async () => {
     playing.value = true
+    w3.value.emit('swarm:play', { origin: { type: 'swarm', peerId: network.libp2p.peerId.toString() } })
     let j = 0
     const collectorNode = w3.value.nodes[3]
     const txs = []
@@ -108,6 +129,7 @@ export default function (height, w3, playing) {
       txs.push(tx)
       const from = w3.value.nodes[randomIndex]
       w3.value.emitW3EventMsgDeparture({ event: 'tx', data: tx, origin: from, target: null })
+      w3.value.emit('swarm:msg', { origin: { type: 'swarm', peerId: network.libp2p.peerId.toString() }, data: { data: tx, type: 'tx', from: from.briefObj, to: null, departureTime: new Date() } })
       j++
       const otherNodes = w3.value.nodes.filter((node, index) => index !== randomIndex)
       
@@ -119,13 +141,12 @@ export default function (height, w3, playing) {
           w3.value.emitW3Event('network.msg.arrival', {
             type: 'tx', data: tx, from: from.briefObj, to: node.briefObj, arrivalTime: new Date(), role
           })
-          console.log('tx collector!!', node, collectorNode, node === collectorNode, role)
+          w3.value.emit('swarm:msg', { origin: { type: 'swarm', peerId: network.libp2p.peerId.toString() }, data: { data: tx, type: 'tx', from: from.briefObj, to: node.briefObj, arrivalTime: new Date(), role } })
           if (node === collectorNode) {
-            // if (i === 0) w3.value.emitW3Event('node.role', { role: 'collector', node, data: tx })
-
             const verifyLatency = util.gaussRandom(1000, LOCAL_COMPUTATION_LATENCY)
             setTimeout(() => {
               w3.value.emitW3Event('node.verify', { type: 'tx', data: tx, node, valid: true })
+              w3.value.emit('node.verify', { origin: { type: 'swarm', peerId: network.libp2p.peerId.toString() }, data: { type: 'tx', data: tx, node: node.briefObj, valid: true } })
             }, verifyLatency)
           }
         }, arriveLatency)
@@ -144,6 +165,7 @@ export default function (height, w3, playing) {
       if (i === 0) bp = from.createBlockProposal(txs)
       else bp.askForWitness(from)
       w3.value.emitW3EventMsgDeparture({ event: 'bp', data: bp, origin: from })
+      w3.value.emit('swarm:msg', { origin: { type: 'swarm', peerId: network.libp2p.peerId.toString() }, data: { data: bp, type: 'bp', from: from.briefObj, to: null, departureTime: new Date() } })
       const otherNodes = w3.value.nodes.filter((node, i) => i !== index)
       otherNodes.map((node) => {
         const arriveLatency = util.gaussRandom(LATENCY_LOWER_BOUND, LATENCY_UPPER_BOUND)
@@ -153,13 +175,13 @@ export default function (height, w3, playing) {
           w3.value.emitW3Event('network.msg.arrival', {
             type: 'bp', data: bp, from: from.briefObj, to: node.briefObj, arrivalTime: new Date(), role
           })
+          w3.value.emit('swarm:msg', { origin: { type: 'swarm', peerId: network.libp2p.peerId.toString() }, data: { data: bp, type: 'bp', from: from.briefObj, to: node.briefObj, arrivalTime: new Date(), role } })
           if (node === witnessNode) {
             await bp.witness(node)
-            // w3.value.emitW3Event('node.role', { role: 'witness', node, data: bp })
-
             const verifyLatency = util.gaussRandom(1000, LOCAL_COMPUTATION_LATENCY)
             setTimeout(() => {
               w3.value.emitW3Event('node.verify', { type: 'bp', data: bp, node, valid: true })
+              w3.value.emit('node.verify', { origin: { type: 'swarm', peerId: network.libp2p.peerId.toString() }, data: { type: 'bp', data: bp, node: node.briefObj, valid: true } })
             }, verifyLatency)
           }
         }, arriveLatency)
@@ -173,15 +195,18 @@ export default function (height, w3, playing) {
     const block = Block.mint(bp, lastWitness.epoch.tailHash)
     if (playing.value) {
       w3.value.emitW3EventMsgDeparture({ event: 'block', data: block, origin: lastWitness })
+      w3.value.emit('swarm:msg', { origin: { type: 'swarm', peerId: network.libp2p.peerId.toString() }, data: { data: block, type: 'block', from: lastWitness.briefObj, to: null, departureTime: new Date() } })
       const otherNodes = w3.value.nodes.filter((node, i) => i !== lastWitnessIndex)
 
       otherNodes.map((node) => {
         const arriveLatency = util.gaussRandom(LATENCY_LOWER_BOUND, LATENCY_UPPER_BOUND)
         setTimeout(() => {
           w3.value.emitW3EventMsgArrival({ event: 'block', data: block, origin: lastWitness, target: node })
+          w3.value.emit('swarm:msg', { origin: { type: 'swarm', peerId: network.libp2p.peerId.toString() }, data: { data: block, type: 'block', from: lastWitness.briefObj, to: node.briefObj, arrivalTime: new Date() } })
           const verifyLatency = util.gaussRandom(1000, LOCAL_COMPUTATION_LATENCY)
           setTimeout(() => {
             w3.value.emitW3Event('node.verify', { type: 'block', data: block, node, valid: true })
+            w3.value.emit('node.verify', { origin: { type: 'swarm', peerId: network.libp2p.peerId.toString() }, data: { type: 'block', data: block, node: node.briefObj, valid: true } })
           }, verifyLatency)
         }, arriveLatency)
         
@@ -190,13 +215,16 @@ export default function (height, w3, playing) {
     }
 
     if (playing.value) {
-      w3.value.emit('chain.block.added', { data: block })
+      w3.value.emitW3Event('chain.block.added', { data: block })
+      w3.value.emit('chain.block.added', { origin: { type: 'swarm', peerId: network.libp2p.peerId.toString() }, data: { data: block } })
     }
+    w3.value.emit('swarm:stop', { origin: { type: 'swarm', peerId: network.libp2p.peerId.toString() } })
   }
 
   return {
     swarmInit,
     swarmExecute,
-    mockBlockAndBp
+    mockBlockAndBp,
+    syncConfig
   }
 }

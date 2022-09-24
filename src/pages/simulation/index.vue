@@ -3,7 +3,10 @@
   .simulation-header
     .simulation-header__title Two-stages Mint Simulation
     .simulation-header__operation
-      AButton.play-btn(v-if="!manualMode && !playing"  shape="circle" @click="presentSimulate")
+      AButton.config-btn(v-if="!manualMode && !playing" shape="circle" @click="initSimulate")
+        template(#icon)
+          SettingFilled
+      AButton.play-btn(v-if="!manualMode && !playing" shape="circle" @click="presentSimulate")
         template(#icon)
           img(:src="PlayPng")
       AButton.ant-btn-icon-only.stop-btn(v-else-if="!manualMode" @click="stopSimulate")
@@ -53,6 +56,7 @@
   
 <script>
 import { defineComponent, onBeforeMount, onMounted, provide, ref } from 'vue'
+import { SettingFilled } from '@ant-design/icons-vue'
 import BlockOrBpCard from './components/block-or-bp-card.vue'
 import SimulationConfig from './components/simulation-config.vue'
 import SwarmGraph from './components/swarm-graph.vue'
@@ -65,13 +69,11 @@ import PlayPng from '@/assets/play.png'
 import StopPng from '@/assets/stop.png'
 import ClearPng from '@/assets/clear.png'
 
-// import store from '@/store/w3.network.store.js'
-
 const { addMsg, updateConfig, clearAll } = nodeMsgManager()
 
 export default defineComponent({
   name: 'Simulation',
-  components: { BlockOrBpCard, SimulationConfig, SwarmGraph },
+  components: { BlockOrBpCard, SettingFilled, SimulationConfig, SwarmGraph },
   setup: () => {
     const swarmRoundList = ref([])
     const collectorName = ref('')
@@ -97,18 +99,11 @@ export default defineComponent({
     const blockList = ref(null)
     const bpList = ref(null)
 
-    const { swarmInit, mockBlockAndBp, swarmExecute } = SwarmScript(initHeight, w3, playing)
-
-    // provide("w3.store", store)
+    const { swarmInit, mockBlockAndBp, syncConfig, swarmExecute } = SwarmScript(initHeight, w3, playing)
 
     onBeforeMount(async () => {
-      if (!manualMode.value) {
-        const config = await swarmInit()
-        // w3.value.reset()
-        bindW3Listener(w3.value)
-        const { NODES_AMOUNT, LATENCY_UPPER_BOUND, LOCAL_COMPUTATION_LATENCY, WITNESSES_AMOUNT, COLLECTORS_AMOUNT } = config
-        updateConfig(NODES_AMOUNT, LATENCY_UPPER_BOUND, LOCAL_COMPUTATION_LATENCY, WITNESSES_AMOUNT, COLLECTORS_AMOUNT, true)
-      }
+      swarmInit()
+      bindW3Listener(w3.value)
     })
 
     onMounted(() => {
@@ -124,7 +119,6 @@ export default defineComponent({
     }
 
     const addBpCard = (msg) => {
-      // const data = msg.data
       bps.value.push(Object.assign({ type: 'bp', highlight: true }, msg))
       scrollToBottom()
     }
@@ -203,9 +197,14 @@ export default defineComponent({
     }
 
     const bindW3Listener = (swarm) => {
-      swarm.on('swarm:init', async (msg) => {
-        w3Nodes.value = msg.nodes
-        const { mockChainBlocks, mockBlocks, mockBps } = await mockBlockAndBp()
+      swarm.events.on('swarm:play', () => playing.value = true)
+      swarm.events.on('swarm:stop', () => playing.value = false)
+      swarm.events.on('swarm:init', async (data) => {
+        console.log('!!!, swarm init', data)
+        w3Nodes.value = data.nodes
+        const { NODES_AMOUNT, LATENCY_UPPER_BOUND, LOCAL_COMPUTATION_LATENCY, WITNESSES_AMOUNT, COLLECTORS_AMOUNT } = data.config
+        updateConfig(NODES_AMOUNT, LATENCY_UPPER_BOUND, LOCAL_COMPUTATION_LATENCY, WITNESSES_AMOUNT, COLLECTORS_AMOUNT, true)
+        const { mockChainBlocks, mockBlocks, mockBps } = await mockBlockAndBp(data.nodes)
         chainBlocks.value = mockChainBlocks
         blocks.value = mockBlocks
         bps.value = mockBps
@@ -226,16 +225,12 @@ export default defineComponent({
         if (msg.role === 'witness') addBpCard(msg)
         if ((msg.type === 'tx' || msg.type === 'bp') && msg.role) stepForward(msg)
       })
-      // swarm.events.on('node.role', (msg) => {
-      //   addMsg(msg, 'node.role')
-      //   if (msg.role === 'witness') addBpCard(msg)
-      // })
       swarm.events.on('node.verify', (msg) => {
         console.log('!!!, verify', msg)
         addMsg(msg, 'node.verify')
         if (msg.type === 'bp') downplayBpCard(msg)
       })
-      swarm.on('chain.block.added', (msg) => {
+      swarm.events.on('chain.block.added', (msg) => {
         console.log('!!!, add block', msg)
         addChainBlockCard(msg)
         downplayBlockCard(msg)
@@ -247,18 +242,10 @@ export default defineComponent({
     }
 
     const startSimulate = async (config) => {
-      const { NODES_AMOUNT, LATENCY_UPPER_BOUND, LOCAL_COMPUTATION_LATENCY, WITNESSES_AMOUNT, COLLECTORS_AMOUNT } = config
-      updateConfig(NODES_AMOUNT, LATENCY_UPPER_BOUND, LOCAL_COMPUTATION_LATENCY, WITNESSES_AMOUNT, COLLECTORS_AMOUNT, false)
-      if (w3.value?.nodes) w3.value.destroy()
-      w3.value = new W3Swarm(config)
-      const txAmount = Math.ceil(2 * config.tps)
-      await w3.value.init()
-      bindW3Listener(w3.value)
+    }
 
-      await w3.value.sendFakeTxs(txAmount, config.tps)
-      w3.value.destroy()
-      swarmGraph.value.reRender()
-      stopSimulate()
+    const initSimulate = () => {
+      syncConfig()
     }
 
     const presentSimulate = async () => {
@@ -339,6 +326,7 @@ export default defineComponent({
       blockList,
       bpList,
 
+      initSimulate,
       presentSimulate,
 
       startSimulate,
@@ -376,7 +364,7 @@ export default defineComponent({
         vertical-align: middle;
         margin-left: 24px;
       }
-      .play-btn, .stop-btn, .clear-btn {
+      .config-btn, .play-btn, .stop-btn, .clear-btn {
         border-width: 0;
         padding: 0;
         background: transparent;
@@ -399,6 +387,10 @@ export default defineComponent({
         &:active::after {
           background: rgba(0, 0, 0, 0.1);
         }
+      }
+      .config-btn {
+        background: #748bc2;
+        color: #fff;
       }
     }
   }

@@ -11,8 +11,12 @@ class W3Network {
     this.localSwarm = localSwarm
     this.reactState = reactState
     this.remoteSwarms = this.reactState.remoteSwarms
-    this.topics = ['tx', 'bp', 'block', 'fork', 'swarm:init', 'chain.block.added', 'libp2p:online', 'libp2p:heartbeat',]
+    this.topics = ['tx', 'bp', 'block', 'fork', 'swarm:init', 'swarm:msg', 'swarm:play', 'swarm:stop', 'node.verify', 'chain.block.added', 'libp2p:online', 'libp2p:heartbeat',]
     this.inboundListener = this.dispatchPubsub.bind(this)
+  }
+
+  get swarmPresentTopics() {
+    return this.swarmTopics.filter(t => t.indexOf('swarm') > -1 || t.indexOf('chain') > -1 || t.indexOf('node') > -1)
   }
 
   get swarmTopics () {
@@ -80,8 +84,17 @@ class W3Network {
     let { data, topic } = evt.detail
     data = JSON.parse(toString(evt.detail.data))
     console.log(`--- on topic '${topic} %o'`, data)
-    this.swarmTopics.includes(topic) ? this.localSwarm?.broadcast(topic, data.data, `network:${data.origin}`)
-      : this.handleLibp2pTopics(topic, data)
+    if (this.swarmPresentTopics.includes(topic)) {
+      if (topic === 'swarm:msg') {
+        const event = data.data.to ? 'network.msg.arrival' : 'network.msg.departure'
+        this.localSwarm?.emitW3Event(event, data.data)
+      } else {
+        this.localSwarm?.emitW3Event(topic, data.data)
+      }
+    } else {
+      this.swarmTopics.includes(topic) ? this.localSwarm?.broadcast(topic, data.data, `network:${data.origin}`)
+        : this.handleLibp2pTopics(topic, data)
+    }
   }
 
   broadcast (topic, data) {

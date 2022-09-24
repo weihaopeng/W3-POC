@@ -82,7 +82,7 @@ export default defineComponent({
       return props.data.type
     })
     const txs = computed(() => {
-      return props.data.data.txs
+      return props.data.data.txs || props.data.data.bp?.txs || []
     })
     const getNodeAddr = (node, brief = true) => {
       const index = props.nodes.findIndex((nodeItem) => nodeItem.publicKey === node.publicKeyString)

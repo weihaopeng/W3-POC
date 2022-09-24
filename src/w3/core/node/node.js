@@ -1,5 +1,6 @@
 import { Account, Transaction, BlockProposal, Block, Chain, Fork } from '../entities/index.js'
 import { LocalFacts } from './local-facts.js'
+import _ from 'lodash'
 
 import Debug from 'debug'
 import { Epoch } from './epoch/epoch.js'

@@ -54,7 +54,7 @@ const updateHistoryMsg = (msg) => {
       }
     } else {
       // remove this node's arrival msg related to the verify msg.
-      const arrivalMsg = arrivalMsgs.find((msgItem) => msgItem.to && msgItem.to.address === msg.node.account.addressString)
+      const arrivalMsg = arrivalMsgs.find((msgItem) => msgItem.to && msgItem.to.address === getNodeAddress(msg.node))
       clearMsgTimeoutAndRemove(arrivalMsg)
     }
   }
@@ -85,7 +85,7 @@ const removeMsg = (msg, timeout) => {
 const ifMsgAboutNode = (msg, nodeKey, ignoreRemove = true, onlyNetworkMsg = true) => {
   if (ignoreRemove && msg.remove) return false
   if (onlyNetworkMsg && msg.event.indexOf('network') === -1) return false // or chain event msg
-  if (!msg.to && !msg.from && msg.node && msg.node.account.addressString === nodeKey) return true
+  if (!msg.to && !msg.from && msg.node && getNodeAddress(msg.node) === nodeKey) return true
   if (!msg.to && msg.from && msg.from.address === nodeKey) return true
   if (msg.to && msg.to.address === nodeKey) return true
 }
@@ -104,9 +104,15 @@ const filterMsgAboutData = (data, type, onlyNetworkMsg) => {
   return store.state.msgList.filter((msg) => ifMsgAboutData(msg, data, type, onlyNetworkMsg))
 }
 
+const getNodeAddress = (node) => {
+  if (node.address) return node.address
+  if (node.account.addressString) return node.account.addressString
+  return ''
+}
+
 const ifValid = (msg) => {
   const verifiedMsg = store.state.msgList.find((msgItem) => {
-    return msgItem.event === 'node.verify' && msgItem.type === msg.type && msgItem.data.i === msg.data.i && msgItem.node.account.addressString === (msg.to && msg.to.address)
+    return msgItem.event === 'node.verify' && msgItem.type === msg.type && msgItem.data.i === msg.data.i && getNodeAddress(msgItem.node) === (msg.to && msg.to.address)
   })
   if (!verifiedMsg) return null
   return verifiedMsg.valid
