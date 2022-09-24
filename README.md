@@ -23,7 +23,9 @@ and the web3.storage will be used soon to record/publish the testing results.
 ## Access now
 
 ### GA
- ... available soon ...
+
+* Project Gateway https://w3-poc.huanglab.io/
+* IPFS Gateway https://ipfs.io/ipns/w3-poc.huanglab.io
 
 ### Snapshot
 
