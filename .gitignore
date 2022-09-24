@@ -8,7 +8,6 @@ bin/example/*
 test_result
 public/*
 dist
-components.d.ts
 
 # temp
 ~*
