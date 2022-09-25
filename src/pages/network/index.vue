@@ -19,12 +19,13 @@ ADrawer.network-config-drawer(title="W3 Network Configuration" v-model:visible="
 
 <script>
 import { defineComponent, onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue'
-import WorldMap from '@/pages/tech-spike/network/world-map.vue'
-import Performance from '@/pages/tech-spike/network/performance.vue'
-import Resource from '@/pages/tech-spike/network/resource.vue'
-import NetworkConfig from '@/pages/tech-spike/network/network-config.vue'
-import controller from '@/pages/tech-spike/network/controller.js'
-import ChainInfo from '@/pages/tech-spike/network/chain-info.vue'
+import WorldMap from '@/pages/network/components/world-map.vue'
+import Performance from '@/pages/network/components/performance.vue'
+import Resource from '@/pages/network/components/resource.vue'
+import NetworkConfig from '@/pages/network/components/network-config.vue'
+import ChainInfo from '@/pages/network/components/chain-info.vue'
+
+import controller from '@/pages/network/composition/controller.js'
 import { SettingOutlined } from '@ant-design/icons-vue'
 import { useRoute } from 'vue-router'
 import { isNil } from 'lodash'
@@ -86,8 +87,8 @@ export default defineComponent({
     }
 
     const closePerformance = () => {
-       visible.value.performance = false
-     }
+        visible.value.performance = false
+      }
 
     const closeResource = () => {
       visible.value.resource = false
@@ -249,3 +250,4 @@ export default defineComponent({
   }
 }
 </style>
+  

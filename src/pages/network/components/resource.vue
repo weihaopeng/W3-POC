@@ -13,7 +13,7 @@
 <script>
 import { defineComponent, onMounted, ref } from 'vue'
 import * as echarts from 'echarts'
-import controller from '@/pages/tech-spike/network/controller.js'
+import controller from '@/pages/network/composition/controller.js'
 
 export default defineComponent({
   name: 'Resource',

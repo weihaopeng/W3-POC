@@ -1,7 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-// import Swarm from '@/pages/tech-spike/swarm.vue'
 import Simulation from '@/pages/simulation/index.vue'
-import Network from '@/pages/tech-spike/network.vue'
+import Network from '@/pages/network/index.vue'
 import Libp2p from '@/pages/libp2p/index.vue'
 const routes = [
   {

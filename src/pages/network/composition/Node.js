@@ -1,4 +1,4 @@
-import addressTool from './util/address.js'
+import addressTool from './address.js'
 import network from './controller.js'
 import controller from './controller.js'
 

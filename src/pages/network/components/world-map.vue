@@ -8,7 +8,7 @@ import { defineComponent, onMounted, ref, watch } from 'vue'
 import * as echarts from 'echarts'
 import 'echarts-gl'
 import axios from 'axios'
-import controller from "@/pages/tech-spike/network/controller.js";
+import controller from "@/pages/network/composition/controller.js";
 
 export default defineComponent({
   name: 'WorldNetwork',

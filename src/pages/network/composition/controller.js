@@ -2,7 +2,7 @@ import Node from './Node.js'
 import { v1 as uuidV1 } from 'uuid'
 import _ from 'lodash'
 import { EventEmitter } from 'events'
-import addressTool from './util/address.js'
+import addressTool from './address.js'
 import Swarm from './Swarm.js'
 
 const redrawNetworkDebounce = _.throttle((chart, data) => {
