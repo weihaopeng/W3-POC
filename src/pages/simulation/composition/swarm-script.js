@@ -222,6 +222,7 @@ export default function (height, w3, playing) {
   }
 
   return {
+    state,
     swarmInit,
     swarmExecute,
     mockBlockAndBp,

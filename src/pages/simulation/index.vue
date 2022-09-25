@@ -3,6 +3,9 @@
   .simulation-header
     .simulation-header__title Two-stages Mint Simulation
     .simulation-header__operation
+      span.connected-swarms
+        span Connected Swarms
+        span#connected-swarms-count(v-if="state && state.remoteSwarms") {{ state.remoteSwarms.length }}
       AButton.config-btn(v-if="!manualMode && !playing" shape="circle" @click="initSimulate")
         template(#icon)
           SettingFilled
@@ -55,7 +58,7 @@
 </template>
   
 <script>
-import { defineComponent, onBeforeMount, onMounted, provide, ref } from 'vue'
+import { defineComponent, onBeforeMount, onMounted, ref } from 'vue'
 import { SettingFilled } from '@ant-design/icons-vue'
 import BlockOrBpCard from './components/block-or-bp-card.vue'
 import SimulationConfig from './components/simulation-config.vue'
@@ -99,7 +102,7 @@ export default defineComponent({
     const blockList = ref(null)
     const bpList = ref(null)
 
-    const { swarmInit, mockBlockAndBp, syncConfig, swarmExecute } = SwarmScript(initHeight, w3, playing)
+    const { state, swarmInit, mockBlockAndBp, syncConfig, swarmExecute } = SwarmScript(initHeight, w3, playing)
 
     onBeforeMount(async () => {
       swarmInit()
@@ -325,6 +328,7 @@ export default defineComponent({
       chainBlockList,
       blockList,
       bpList,
+      state,
 
       initSimulate,
       presentSimulate,
@@ -360,6 +364,17 @@ export default defineComponent({
     &__operation {
       position: absolute;
       right: 30px;
+      display: flex;
+      justify-content: center;
+      .connected-swarms {
+        font-size: 12px;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        span:last-child {
+          color: #1ACD57;
+        }
+      }
       .ant-btn {
         vertical-align: middle;
         margin-left: 24px;
@@ -431,4 +446,13 @@ export default defineComponent({
     color: rgb(238, 140, 62);
   }
 }
+</style>
+
+<style scoped>
+@media only screen and (max-width: 1400px) {
+  .chain-container, .bp-container, .block-container {
+    display: none;
+  }
+}
+
 </style>
