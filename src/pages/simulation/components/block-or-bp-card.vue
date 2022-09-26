@@ -2,8 +2,9 @@
 .data-card(ref="card" :class="dataCardClass" @click="handleClick")
   div(style="display: flex;" :style="{ 'flex-direction': type === 'bp' ? 'column' : 'column-reverse'}")
     ASpace(:size="8")
-      ASpace.data-info.data-info__round-count(v-if="type === 'bp'")
-        span Witness Round
+      .data-info.data-info__round-count(v-if="type === 'bp'")
+        span.wide-label Witness Round
+        span.thin-label W
         span {{ witnessRound }}
       ASpace
         ASpace.data-info.data-info__i
@@ -212,6 +213,12 @@ $block-hover-bg-color-map: (
 .data-card > * {
   margin-bottom: 2px;
 }
+.data-info__round-count {
+  .thin-label {
+    display: none;
+  }
+  display: inline-flex;
+}
 .tx-info__from, .tx-info__to {
   display: flex;
 }
@@ -231,6 +238,29 @@ $block-hover-bg-color-map: (
   &:hover {
     color: #40a9ff;
     border-bottom-color: #40a9ff;
+  }
+}
+</style>
+
+<style lang="scss" scoped>
+
+@media only screen and (min-width: 1100px) and (max-width: 1400px) {
+  .data-card {
+    overflow: hidden;
+    padding: 8px;
+    .data-info {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      &__hash span {
+        white-space: nowrap;
+      }
+      .thin-label {
+        display: block;
+      }
+      .wide-label {
+        display: none;
+      }
+    }
   }
 }
 </style>

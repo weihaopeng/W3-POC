@@ -129,6 +129,10 @@ export default defineComponent({
         padding: 0
         font-weight: 400
         transition: all 0.3s
+        opacity: 1 !important
+        height: auto !important
+        order: unset !important
+        position: relative !important
         .ant-menu-title-content
           padding: 0 60px
         &:after
@@ -145,6 +149,8 @@ export default defineComponent({
           color: #000
           &:after
             border-color: transparent
+      :deep .ant-menu-overflow-item-rest
+        display: none !important
 
   &-content
     flex-grow: 1
@@ -158,5 +164,15 @@ export default defineComponent({
     left: 0
     right: 0
     padding-bottom: 8px
+
+@media (max-width: 1550px)
+  .ant-layout .layout-header .logo
+    margin-right: calc(100vw - 1550px + 282px)
+
+@media (max-width: 1268px)
+  .ant-layout .layout-header .logo
+    margin-right: 0
+  .ant-layout .layout-header .ant-menu :deep .ant-menu-item .ant-menu-title-content
+    padding: 0 calc((100vw - 1268px) / 8 + 60px)
 </style>
   

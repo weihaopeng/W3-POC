@@ -448,8 +448,8 @@ export default defineComponent({
 }
 </style>
 
-<style scoped>
-@media only screen and (max-width: 1400px) {
+<style scoped lang="scss">
+@media only screen and (max-width: 1100px) {
   .chain-container, .bp-container, .block-container {
     display: none;
   }
